@@ -1,0 +1,58 @@
+﻿# General
+*.swp
+*.swo
+*.tmp
+*.bak
+*.log
+*.DS_Store
+
+# Build directories
+/build/
+/bin/
+/lib/
+/obj/
+
+# CMake-specific
+CMakeCache.txt
+CMakeFiles/
+/cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+
+# Compiled object files
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.lib
+*.a
+
+# Precompiled headers
+*.pch
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDE specific
+.idea/
+.vs/
+*.code-workspace
+*.ninja
+build.ninja
+
+# Debugging files
+*.pdb
+*.dmp
+*.stackdump
+
+# Coverage files
+*.gcno
+*.gcda
+coverage.info
+lcov.info
+
+# Testing
+Testing/

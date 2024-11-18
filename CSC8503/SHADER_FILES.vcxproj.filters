@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\Debug.frag.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\Debug.vert.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\DebugText.frag.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\DebugText.vert.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\Shadow.vert.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\scene.frag.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\scene.vert.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\shadow.frag.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\skybox.frag.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\c78d8ad43cd46614c8a498744cd7a491\skybox.vert.spv.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CMakeFiles\3a7b1f87808b8a776bc6a02d43984007\SHADER_FILES.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="F:\CSC8503 Code 2024\CSC8503\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="F:\CSC8503 Code 2024\CSC8503\CMakeFiles\SHADER_FILES" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{35B6AEE2-DEE1-3871-B04C-BE2AA3D1C035}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
