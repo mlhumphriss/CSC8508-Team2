@@ -118,22 +118,23 @@ void TutorialGame::UpdateGame(float dt) {
 		Vector3 rayDir;
 
 		rayDir = selectionObject->GetTransform().GetOrientation() * Vector3(0, 0, -1);
-
 		rayPos = selectionObject->GetTransform().GetPosition();
 
 		Ray r = Ray(rayPos, rayDir);
+		bool hit = world->Raycast(r, closestCollision, true, selectionObject);
 
-		if (world->Raycast(r, closestCollision, true, selectionObject)) {
+		if (hit) 
+		{
 			if (objClosest) {
 				objClosest->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
 			}
 			objClosest = (GameObject*)closestCollision.node;
-
 			objClosest->GetRenderObject()->SetColour(Vector4(1, 0, 1, 1));
-		}
+		}		
 	}
 
-	Debug::DrawLine(Vector3(), Vector3(0, 100, 0), Vector4(1, 0, 0, 1));
+	//if (selectionObject)
+	//	Debug::DrawLine(Vector3(0,0,0), selectionObject->GetTransform().GetPosition(),Debug::GREEN);
 
 	SelectObject();
 	MoveSelectedObject();
