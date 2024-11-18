@@ -260,10 +260,8 @@ void PhysicsSystem::ImpulseResolveCollision(
 	float impulseForce = Vector::Dot(contactVelocity, p.normal);
 
 	// Now to work out the effect of inertia
-	Vector3 inertiaA = Vector::Cross(physA->GetInertiaTensor() *
-		Vector::Cross(relativeA, p.normal), relativeA);
-	Vector3 inertiaB = Vector::Cross(physB->GetInertiaTensor() *
-		Vector::Cross(relativeB, p.normal), relativeB);
+	Vector3 inertiaA = Vector::Cross(physA->GetInertiaTensor() * Vector::Cross(relativeA, p.normal), relativeA);
+	Vector3 inertiaB = Vector::Cross(physB->GetInertiaTensor() * Vector::Cross(relativeB, p.normal), relativeB);
 	float angularEffect = Vector::Dot(inertiaA + inertiaB, p.normal);
 
 	float cRestitution = 0.66f; // Disperse some kinetic energy
