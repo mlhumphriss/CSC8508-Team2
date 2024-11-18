@@ -41,38 +41,6 @@ Quaternion::Quaternion(const Vector3& vector, float w) {
 	this->w = w;
 }
 
-// Added by me---------------- might be extremely jank
-
-
-
-Matrix3 Quaternion::ToMatrix3()
-{
-	Matrix3 mat;
-
-	float xx = x * x;
-	float yy = y * y;
-	float zz = z * z;
-	float xy = x * y;
-	float xz = x * z;
-	float yz = y * z;
-	float wx = w * x;
-	float wy = w * y;
-	float wz = w * z;
-
-	mat.array[0][0] = 1.0f - 2.0f * (yy + zz);
-	mat.array[0][1] = 2.0f * (xy - wz);
-	mat.array[0][2] = 2.0f * (xz + wy);
-
-	mat.array[1][0] = 2.0f * (xy + wz);
-	mat.array[1][1] = 1.0f - 2.0f * (xx + zz);
-	mat.array[1][2] = 2.0f * (yz - wx);
-
-	mat.array[2][0] = 2.0f * (xz - wy);
-	mat.array[2][1] = 2.0f * (yz + wx);
-	mat.array[2][2] = 1.0f - 2.0f * (xx + yy);
-	return mat;
-}
-
 
 Quaternion::Quaternion(const Matrix4 &m) {
 	w = sqrt(std::max(0.0f, (1.0f + m.array[0][0] + m.array[1][1] + m.array[2][2])))  * 0.5f;

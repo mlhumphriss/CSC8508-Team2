@@ -73,3 +73,4 @@ void PhysicsObject::UpdateInertiaTensor() {
 
 	inverseInteriaTensor = orientation * Matrix::Scale3x3(inverseInertia) *invOrientation;
 }
+

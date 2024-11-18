@@ -24,6 +24,7 @@ namespace NCL {
 				return torque;
 			}
 
+
 			Vector3 GetForce() const {
 				return force;
 			}
@@ -58,6 +59,8 @@ namespace NCL {
 
 			void InitCubeInertia();
 			void InitSphereInertia();
+			void IntegrateVelocity(float dt);
+			void IntegrateAccel(float dt);
 
 			void UpdateInertiaTensor();
 

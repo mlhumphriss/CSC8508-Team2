@@ -94,8 +94,8 @@ bool CollisionDetection::RayOBBIntersection(const Ray& r, const Transform& world
 	Quaternion orientation = worldTransform.GetOrientation();
 	Vector3 position = worldTransform.GetPosition();
 
-	Matrix3 transform = orientation.ToMatrix3();
-	Matrix3 invTransform =orientation.Conjugate().ToMatrix3();
+	Matrix3 transform = Quaternion::RotationMatrix<Matrix3>(orientation); 
+	Matrix3 invTransform = Quaternion::RotationMatrix<Matrix3>(orientation.Conjugate());
 
 	Vector3 localRayPos = r.GetPosition() - position;
 	Ray tempRay(invTransform * localRayPos, invTransform * r.GetDirection());

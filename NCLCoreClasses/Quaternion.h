@@ -26,7 +26,6 @@ namespace NCL::Maths {
 
 		Quaternion(const Matrix3 &m);
 		Quaternion(const Matrix4 &m);
-		Matrix3 ToMatrix3();
 
 		~Quaternion(void) = default;
 
