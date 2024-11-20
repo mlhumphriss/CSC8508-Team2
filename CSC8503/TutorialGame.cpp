@@ -85,6 +85,11 @@ void TutorialGame::UpdateGame(float dt) {
 	if (!inSelectionMode) {
 		world->GetMainCamera().UpdateCamera(dt);
 	}
+
+	if (testStateObject) {
+		testStateObject -> Update(dt);
+	}
+
 	if (lockedObject != nullptr) {
 		Vector3 objPos = lockedObject->GetTransform().GetPosition();
 		Vector3 camPos = objPos + lockedOffset;
@@ -261,14 +266,16 @@ void TutorialGame::InitCamera() {
 	lockedObject = nullptr;
 }
 
-void TutorialGame::InitWorld() {
+void TutorialGame::InitWorld() 
+{
 	world->ClearAndErase();
 	physics->Clear();
-
+	BridgeConstraintTest();
 	InitMixedGridWorld(15, 15, 3.5f, 3.5f);
-
 	InitGameExamples();
 	InitDefaultFloor();
+	testStateObject = AddStateObjectToWorld(Vector3(0, 10, 0));
+
 }
 
 /*
@@ -395,6 +402,26 @@ GameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) {
 	return character;
 }
 
+StateGameObject* TutorialGame::AddStateObjectToWorld(const Vector3& position) {
+	StateGameObject* apple = new StateGameObject();
+
+	SphereVolume* volume = new SphereVolume(0.5f);
+	apple->SetBoundingVolume((CollisionVolume*)volume);
+	apple->GetTransform()
+		.SetScale(Vector3(2, 2, 2))
+		.SetPosition(position);
+
+	apple->SetRenderObject(new RenderObject(&apple->GetTransform(), bonusMesh, nullptr, basicShader));
+	apple->SetPhysicsObject(new PhysicsObject(&apple->GetTransform(), apple->GetBoundingVolume()));
+
+	apple->GetPhysicsObject()->SetInverseMass(1.0f);
+	apple->GetPhysicsObject()->InitSphereInertia();
+
+	world->AddGameObject(apple);
+
+	return apple;
+}
+
 GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 	GameObject* apple = new GameObject();
 
@@ -453,7 +480,8 @@ void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing
 	}
 }
 
-void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims) {
+void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims)
+{
 	for (int x = 1; x < numCols+1; ++x) {
 		for (int z = 1; z < numRows+1; ++z) {
 			Vector3 position = Vector3(x * colSpacing, 10.0f, z * rowSpacing);
@@ -461,6 +489,32 @@ void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing,
 		}
 	}
 }
+
+void TutorialGame::BridgeConstraintTest() 
+{
+	Vector3 cubeSize = Vector3(8, 8, 8);
+	float invCubeMass = 5;
+	int numLinks = 10;
+	float maxDistance = 30;
+	float cubeDistance = 20;
+	Vector3 startPos = Vector3(0, 0, 0);
+
+	GameObject* start = AddCubeToWorld(startPos + Vector3(0, 0, 0), cubeSize, 0);
+	GameObject* end = AddCubeToWorld(startPos + Vector3((numLinks + 2) * cubeDistance, 0, 0), cubeSize, 0);
+
+	GameObject* previous = start;
+
+	for (int i = 0; i < numLinks; ++i) {
+		GameObject* block = AddCubeToWorld(startPos + Vector3((i + 1) * cubeDistance, 0, 0), cubeSize, invCubeMass);
+		PositionConstraint* constraint = new PositionConstraint(previous, block, maxDistance);
+		world->AddConstraint(constraint);
+		previous = block;
+	}
+
+	PositionConstraint* constraint = new PositionConstraint(previous, end, maxDistance);
+	world->AddConstraint(constraint);
+}
+
 
 /*
 Every frame, this code will let you perform a raycast, to see if there's an object

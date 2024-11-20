@@ -87,23 +87,20 @@ void PhysicsSystem::Update(float dt) {
 	GameTimer t;
 	t.GetTimeDeltaSeconds();
 
-	if (useBroadPhase) {
+	if (useBroadPhase) 
 		UpdateObjectAABBs();
-	}
+	
 	int iteratorCount = 0;
+
 	while(dTOffset > realDT) {
 		IntegrateAccel(realDT); //Update accelerations from external forces
 		if (useBroadPhase) {
 			BroadPhase();
 			NarrowPhase();
 		}
-		else {
+		else 
 			BasicCollisionDetection();
-		}
 
-		//This is our simple iterative solver - 
-		//we just run things multiple times, slowly moving things forward
-		//and then rechecking that the constraints have been met		
 		float constraintDt = realDT /  (float)constraintIterationCount;
 		for (int i = 0; i < constraintIterationCount; ++i) {
 			UpdateConstraints(constraintDt);	
@@ -175,12 +172,14 @@ void PhysicsSystem::UpdateCollisionList() {
 }
 
 void PhysicsSystem::UpdateObjectAABBs() {
-	gameWorld.OperateOnContents(
-		[](GameObject* g) {
-			g->UpdateBroadphaseAABB();
-		}
-	);
+	std::vector<GameObject*>::const_iterator first;
+	std::vector<GameObject*>::const_iterator last;
+	gameWorld.GetObjectIterators(first, last);
+	for (auto i = first; i != last; ++i) {
+		(*i)->UpdateBroadphaseAABB();
+	}
 }
+
 
 /*
 
@@ -210,7 +209,6 @@ void PhysicsSystem::BasicCollisionDetection() {
 				ImpulseResolveCollision(*info.a, *info.b, info.point);
 				info.framesLeft = numCollisionFrames;
 				allCollisions.insert(info);
-
 			}
 		}
 	}
@@ -235,16 +233,11 @@ void PhysicsSystem::ImpulseResolveCollision(
 
 	float totalMass = physA->GetInverseMass() + physB->GetInverseMass();
 
-	if (totalMass == 0) {
-		return; // Two static objects??
-	}
-
-	// Separate them out using projection
-	transformA.SetPosition(transformA.GetPosition() -
-		(p.normal * p.penetration * (physA->GetInverseMass() / totalMass)));
-
-	transformB.SetPosition(transformB.GetPosition() +
-		(p.normal * p.penetration * (physB->GetInverseMass() / totalMass)));
+	if (totalMass == 0) // two static objects
+		return; 
+	
+	transformA.SetPosition(transformA.GetPosition() - (p.normal * p.penetration * (physA->GetInverseMass() / totalMass)));
+	transformB.SetPosition(transformB.GetPosition() + (p.normal * p.penetration * (physB->GetInverseMass() / totalMass)));
 
 	Vector3 relativeA = p.localA;
 	Vector3 relativeB = p.localB;
@@ -265,9 +258,7 @@ void PhysicsSystem::ImpulseResolveCollision(
 	float angularEffect = Vector::Dot(inertiaA + inertiaB, p.normal);
 
 	float cRestitution = 0.66f; // Disperse some kinetic energy
-
-	float j = (-(1.0f + cRestitution) * impulseForce) /
-		(totalMass + angularEffect);
+	float j = (-(1.0f + cRestitution) * impulseForce) / (totalMass + angularEffect);
 
 	Vector3 fullImpulse = p.normal * j;
 
@@ -276,7 +267,6 @@ void PhysicsSystem::ImpulseResolveCollision(
 
 	physA->ApplyAngularImpulse(Vector::Cross(relativeA, -fullImpulse));
 	physB->ApplyAngularImpulse(Vector::Cross(relativeB, fullImpulse));
-
 }
 
 
@@ -289,17 +279,53 @@ compare the collisions that we absolutely need to.
 
 */
 void PhysicsSystem::BroadPhase() {
+	broadphaseCollisions.clear();
+	QuadTree<GameObject*> tree(Vector2(1024, 1024), 7, 6);
 
+	std::vector<GameObject*>::const_iterator first;
+	std::vector<GameObject*>::const_iterator last;
+	gameWorld.GetObjectIterators(first, last);
+
+	for (auto i = first; i != last; ++i) {
+		Vector3 halfSizes;
+		if (!(*i)->GetBroadphaseAABB(halfSizes)) {
+			continue;
+		}
+		Vector3 pos = (*i)->GetTransform().GetPosition();
+		tree.Insert(*i, pos, halfSizes);
+	}
+	tree.OperateOnContents([&](std::list<QuadTreeEntry<GameObject*>>& data) 
+	{
+		CollisionDetection::CollisionInfo info;
+		for (auto i = data.begin(); i != data.end(); ++i) 
+		{
+			for (auto j = std::next(i); j != data.end(); ++j) 
+			{
+				info.a = std::min((*i).object, (*j).object);
+				info.b = std::max((*i).object, (*j).object);
+				broadphaseCollisions.insert(info);
+			}
+		}
+	});
 }
 
-/*
 
+
+/*
 The broadphase will now only give us likely collisions, so we can now go through them,
 and work out if they are truly colliding, and if so, add them into the main collision list
 */
 void PhysicsSystem::NarrowPhase() {
-
+	for (std::set<CollisionDetection::CollisionInfo>::iterator i = broadphaseCollisions.begin(); i != broadphaseCollisions.end(); ++i) {
+		CollisionDetection::CollisionInfo info = *i;
+		if (CollisionDetection::ObjectIntersection(info.a, info.b, info)) {
+			info.framesLeft = numCollisionFrames;
+			ImpulseResolveCollision(*info.a, *info.b, info.point);
+			allCollisions.insert(info); // insert into our main set
+		}
+	}
 }
+
 
 /*
 Integration of acceleration and velocity is split up, so that we can
@@ -312,7 +338,8 @@ the course of the previous game frame.
 */
 
 
-void PhysicsSystem::IntegrateAccel(float dt) {
+void PhysicsSystem::IntegrateAccel(float dt)
+{
 	std::vector<GameObject*>::const_iterator first;
 	std::vector<GameObject*>::const_iterator last;
 	gameWorld.GetObjectIterators(first, last);
@@ -332,11 +359,9 @@ void PhysicsSystem::IntegrateAccel(float dt) {
 			accel += gravity; 
 		
 
-		linearVel += accel * dt; // Integrate acceleration!
+		linearVel += accel * dt; 
 		object->SetLinearVelocity(linearVel);
 
-
-		// Torque
 		Vector3 torque = object ->GetTorque();
 		Vector3 angVel = object->GetAngularVelocity();
 
@@ -345,10 +370,6 @@ void PhysicsSystem::IntegrateAccel(float dt) {
 		Vector3 angAccel = object->GetInertiaTensor() * torque;
 		angVel += angAccel * dt;
 		object->SetAngularVelocity(angVel);
-
-
-
-
 	}
 }
 
