@@ -50,35 +50,6 @@ hide or show the
 
 */
 
-void TestStateMachine() {
-	StateMachine* testMachine = new StateMachine();
-	int data = 0;
-
-	State* A = new State([&](float dt) -> void {
-		std::cout << "I’m in state A!\n";
-		data++;
-		});
-
-	State* B = new State([&](float dt) -> void {
-		std::cout << "I’m in state B!\n";
-		data--;
-		});
-
-	StateTransition* stateAB = new StateTransition(A, B, [&](void)-> bool {return data > 10;});
-	StateTransition* stateBA = new StateTransition(B, A, [&](void)-> bool {return data < 0;});
-
-	testMachine->AddState(A);
-	testMachine->AddState(B);
-	testMachine->AddTransition(stateAB);
-	testMachine->AddTransition(stateBA);
-
-	for (int i = 0; i < 100; ++i) {
-		testMachine->Update(1.0f);
-	}
-
-
-}
-
 
 int main() {
 	WindowInitialisation initInfo;
