@@ -41,9 +41,8 @@ namespace NCL {
 			}
 
 			void Insert(T& object, const Vector3& objectPos, const Vector3& objectSize, int depthLeft, int maxSize) {
-				if (!CollisionDetection::AABBTest(objectPos, Vector3(position.x, 0, position.y), objectSize, Vector3(size.x, 1000.0f, size.y))) {
+				if (!CollisionDetection::AABBTest(objectPos, Vector3(position.x, 0, position.y), objectSize, Vector3(size.x, 1000.0f, size.y))) 
 					return;
-				}
 				if (children) { // not a leaf node, descend the tree
 					for (int i = 0; i < 4; ++i) {
 						children[i].Insert(object, objectPos, objectSize, depthLeft - 1, maxSize);

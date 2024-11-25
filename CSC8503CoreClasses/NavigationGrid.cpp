@@ -167,7 +167,6 @@ GridNode*  NavigationGrid::RemoveBestNode(std::vector<GridNode*>& list) const {
 		}
 	}
 	list.erase(bestI);
-
 	return bestNode;
 }
 
