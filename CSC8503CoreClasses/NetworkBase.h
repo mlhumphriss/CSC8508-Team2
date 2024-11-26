@@ -22,8 +22,8 @@ struct GamePacket {
 	short type;
 
 	GamePacket() {
-		type		= BasicNetworkMessages::None;
-		size		= 0;
+		type = BasicNetworkMessages::None;
+		size = 0;
 	}
 
 	GamePacket(short type) : GamePacket() {
