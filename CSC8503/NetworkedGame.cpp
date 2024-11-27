@@ -47,6 +47,9 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 	thisClient->RegisterPacketHandler(Player_Connected, this);
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
 
+	stateReceiver = new FullStateReceiver();
+	thisClient->RegisterPacketHandler(Full_State, stateReceiver);
+
 	StartLevel();
 }
 
@@ -87,12 +90,38 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::SPACE)) {
 		//fire button pressed!
 		newPacket.buttonstates[0] = 1;
-		newPacket.lastID = 0; //You'll need to work this out somehow...
+		newPacket.lastID = stateReceiver->GetLastAcknowledgedStateID(); //You'll need to work this out somehow...
 	}
 	thisClient->SendPacket(newPacket);
 }
 
+
 void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
+	for (const auto& player : playerPeers) {
+		int playerID = player.first;
+		int lastAcknowledgedState = playerStates[playerID];
+
+		std::vector<GameObject*>::const_iterator first, last;
+		world->GetObjectIterators(first, last);
+
+		for (auto i = first; i != last; ++i) {
+			NetworkObject* o = (*i)->GetNetworkObject();
+			if (!o) continue;
+
+			GamePacket* newPacket = nullptr;
+			if (o->WritePacket(&newPacket, deltaFrame, lastAcknowledgedState)) {
+				SendPacketToPeer(newPacket, playerID);
+				delete newPacket;
+			}
+		}
+	}
+}
+
+
+
+
+
+/*void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
 	std::vector<GameObject*>::const_iterator first;
 	std::vector<GameObject*>::const_iterator last;
 
@@ -115,7 +144,7 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
 			delete newPacket;
 		}
 	}
-}
+}*/
 
 void NetworkedGame::UpdateMinimumState() {
 	//Periodically remove old data from the server

@@ -37,6 +37,27 @@ namespace NCL::CSC8503 {
 		}
 	};
 
+	class FullStateReceiver : public PacketReceiver {
+	public:
+		FullStateReceiver() : lastAcknowledgedStateID(0) {}
+
+		void ReceivePacket(int type, GamePacket* payload, int source) override 
+		{
+			if (type == Full_State) {
+				FullPacket* packet = (FullPacket*)payload;
+				lastAcknowledgedStateID = packet->fullState.stateID;
+			}
+		}
+
+		int GetLastAcknowledgedStateID() const {
+			return lastAcknowledgedStateID;
+		}
+
+	private:
+		int lastAcknowledgedStateID;
+	};
+
+
 	class NetworkObject		
 	{
 	public:

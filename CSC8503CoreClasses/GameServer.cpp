@@ -78,3 +78,45 @@ void GameServer::UpdateServer()
 void GameServer::SetGameWorld(GameWorld &g) {
 	gameWorld = &g;
 }
+
+
+
+
+void GameServer::ProcessPacket(GamePacket* packet, int playerID) {
+	if (packet->type == Acknowledge_State) 
+	{
+		AcknowledgePacket* ackPacket = (AcknowledgePacket*) packet;
+		playerStates[playerID] = ackPacket->stateID;
+	}
+}
+
+
+
+std::unordered_map<int, ENetPeer*> playerPeers; // PlayerID -> ENetPeer*
+
+void GameServer::UpdateServer() {
+	ENetEvent event;
+	while (enet_host_service(netHandle, &event, 0) > 0) {
+		if (event.type == ENET_EVENT_TYPE_CONNECT) {
+			int playerID = playerPeers.size();
+			playerPeers[playerID] = event.peer;
+			playerStates[playerID] = 0; // Initialize state tracking
+		}
+		else if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
+			// Remove player
+			auto it = std::find_if(playerPeers.begin(), playerPeers.end(),
+				[&](const auto& pair) { return pair.second == event.peer; });
+			if (it != playerPeers.end()) {
+				playerPeers.erase(it);
+			}
+		}
+	}
+}
+
+void GameServer::SendPacketToPeer(GamePacket* packet, int playerID) {
+	auto it = playerPeers.find(playerID);
+	if (it != playerPeers.end()) {
+		ENetPacket* dataPacket = enet_packet_create(packet, packet->GetTotalSize(), ENET_PACKET_FLAG_RELIABLE);
+		enet_peer_send(it->second, 0, dataPacket);
+	}
+}

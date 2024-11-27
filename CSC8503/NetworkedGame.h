@@ -40,9 +40,10 @@ namespace NCL {
 			int packetsToSnapshot;
 
 			std::vector<NetworkObject*> networkObjects;
-
 			std::map<int, GameObject*> serverPlayers;
 			GameObject* localPlayer;
+
+			FullStateReceiver* stateReceiver;
 		};
 	}
 }

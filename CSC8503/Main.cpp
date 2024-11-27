@@ -311,6 +311,7 @@ struct StringPacket : public GamePacket {
 	}
 };
 
+
 class TestPacketReceiver : public PacketReceiver {
 public:
 	TestPacketReceiver(std::string name) {

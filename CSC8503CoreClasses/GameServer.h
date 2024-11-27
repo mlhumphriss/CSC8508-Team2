@@ -17,6 +17,8 @@ namespace NCL {
 			bool SendGlobalPacket(int msgID);
 			bool SendGlobalPacket(GamePacket& packet);
 
+			void ProcessPacket(GamePacket* packet, int playerID);
+
 			virtual void UpdateServer();
 
 		protected:
@@ -24,6 +26,9 @@ namespace NCL {
 			int			clientMax;
 			int			clientCount;
 			GameWorld*	gameWorld;
+
+			std::unordered_map<int, int> playerStates;
+
 
 			int incomingDataRate;
 			int outgoingDataRate;
