@@ -30,15 +30,15 @@ NetworkedGame::~NetworkedGame()	{
 	delete thisClient;
 }
 
-void NetworkedGame::StartAsServer() {
+void NetworkedGame::StartAsServer() 
+{
 	thisServer = new GameServer(NetworkBase::GetDefaultPort(), 4);
-
 	thisServer->RegisterPacketHandler(Received_State, this);
-
 	StartLevel();
 }
 
-void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
+void NetworkedGame::StartAsClient(char a, char b, char c, char d) 
+{
 	thisClient = new GameClient();
 	thisClient->Connect(a, b, c, d, NetworkBase::GetDefaultPort());
 
@@ -50,24 +50,22 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d) {
 	StartLevel();
 }
 
-void NetworkedGame::UpdateGame(float dt) {
+void NetworkedGame::UpdateGame(float dt) 
+{
 	timeToNextPacket -= dt;
 	if (timeToNextPacket < 0) {
-		if (thisServer) {
+		if (thisServer) 
 			UpdateAsServer(dt);
-		}
-		else if (thisClient) {
+		else if (thisClient) 
 			UpdateAsClient(dt);
-		}
+
 		timeToNextPacket += 1.0f / 20.0f; //20hz server/client update
 	}
 
-	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyCodes::F9)) {
+	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyCodes::F9)) 
 		StartAsServer();
-	}
-	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyCodes::F10)) {
+	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyCodes::F10)) 
 		StartAsClient(127,0,0,1);
-	}
 
 	TutorialGame::UpdateGame(dt);
 }

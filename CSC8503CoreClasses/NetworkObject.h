@@ -37,14 +37,12 @@ namespace NCL::CSC8503 {
 		}
 	};
 
-	class NetworkObject		{
+	class NetworkObject		
+	{
 	public:
 		NetworkObject(GameObject& o, int id);
 		virtual ~NetworkObject();
-
-		//Called by clients
 		virtual bool ReadPacket(GamePacket& p);
-		//Called by servers
 		virtual bool WritePacket(GamePacket** p, bool deltaFrame, int stateID);
 
 		void UpdateStateHistory(int minID);
@@ -62,14 +60,11 @@ namespace NCL::CSC8503 {
 		virtual bool WriteFullPacket(GamePacket**p);
 
 		GameObject& object;
-
 		NetworkState lastFullState;
-
 		std::vector<NetworkState> stateHistory;
 
 		int deltaErrors;
 		int fullErrors;
-
 		int networkID;
 	};
 }

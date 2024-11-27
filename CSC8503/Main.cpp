@@ -220,7 +220,6 @@ void TestBehaviourTree()
 
 #pragma endregion
 
-
 #pragma region PushDownAutomata
 
 class PauseScreen : public PushdownState {
@@ -293,8 +292,24 @@ void TestPushdownAutomata(Window* w) {
 
 #pragma endregion
 
-
 #pragma region Networking
+
+struct StringPacket : public GamePacket {
+	char stringData[256];
+
+	StringPacket(const std::string& message) {
+		type = BasicNetworkMessages::String_Message;
+		size = (short)message.length();
+
+		memcpy(stringData, message.data(), size);
+	};
+
+	std::string GetStringFromData() {
+		std::string realString(stringData);
+		realString.resize(size);
+		return realString;
+	}
+};
 
 class TestPacketReceiver : public PacketReceiver {
 public:
@@ -302,12 +317,12 @@ public:
 		this->name = name;
 	}
 
-	void ReceivePacket(int type, GamePacket* payload, int source) {
-		if (type == String_Message) {
+	void ReceivePacket(int type, GamePacket* payload, int source) 
+	{
+		if (type == String_Message) 
+		{
 			StringPacket* realPacket = (StringPacket*)payload;
-
 			std::string msg = realPacket->GetStringFromData();
-
 			std::cout << name << " received message: " << msg << std::endl;
 		}
 	}
@@ -336,8 +351,8 @@ void TestNetworking() {
 		GamePacket packet =  (StringPacket("Server says hello! " + std::to_string(i)));
 		StringPacket packetB = StringPacket("Client says hello! " + std::to_string(i));
 
-		server->SendGlobalPacket(static_cast<GamePacket&>(StringPacket("Server says hello! " + std::to_string(i))));
-		client->SendPacket(static_cast<GamePacket&>(StringPacket("Client says hello! " + std::to_string(i))));
+		server->SendGlobalPacket(packet);
+		client->SendPacket(packetB);
 
 		server->UpdateServer();
 		client->UpdateClient();
