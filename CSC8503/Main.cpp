@@ -365,10 +365,20 @@ void TestNetworking() {
 }
 #pragma  endregion
 
-
+bool connected = false;
 
 void UpdateWindow(Window* w, NetworkedGame* g)
 {
+
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::P)) {
+		connected = true;
+		g->StartAsServer();
+	}	if (Window::GetKeyboard()->KeyPressed(KeyCodes::O)) {
+		connected = true;
+		g->StartAsClient(127, 0, 0, 1);
+
+	}
+
 	float dt = w->GetTimer().GetTimeDeltaSeconds();
 	if (dt > 0.1f) {
 		std::cout << "Skipping large time delta" << std::endl;
@@ -386,46 +396,28 @@ void UpdateWindow(Window* w, NetworkedGame* g)
 	}
 
 	//w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
-	g->UpdateGame(dt);
+	if (connected);
+		g->UpdateGame(dt);
+
 	DisplayPathfinding();
 }
 
-int main() {
+int main(int argc, char** argv) 
+{
 	WindowInitialisation initInfo;
 	initInfo.width		= 1280;
 	initInfo.height		= 720;
 	initInfo.windowTitle = "CSC8503 Game technology!";
 
+	Window* w = Window::CreateGameWindow(initInfo);
+	NetworkedGame* g = new NetworkedGame();
 
-	WindowInitialisation initInfo2;
-	initInfo2.width = 1280;
-	initInfo2.height = 720;
-	initInfo2.windowTitle = "CSC8504 Game technology!";
-
-	Window*w = Window::CreateGameWindow(initInfo);
-	Window* w2 = Window::CreateGameWindow(initInfo2);
-
-
-	if (!w->HasInitialised()) {
+	if (!w->HasInitialised()) 
 		return -1;
-	}	
-
+		
 	w->ShowOSPointer(false);
 	w->LockMouseToWindow(false);
-
-
-	NetworkedGame* g = new NetworkedGame();
-	NetworkedGame* g2 = new NetworkedGame();
-
-
-	g->StartAsServer();
-	g2->StartAsClient(127, 0, 0, 1);
-
-	w->GetTimer().GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
-	w2->GetTimer().GetTimeDeltaSeconds();
-
-	//TestPushdownAutomata(w);
-	//TestNetworking();
+	w->GetTimer().GetTimeDeltaSeconds(); 
 
 	TestBehaviourTree();
 	TestPathfinding();
@@ -433,8 +425,6 @@ int main() {
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyCodes::ESCAPE))
 	{
 		UpdateWindow(w, g);
-		UpdateWindow(w2, g2);
-
 	}
 	Window::DestroyGameWindow();
 }

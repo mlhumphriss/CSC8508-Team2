@@ -1,0 +1,10 @@
+^C:\USERS\C4071068\SOURCE\REPOS\CSC8503TUTORIALWORK\CSC8503CORECLASSES\CMAKELISTS.TXT
+setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -SC:/Users/c4071068/source/repos/CSC8503TutorialWork -BC:/Users/c4071068/source/repos/CSC8503TutorialWork --check-stamp-file C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503CoreClasses/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
