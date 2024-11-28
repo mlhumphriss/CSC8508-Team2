@@ -1,6 +1,7 @@
 #pragma once
 #include "TutorialGame.h"
 #include "NetworkBase.h"
+#include "NetworkObject.h"
 
 namespace NCL {
 	namespace CSC8503 {
@@ -34,6 +35,7 @@ namespace NCL {
 			void UpdateMinimumState();
 			std::map<int, int> stateIDs;
 
+			FullStateReceiver* stateReceiver;
 			GameServer* thisServer;
 			GameClient* thisClient;
 			float timeToNextPacket;
@@ -42,8 +44,9 @@ namespace NCL {
 			std::vector<NetworkObject*> networkObjects;
 			std::map<int, GameObject*> serverPlayers;
 			GameObject* localPlayer;
+			std::vector<int> playerStates;
 
-			FullStateReceiver* stateReceiver;
+
 		};
 	}
 }

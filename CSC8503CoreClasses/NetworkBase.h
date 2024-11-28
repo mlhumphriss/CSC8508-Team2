@@ -14,9 +14,9 @@ enum BasicNetworkMessages {
 	Received_State, //received from a client, informs that its received packet n
 	Player_Connected,
 	Player_Disconnected,
+	Acknowledge_State,
 	Shutdown
 };
-
 
 
 struct GamePacket {
@@ -29,11 +29,26 @@ struct GamePacket {
 	}
 
 	GamePacket(short type) : GamePacket() {
-		this->type	= type;
+		this->type = type;
 	}
 
 	int GetTotalSize() {
 		return sizeof(GamePacket) + size;
+	}
+};
+
+
+struct AcknowledgePacket : public GamePacket {
+	int stateID;
+
+	AcknowledgePacket(int stateID) {
+		type = Acknowledge_State; 
+		size = sizeof(AcknowledgePacket); 
+		this->stateID = stateID;
+	}
+
+	int GetStateID() const {
+		return stateID;
 	}
 };
 

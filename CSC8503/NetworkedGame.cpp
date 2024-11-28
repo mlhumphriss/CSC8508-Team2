@@ -23,6 +23,8 @@ NetworkedGame::NetworkedGame()	{
 	NetworkBase::Initialise();
 	timeToNextPacket  = 0.0f;
 	packetsToSnapshot = 0;
+	stateReceiver = new FullStateReceiver();
+	playerStates = std::vector<int>();
 }
 
 NetworkedGame::~NetworkedGame()	{
@@ -46,9 +48,6 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 	thisClient->RegisterPacketHandler(Full_State, this);
 	thisClient->RegisterPacketHandler(Player_Connected, this);
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
-
-	stateReceiver = new FullStateReceiver();
-	thisClient->RegisterPacketHandler(Full_State, stateReceiver);
 
 	StartLevel();
 }
@@ -88,16 +87,18 @@ void NetworkedGame::UpdateAsClient(float dt) {
 	ClientPacket newPacket;
 
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::SPACE)) {
-		//fire button pressed!
 		newPacket.buttonstates[0] = 1;
-		newPacket.lastID = stateReceiver->GetLastAcknowledgedStateID(); //You'll need to work this out somehow...
+		newPacket.lastID = stateReceiver->GetLastAcknowledgedStateID(); 
 	}
 	thisClient->SendPacket(newPacket);
 }
 
 
-void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
-	for (const auto& player : playerPeers) {
+
+void NetworkedGame::BroadcastSnapshot(bool deltaFrame) 
+{
+	for (const auto& player : serverPlayers) 
+	{
 		int playerID = player.first;
 		int lastAcknowledgedState = playerStates[playerID];
 
@@ -110,7 +111,7 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
 
 			GamePacket* newPacket = nullptr;
 			if (o->WritePacket(&newPacket, deltaFrame, lastAcknowledgedState)) {
-				SendPacketToPeer(newPacket, playerID);
+				thisServer->SendPacketToPeer(newPacket, playerID);
 				delete newPacket;
 			}
 		}
@@ -119,19 +120,17 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
 
 
 
+/*void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
+{
 
 
-/*void NetworkedGame::BroadcastSnapshot(bool deltaFrame) {
-	std::vector<GameObject*>::const_iterator first;
-	std::vector<GameObject*>::const_iterator last;
-
+	std::vector<GameObject*>::const_iterator first, last;
 	world->GetObjectIterators(first, last);
 
 	for (auto i = first; i != last; ++i) {
 		NetworkObject* o = (*i)->GetNetworkObject();
-		if (!o) {
-			continue;
-		}
+		if (!o) continue;
+
 		//TODO - you'll need some way of determining
 		//when a player has sent the server an acknowledgement
 		//and store the lastID somewhere. A map between player
@@ -183,7 +182,8 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
 }
 
 void NetworkedGame::OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b) {
-	if (thisServer) { //detected a collision between players!
+	if (thisServer) 
+	{ //detected a collision between players!
 		MessagePacket newPacket;
 		newPacket.messageID = COLLISION_MSG;
 		newPacket.playerID  = a->GetPlayerNum();

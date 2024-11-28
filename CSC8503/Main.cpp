@@ -304,7 +304,7 @@ struct StringPacket : public GamePacket {
 		memcpy(stringData, message.data(), size);
 	};
 
-	std::string GetStringFromData() {
+	std::string const GetStringFromData() {
 		std::string realString(stringData);
 		realString.resize(size);
 		return realString;
@@ -337,6 +337,7 @@ void TestNetworking() {
 	TestPacketReceiver serverReceiver("Server");
 	TestPacketReceiver clientReceiver("Client");
 
+
 	int port = NetworkBase::GetDefaultPort();
 
 	GameServer* server = new GameServer(port, 1);
@@ -365,51 +366,75 @@ void TestNetworking() {
 #pragma  endregion
 
 
+
+void UpdateWindow(Window* w, NetworkedGame* g)
+{
+	float dt = w->GetTimer().GetTimeDeltaSeconds();
+	if (dt > 0.1f) {
+		std::cout << "Skipping large time delta" << std::endl;
+		return; //must have hit a breakpoint or something to have a 1 second frame time!S
+	}
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::PRIOR)) {
+		w->ShowConsole(true);
+	}
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::NEXT)) {
+		w->ShowConsole(false);
+	}
+
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::T)) {
+		w->SetWindowPosition(0, 0);
+	}
+
+	//w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
+	g->UpdateGame(dt);
+	DisplayPathfinding();
+}
+
 int main() {
 	WindowInitialisation initInfo;
 	initInfo.width		= 1280;
 	initInfo.height		= 720;
 	initInfo.windowTitle = "CSC8503 Game technology!";
 
+
+	WindowInitialisation initInfo2;
+	initInfo2.width = 1280;
+	initInfo2.height = 720;
+	initInfo2.windowTitle = "CSC8504 Game technology!";
+
 	Window*w = Window::CreateGameWindow(initInfo);
+	Window* w2 = Window::CreateGameWindow(initInfo2);
+
 
 	if (!w->HasInitialised()) {
 		return -1;
 	}	
 
 	w->ShowOSPointer(false);
-	w->LockMouseToWindow(true);
+	w->LockMouseToWindow(false);
 
-	TutorialGame* g = new TutorialGame();
+
+	NetworkedGame* g = new NetworkedGame();
+	NetworkedGame* g2 = new NetworkedGame();
+
+
+	g->StartAsServer();
+	g2->StartAsClient(127, 0, 0, 1);
+
 	w->GetTimer().GetTimeDeltaSeconds(); //Clear the timer so we don't get a larget first dt!
+	w2->GetTimer().GetTimeDeltaSeconds();
 
 	//TestPushdownAutomata(w);
-	TestNetworking();
+	//TestNetworking();
+
 	TestBehaviourTree();
 	TestPathfinding();
 
-	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyCodes::ESCAPE)) 
+	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyCodes::ESCAPE))
 	{
-		float dt = w->GetTimer().GetTimeDeltaSeconds();
-		if (dt > 0.1f) {
-			std::cout << "Skipping large time delta" << std::endl;
-			continue; //must have hit a breakpoint or something to have a 1 second frame time!
-		}
-		if (Window::GetKeyboard()->KeyPressed(KeyCodes::PRIOR)) {
-			w->ShowConsole(true);
-		}
-		if (Window::GetKeyboard()->KeyPressed(KeyCodes::NEXT)) {
-			w->ShowConsole(false);
-		}
+		UpdateWindow(w, g);
+		UpdateWindow(w2, g2);
 
-		if (Window::GetKeyboard()->KeyPressed(KeyCodes::T)) {
-			w->SetWindowPosition(0, 0);
-		}
-
-		w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
-
-		g->UpdateGame(dt);
-		DisplayPathfinding();
 	}
 	Window::DestroyGameWindow();
 }
