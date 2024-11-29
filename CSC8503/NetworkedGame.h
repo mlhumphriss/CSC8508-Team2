@@ -35,7 +35,6 @@ namespace NCL {
 			void UpdateMinimumState();
 			std::map<int, int> stateIDs;
 
-			FullStateReceiver* stateReceiver;
 			GameServer* thisServer;
 			GameClient* thisClient;
 			float timeToNextPacket;

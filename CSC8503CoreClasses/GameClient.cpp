@@ -1,5 +1,6 @@
 #include "GameClient.h"
 #include "./enet/enet.h"
+#include "NetworkObject.h";
 using namespace NCL;
 using namespace CSC8503;
 
@@ -20,6 +21,19 @@ bool GameClient::Connect(uint8_t a, uint8_t b, uint8_t c, uint8_t d, int portNum
 	return netPeer != nullptr;
 }
 
+void GameClient::ReceivePacket(int type, GamePacket* payload, int source)
+{
+	if (payload->type == Full_State)
+	{
+		int i = 0;
+		AcknowledgePacket* ackPacket = new AcknowledgePacket(i);
+		std::cout << "Sending ackowledge package" << std::endl;
+		SendPacket(*ackPacket);
+		delete ackPacket;
+	}
+}
+
+
 void GameClient::UpdateClient() 
 {
 	if (netHandle == nullptr) 
@@ -38,6 +52,7 @@ void GameClient::UpdateClient()
 		enet_packet_destroy(event.packet);
 	}
 }
+
 
 void GameClient::SendPacket(GamePacket&  payload) 
 {

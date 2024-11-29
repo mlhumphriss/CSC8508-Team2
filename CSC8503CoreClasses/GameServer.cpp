@@ -50,31 +50,40 @@ bool GameServer::SendGlobalPacket(GamePacket& packet)
 	return true;
 }
 
-void GameServer::ProcessPacket(GamePacket* packet, int playerID) {
-	if (packet->type == Acknowledge_State) 
+void GameServer::ReceivePacket(int type, GamePacket* payload, int source)
+{
+	if (payload->type == Received_State) 
 	{
-		AcknowledgePacket* ackPacket = (AcknowledgePacket*) packet;
-		playerStates[playerID] = ackPacket->stateID;
+		AcknowledgePacket* ackPacket = (AcknowledgePacket*) payload;
+		playerStates[source] = ackPacket->stateID;
+		std::cout << "packet recieved" << std::endl;
 	}
 }
+
 
 void GameServer::UpdateServer() {
 
 	if (!netHandle)
 		return;
-
-	ENetEvent event;
+	ENetEvent event;	
+	
 	while (enet_host_service(netHandle, &event, 0) > 0) 
 	{
 		int type = event.type;
 		ENetPeer* p = event.peer;
 		int peer = p->incomingPeerID;
 
+		std::cout << "Updating event: " << type << std::endl;
+
 		if (type == ENET_EVENT_TYPE_CONNECT) 
-		{
+		{		
+			// Does not handle disconnects correctly- disconnected players may break playerID setup
+
 			int playerID = playerPeers.size();
 			playerPeers[playerID] = p;
 			playerStates[playerID] = 0;
+
+			std::cout << "player connected" << std::endl;
 		}
 		else if (type == ENET_EVENT_TYPE_DISCONNECT) 
 		{
@@ -82,6 +91,9 @@ void GameServer::UpdateServer() {
 
 			if (it != playerPeers.end()) 
 				playerPeers.erase(it);
+
+			std::cout << "player disconnected" << std::endl;
+
 		}		
 		else if (type == ENetEventType::ENET_EVENT_TYPE_RECEIVE) 
 		{

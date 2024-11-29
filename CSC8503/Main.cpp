@@ -331,12 +331,12 @@ protected:
 	std::string name;
 };
 
-void TestNetworking() {
+void TestNetworking() 
+{
 	NetworkBase::Initialise();
 
 	TestPacketReceiver serverReceiver("Server");
 	TestPacketReceiver clientReceiver("Client");
-
 
 	int port = NetworkBase::GetDefaultPort();
 
@@ -365,19 +365,9 @@ void TestNetworking() {
 }
 #pragma  endregion
 
-bool connected = false;
 
 void UpdateWindow(Window* w, NetworkedGame* g)
 {
-
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::P)) {
-		connected = true;
-		g->StartAsServer();
-	}	if (Window::GetKeyboard()->KeyPressed(KeyCodes::O)) {
-		connected = true;
-		g->StartAsClient(127, 0, 0, 1);
-
-	}
 
 	float dt = w->GetTimer().GetTimeDeltaSeconds();
 	if (dt > 0.1f) {
@@ -395,9 +385,8 @@ void UpdateWindow(Window* w, NetworkedGame* g)
 		w->SetWindowPosition(0, 0);
 	}
 
-	//w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
-	if (connected);
-		g->UpdateGame(dt);
+	w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
+	g->UpdateGame(dt);
 
 	DisplayPathfinding();
 }

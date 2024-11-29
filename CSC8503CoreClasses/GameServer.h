@@ -17,7 +17,10 @@ namespace NCL {
 			bool SendGlobalPacket(int msgID);
 			bool SendGlobalPacket(GamePacket& packet);
 			bool SendPacketToPeer(GamePacket* packet, int playerID);
-			void ProcessPacket(GamePacket* packet, int playerID);
+			void ReceivePacket(int type, GamePacket* payload, int source);
+
+
+			std::unordered_map<int, _ENetPeer*> playerPeers;
 
 			virtual void UpdateServer();
 
@@ -28,7 +31,6 @@ namespace NCL {
 
 			GameWorld*	gameWorld;
 			std::unordered_map<int, int> playerStates;
-			std::unordered_map<int, _ENetPeer*> playerPeers;
 
 
 			int incomingDataRate;

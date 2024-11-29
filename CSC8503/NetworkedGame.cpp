@@ -3,6 +3,8 @@
 #include "NetworkObject.h"
 #include "GameServer.h"
 #include "GameClient.h"
+#include "RenderObject.h"
+
 
 #define COLLISION_MSG 30
 
@@ -23,7 +25,6 @@ NetworkedGame::NetworkedGame()	{
 	NetworkBase::Initialise();
 	timeToNextPacket  = 0.0f;
 	packetsToSnapshot = 0;
-	stateReceiver = new FullStateReceiver();
 	playerStates = std::vector<int>();
 }
 
@@ -46,6 +47,7 @@ void NetworkedGame::StartAsClient(char a, char b, char c, char d)
 
 	thisClient->RegisterPacketHandler(Delta_State, this);
 	thisClient->RegisterPacketHandler(Full_State, this);
+
 	thisClient->RegisterPacketHandler(Player_Connected, this);
 	thisClient->RegisterPacketHandler(Player_Disconnected, this);
 
@@ -64,88 +66,75 @@ void NetworkedGame::UpdateGame(float dt)
 		timeToNextPacket += 1.0f / 20.0f; //20hz server/client update
 	}
 
-	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyCodes::F9)) 
+	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyCodes::O)) 
 		StartAsServer();
-	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyCodes::F10)) 
+	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyCodes::P)) 
 		StartAsClient(127,0,0,1);
 
 	TutorialGame::UpdateGame(dt);
 }
 
-void NetworkedGame::UpdateAsServer(float dt) {
+void NetworkedGame::UpdateAsServer(float dt)
+{
 	packetsToSnapshot--;
-	if (packetsToSnapshot < 0) {
+	if (packetsToSnapshot < 0) 
+	{
 		BroadcastSnapshot(false);
 		packetsToSnapshot = 5;
 	}
-	else {
+	else 
 		BroadcastSnapshot(true);
-	}
+
+	thisServer->UpdateServer();
 }
 
-void NetworkedGame::UpdateAsClient(float dt) {
-	ClientPacket newPacket;
+void NetworkedGame::UpdateAsClient(float dt) 
+{
 
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::SPACE)) {
-		newPacket.buttonstates[0] = 1;
-		newPacket.lastID = stateReceiver->GetLastAcknowledgedStateID(); 
-	}
-	thisClient->SendPacket(newPacket);
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::SPACE)) {	
+		ClientPacket newPacket;
+
+		newPacket.buttonstates[0] = 1;	
+		newPacket.lastID = 0; 	
+		thisClient->SendPacket(newPacket);	
+		std::cout << "Sending shot" << std::endl;
+	}		
+	thisClient->UpdateClient();
 }
 
 
 
 void NetworkedGame::BroadcastSnapshot(bool deltaFrame) 
 {
-	for (const auto& player : serverPlayers) 
-	{
+	for (const auto& player : thisServer->playerPeers)
+	{	
 		int playerID = player.first;
-		int lastAcknowledgedState = playerStates[playerID];
+		//int lastAcknowledgedState = playerStates[playerID];
 
 		std::vector<GameObject*>::const_iterator first, last;
 		world->GetObjectIterators(first, last);
 
 		for (auto i = first; i != last; ++i) {
 			NetworkObject* o = (*i)->GetNetworkObject();
-			if (!o) continue;
 
-			GamePacket* newPacket = nullptr;
-			if (o->WritePacket(&newPacket, deltaFrame, lastAcknowledgedState)) {
+			if (!o) 
+				continue;
+
+			GamePacket* newPacket = new GamePacket();
+			newPacket->type = Full_State;
+
+			if (o->WritePacket(&newPacket, deltaFrame, 0)) //lastAcknowledgedState
+			{
 				thisServer->SendPacketToPeer(newPacket, playerID);
+				std::cout << "sending packet to peer" << std::endl;
 				delete newPacket;
 			}
 		}
 	}
 }
 
-
-
-/*void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
+void NetworkedGame::UpdateMinimumState() 
 {
-
-
-	std::vector<GameObject*>::const_iterator first, last;
-	world->GetObjectIterators(first, last);
-
-	for (auto i = first; i != last; ++i) {
-		NetworkObject* o = (*i)->GetNetworkObject();
-		if (!o) continue;
-
-		//TODO - you'll need some way of determining
-		//when a player has sent the server an acknowledgement
-		//and store the lastID somewhere. A map between player
-		//and an int could work, or it could be part of a 
-		//NetworkPlayer struct. 
-		int playerState = 0;
-		GamePacket* newPacket = nullptr;
-		if (o->WritePacket(&newPacket, deltaFrame, playerState)) {
-			thisServer->SendGlobalPacket(*newPacket);
-			delete newPacket;
-		}
-	}
-}*/
-
-void NetworkedGame::UpdateMinimumState() {
 	//Periodically remove old data from the server
 	int minID = INT_MAX;
 	int maxID = 0; //we could use this to see if a player is lagging behind?
@@ -169,16 +158,28 @@ void NetworkedGame::UpdateMinimumState() {
 	}
 }
 
-void NetworkedGame::SpawnPlayer() {
-
+void NetworkedGame::SpawnPlayer() 
+{
+	GameObject* play = new GameObject();	
+	play->SetRenderObject(new RenderObject(&play->GetTransform(), cubeMesh, basicTex, basicShader));
+	NetworkObject* player = new NetworkObject(*play, 0); // Network id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	networkObjects.push_back(player);
+	world->AddGameObject(static_cast<NetworkObject*>(player));
 }
 
-void NetworkedGame::StartLevel() {
-
+void NetworkedGame::StartLevel() 
+{
+	SpawnPlayer();
 }
 
-void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source) {
-	
+void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
+{
+	std::cout << "recieving packages" << std::endl;
+
+	if (thisClient) 
+		thisClient->ReceivePacket(type, payload, source);
+	else if (thisServer) 
+		thisServer->ReceivePacket(type, payload, source);
 }
 
 void NetworkedGame::OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b) {

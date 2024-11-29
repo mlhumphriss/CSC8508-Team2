@@ -42,7 +42,7 @@ struct AcknowledgePacket : public GamePacket {
 	int stateID;
 
 	AcknowledgePacket(int stateID) {
-		type = Acknowledge_State; 
+		type = Received_State; 
 		size = sizeof(AcknowledgePacket); 
 		this->stateID = stateID;
 	}
