@@ -114,7 +114,8 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 		std::vector<GameObject*>::const_iterator first, last;
 		world->GetObjectIterators(first, last);
 
-		for (auto i = first; i != last; ++i) {
+		for (auto i = first; i != last; ++i) 
+		{
 			NetworkObject* o = (*i)->GetNetworkObject();
 
 			if (!o) 
@@ -149,11 +150,12 @@ void NetworkedGame::UpdateMinimumState()
 	std::vector<GameObject*>::const_iterator last;
 	world->GetObjectIterators(first, last);
 
-	for (auto i = first; i != last; ++i) {
+	for (auto i = first; i != last; ++i) 
+	{
 		NetworkObject* o = (*i)->GetNetworkObject();
-		if (!o) {
+		if (!o) 
 			continue;
-		}
+
 		o->UpdateStateHistory(minID); //clear out old states so they arent taking up memory...
 	}
 }
@@ -163,7 +165,6 @@ void NetworkedGame::SpawnPlayer()
 	GameObject* play = new GameObject();	
 	play->SetRenderObject(new RenderObject(&play->GetTransform(), cubeMesh, basicTex, basicShader));
 	NetworkObject* player = new NetworkObject(*play, 0); // Network id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	networkObjects.push_back(player);
 	world->AddGameObject(static_cast<NetworkObject*>(player));
 }
 
