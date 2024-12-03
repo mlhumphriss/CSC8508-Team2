@@ -110,7 +110,6 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 	{	
 		int playerID = player.first;
 		//int lastAcknowledgedState = playerStates[playerID];
-
 		std::vector<GameObject*>::const_iterator first, last;
 		world->GetObjectIterators(first, last);
 
@@ -118,9 +117,11 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 		{
 			NetworkObject* o = (*i)->GetNetworkObject();
 
+
 			if (!o) 
 				continue;
 
+			std::cout << "Indexing network objects" << std::endl;
 			GamePacket* newPacket = new GamePacket();
 			newPacket->type = Full_State;
 
@@ -128,8 +129,9 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 			{
 				thisServer->SendPacketToPeer(newPacket, playerID);
 				std::cout << "sending packet to peer" << std::endl;
-				delete newPacket;
-			}
+			}				
+			delete newPacket;
+
 		}
 	}
 }
@@ -156,16 +158,18 @@ void NetworkedGame::UpdateMinimumState()
 		if (!o) 
 			continue;
 
-		o->UpdateStateHistory(minID); //clear out old states so they arent taking up memory...
+		o->UpdateStateHistory(minID); 
 	}
 }
 
 void NetworkedGame::SpawnPlayer() 
 {
-	GameObject* play = new GameObject();	
+	Vector3 cubeDims = Vector3(1, 1, 1);
+	GameObject* play = AddCubeToWorld( Vector3(1,20,1), cubeDims);
 	play->SetRenderObject(new RenderObject(&play->GetTransform(), cubeMesh, basicTex, basicShader));
 	NetworkObject* player = new NetworkObject(*play, 0); // Network id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	world->AddGameObject(static_cast<NetworkObject*>(player));
+	play->SetNetworkObject(player);
+	world->AddGameObject(play);
 }
 
 void NetworkedGame::StartLevel() 
@@ -175,7 +179,15 @@ void NetworkedGame::StartLevel()
 
 void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 {
-	std::cout << "recieving packages" << std::endl;
+	std::vector<GameObject*>::const_iterator first, last;
+	world->GetObjectIterators(first, last);
+	for (auto i = first; i != last; ++i)
+	{
+		NetworkObject* o = (*i)->GetNetworkObject();
+		if (!o)
+			continue;
+		o->ReadPacket(*payload);
+	}
 
 	if (thisClient) 
 		thisClient->ReceivePacket(type, payload, source);
@@ -185,7 +197,7 @@ void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)
 
 void NetworkedGame::OnPlayerCollision(NetworkPlayer* a, NetworkPlayer* b) {
 	if (thisServer) 
-	{ //detected a collision between players!
+	{ 
 		MessagePacket newPacket;
 		newPacket.messageID = COLLISION_MSG;
 		newPacket.playerID  = a->GetPlayerNum();

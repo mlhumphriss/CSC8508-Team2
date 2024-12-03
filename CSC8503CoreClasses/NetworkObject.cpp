@@ -94,9 +94,12 @@ bool NetworkObject::ReadDeltaPacket(DeltaPacket& p) {
 	return true;
 }
 
-bool NetworkObject::ReadFullPacket(FullPacket& p) {
-	if (p.fullState.stateID < lastFullState.stateID) {
-		return false; // received an 'old' packet, ignore!
+bool NetworkObject::ReadFullPacket(FullPacket& p) 
+{
+	if (p.fullState.stateID < lastFullState.stateID) 
+	{
+		std::cout << "Old news" << std::endl;
+		return false; 
 	}
 	lastFullState = p.fullState;
 

@@ -46,6 +46,10 @@ namespace NCL::CSC8503 {
 			renderObject = newObject;
 		}
 
+		void SetNetworkObject(NetworkObject* newObject) {
+			networkObject = newObject;
+		}
+
 		void SetPhysicsObject(PhysicsObject* newObject) {
 			physicsObject = newObject;
 		}
