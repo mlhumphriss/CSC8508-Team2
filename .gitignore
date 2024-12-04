@@ -11,6 +11,9 @@
 /bin/
 /lib/
 /obj/
+/Release
+Release/
+
 
 # CMake-specific
 CMakeCache.txt
