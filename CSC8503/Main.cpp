@@ -24,6 +24,9 @@
 #include "BehaviourSequence.h"
 #include "BehaviourAction.h"
 
+#include "RenderObject.h"
+
+
 using namespace NCL;
 using namespace CSC8503;
 
@@ -70,12 +73,18 @@ void TestPathfinding() {
 
 	NavigationPath outPath;
 
-	Vector3 startPos(80, 0, 10);
-	Vector3 endPos(80, 0, 80);
 
-	bool found = grid.FindPath(startPos, endPos, outPath);
+	NavigationMesh* navMesh = new NavigationMesh("smalltest.navmesh");
+	Vector3 endPos;
 
+	Vector3 startPos = navMesh->GetNearestPoint(endPos);
+	bool found = navMesh->FindPath(startPos, endPos, outPath);
+	//bool found = grid.FindPath(startPos, endPos, outPath);
 	Vector3 pos;
+	if (!found)
+		std::cout << "Path not found" << std::endl;
+
+
 	while (outPath.PopWaypoint(pos)) {
 		testNodes.push_back(pos);
 	}
@@ -416,8 +425,9 @@ int main(int argc, char** argv)
 	w->LockMouseToWindow(false);
 	w->GetTimer().GetTimeDeltaSeconds(); 
 
-	TestBehaviourTree();
+	//TestBehaviourTree();
 	TestPathfinding();
+	
 
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyCodes::ESCAPE))
 	{

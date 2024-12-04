@@ -12,6 +12,7 @@ namespace NCL {
 			~NavigationMesh();
 
 			bool FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) override;
+			Vector3 GetNearestPoint(Vector3& point);
 		
 		protected:
 			struct NavTri {

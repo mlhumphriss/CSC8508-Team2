@@ -17,6 +17,10 @@ NavigationMesh::NavigationMesh(const std::string&filename)
 	int numVertices = 0;
 	int numIndices	= 0;
 
+	if (!file)
+		std::cout << "No file found" << std::endl;
+
+
 	file >> numVertices;
 	file >> numIndices;
 
@@ -61,15 +65,108 @@ NavigationMesh::NavigationMesh(const std::string&filename)
 	}
 }
 
+Vector3 NavigationMesh::GetNearestPoint(Vector3& point) {
+	point = Vector3(allTris[10].indices[0], allTris[10].indices[1], allTris[10].indices[2]);
+	return Vector3(allTris[0].indices[0], allTris[0].indices[1], allTris[0].indices[2]);
+}
+
+
 NavigationMesh::~NavigationMesh()
 {
 }
 
 bool NavigationMesh::FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) {
-	const NavTri* start	= GetTriForPosition(from);
-	const NavTri* end	= GetTriForPosition(to);
+    const NavTri* start = GetTriForPosition(from);
+    const NavTri* end = GetTriForPosition(to);
 
-	return false;
+    if (!start || !end) {
+        return false;
+    }
+
+    struct AStarNode {
+        const NavTri* tri;
+        AStarNode* parent;
+        float g;
+        float f; 
+
+        AStarNode(const NavTri* tri, AStarNode* parent, float g, float h)
+            : tri(tri), parent(parent), g(g), f(g + h) {}
+    };
+
+    auto heuristic = [](const Vector3& a, const Vector3& b) {
+        return Vector::Length(b - a); 
+        };
+
+    auto findNodeInList = [](const NavTri* tri, const std::vector<AStarNode*>& list) {
+        for (auto node : list) {
+            if (node->tri == tri) {
+                return node;
+            }
+        }
+        return static_cast<AStarNode*>(nullptr);
+    };
+
+    auto removeBestNode = [](std::vector<AStarNode*>& list) {
+        auto bestIt = list.begin();
+        for (auto it = list.begin(); it != list.end(); ++it) {
+            if ((*it)->f < (*bestIt)->f) {
+                bestIt = it;
+            }
+        }
+        AStarNode* bestNode = *bestIt;
+        list.erase(bestIt);
+        return bestNode;
+     };
+
+    std::vector<AStarNode*> openList;
+    std::vector<AStarNode*> closedList;
+
+    AStarNode* startNode = new AStarNode(start, nullptr, 0, heuristic(start->centroid, end->centroid));
+    openList.push_back(startNode);
+
+    while (!openList.empty()) {
+        AStarNode* currentNode = removeBestNode(openList);
+
+        if (currentNode->tri == end) 
+        {
+            AStarNode* pathNode = currentNode;
+            while (pathNode != nullptr) {
+                outPath.PushWaypoint(pathNode->tri->centroid);
+                pathNode = pathNode->parent;
+            }
+            for (auto node : openList) delete node;
+            for (auto node : closedList) delete node;
+            return true;
+        }
+
+        for (int i = 0; i < 3; ++i) 
+        { 
+            const NavTri* neighborTri = currentNode->tri->neighbours[i];
+            if (!neighborTri) continue;
+
+            AStarNode* inClosed = findNodeInList(neighborTri, closedList);
+            if (inClosed) continue;
+
+            float g = currentNode->g + heuristic(currentNode->tri->centroid, neighborTri->centroid);
+            float h = heuristic(neighborTri->centroid, end->centroid);
+
+            AStarNode* inOpen = findNodeInList(neighborTri, openList);
+            if (!inOpen) {
+                openList.push_back(new AStarNode(neighborTri, currentNode, g, h));
+            }
+            else if (g < inOpen->g) {
+                inOpen->g = g;
+                inOpen->f = g + h;
+                inOpen->parent = currentNode;
+            }
+        }
+        closedList.push_back(currentNode);
+    }
+
+    for (auto node : openList) delete node;
+    for (auto node : closedList) delete node;
+
+    return false; 
 }
 
 /*

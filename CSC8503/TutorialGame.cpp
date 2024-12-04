@@ -50,6 +50,7 @@ for this module, even in the coursework, but you can add it if you like!
 */
 void TutorialGame::InitialiseAssets() {
 	cubeMesh	= renderer->LoadMesh("cube.msh");
+	navigationMesh = renderer->LoadMesh("NavMeshObject.msh");
 	sphereMesh	= renderer->LoadMesh("sphere.msh");
 	catMesh		= renderer->LoadMesh("ORIGAMI_Chat.msh");
 	kittenMesh	= renderer->LoadMesh("Kitten.msh");
@@ -270,8 +271,8 @@ void TutorialGame::InitWorld()
 {
 	world->ClearAndErase();
 	physics->Clear();
-	BridgeConstraintTest();
-	InitMixedGridWorld(15, 15, 3.5f, 3.5f);
+	//BridgeConstraintTest();
+	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
 	InitGameExamples();
 	InitDefaultFloor();
 	testStateObject = AddStateObjectToWorld(Vector3(0, 10, 0));
@@ -353,6 +354,32 @@ GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimens
 
 	return cube;
 }
+
+
+GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions, float inverseMass) {
+	GameObject* cube = new GameObject();
+
+	if (!navigationMesh)
+		std::cout << "No nav mesh found" << std::endl;
+
+	AABBVolume* volume = new AABBVolume(dimensions);
+	cube->SetBoundingVolume((CollisionVolume*)volume);
+
+	cube->GetTransform()
+		.SetPosition(position)
+		.SetScale(dimensions);
+
+	cube->SetRenderObject(new RenderObject(&cube->GetTransform(), navigationMesh, basicTex, basicShader));
+	cube->SetPhysicsObject(new PhysicsObject(&cube->GetTransform(), cube->GetBoundingVolume()));
+
+	cube->GetPhysicsObject()->SetInverseMass(inverseMass);
+	cube->GetPhysicsObject()->InitCubeInertia();
+
+	world->AddGameObject(cube);
+
+	return cube;
+}
+
 
 GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	float meshSize		= 1.0f;
@@ -447,9 +474,10 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	AddPlayerToWorld(Vector3(0, 5, 0));
-	AddEnemyToWorld(Vector3(5, 5, 0));
-	AddBonusToWorld(Vector3(10, 5, 0));
+	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(40, 40, 40), 1);
+	//AddPlayerToWorld(Vector3(0, 5, 0));
+	//AddEnemyToWorld(Vector3(5, 5, 0));
+	//AddBonusToWorld(Vector3(10, 5, 0));
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
