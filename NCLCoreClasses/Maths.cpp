@@ -36,6 +36,31 @@ namespace NCL {
 			return Vector::Length(area) * 0.5f;
 		}
 
+		bool Maths::RayIntersectsEdge(const Vector3& rayStart, const Vector3& rayDir, float& distance, const Vector3& edgeStart, const Vector3& edgeEnd)
+		{
+			Vector3 edge = edgeEnd - edgeStart;
+			Vector3 edgeNormal = Vector3(-edge.z, 0, edge.x); 
+
+			float dot = Vector::Dot(rayDir, edgeNormal);
+
+			if (fabs(dot) < 1e-6f)
+				return false;
+			
+			distance = Vector::Dot(edgeNormal, edgeStart - rayStart) / dot;
+
+			if (distance < 0) 
+				return false;
+
+			Vector3 intersection = rayStart + rayDir * distance;
+			Vector3 edgeToIntersection = intersection - edgeStart;
+
+			float edgeLengthSq = Vector::LengthSquared(edge);
+			float projection = Vector::Dot(edgeToIntersection, edge) / edgeLengthSq;
+
+			return projection >= 0.0f && projection <= 1.0f;
+		}
+
+
 		float RandomValue(float min, float max) {
 			float floatValue = rand() / (float)RAND_MAX;
 			float range = max - min;

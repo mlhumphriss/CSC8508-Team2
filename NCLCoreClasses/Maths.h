@@ -32,6 +32,6 @@ namespace NCL::Maths {
 
 	int ScreenAreaOfTri(const Vector3 &a, const Vector3 &b, const Vector3 & c);
 	float SignedAreaof2DTri(const Vector3 &a, const Vector3 &b, const Vector3 & c);
-
+	bool RayIntersectsEdge(const Vector3& rayStart, const Vector3& rayDir, float& distance, const Vector3& edgeStart, const Vector3& edgeEnd);
 	float AreaofTri3D(const Vector3 &a, const Vector3 &b, const Vector3 & c);
 }

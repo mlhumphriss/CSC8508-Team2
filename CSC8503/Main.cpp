@@ -68,27 +68,75 @@ void TestStateMachine() {
 
 vector<Vector3> testNodes;
 
-void TestPathfinding() {
+void TestGridPathfinding() 
+{
 	NavigationGrid grid("TestGrid1.txt");
-
 	NavigationPath outPath;
 
+	Vector3 startPos = Vector3(0, 0, 0);
+	Vector3 endPos = Vector3(25, 0, 5);
 
-	NavigationMesh* navMesh = new NavigationMesh("smalltest.navmesh");
-	Vector3 endPos;
-
-	Vector3 startPos = navMesh->GetNearestPoint(endPos);
-	bool found = navMesh->FindPath(startPos, endPos, outPath);
-	//bool found = grid.FindPath(startPos, endPos, outPath);
+	bool found = grid.FindPath(startPos, endPos, outPath);
 	Vector3 pos;
 	if (!found)
 		std::cout << "Path not found" << std::endl;
-
 
 	while (outPath.PopWaypoint(pos)) {
 		testNodes.push_back(pos);
 	}
 }
+
+
+NavigationPath outPath;
+NavigationMesh* navMesh;
+float x = 0;
+float y = 0;
+float x2 = 25;
+float y2 = 5;
+
+
+void InitiatePathFinding() 
+{
+	navMesh = new NavigationMesh("smalltest.navmesh");
+}
+
+void TestPathfinding()
+{
+	outPath.Clear();
+	testNodes.clear();
+
+	float delta = 1.0f;
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::T))
+		y2 += delta;
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F))
+		x2 -= delta;
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::G))
+		y2 -= delta;
+	if (Window::GetKeyboard()->KeyPressed(KeyCodes::H))
+		x2 += delta;
+
+	Vector3 startPos = Vector3(x, 0, y);
+	Vector3 endPos = Vector3(x2, 0, y2);
+
+	bool found = navMesh->FindPath(startPos, endPos, outPath);
+	Vector3 pos;
+
+	if (!found) 
+	{
+		std::cout << "Path not found" << std::endl;
+		return;
+	}
+
+	std::vector<Vector3> originalPath;
+
+	while (outPath.PopWaypoint(pos)) 
+	{
+		originalPath.push_back(pos);
+	}
+
+	navMesh->SmoothPath(originalPath, testNodes);
+}
+
 
 void DisplayPathfinding() {
 	for (int i = 1; i < testNodes.size(); ++i) {
@@ -385,7 +433,6 @@ void TestNetworking()
 
 void UpdateWindow(Window* w, NetworkedGame* g)
 {
-
 	float dt = w->GetTimer().GetTimeDeltaSeconds();
 	if (dt > 0.1f) {
 		std::cout << "Skipping large time delta" << std::endl;
@@ -405,6 +452,7 @@ void UpdateWindow(Window* w, NetworkedGame* g)
 	w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
 	g->UpdateGame(dt);
 
+	TestPathfinding();
 	DisplayPathfinding();
 }
 
@@ -426,7 +474,8 @@ int main(int argc, char** argv)
 	w->GetTimer().GetTimeDeltaSeconds(); 
 
 	//TestBehaviourTree();
-	TestPathfinding();
+	InitiatePathFinding();
+	//TestPathfinding();
 	
 
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyCodes::ESCAPE))

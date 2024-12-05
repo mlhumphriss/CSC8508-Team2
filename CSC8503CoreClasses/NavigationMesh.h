@@ -11,10 +11,12 @@ namespace NCL {
 			NavigationMesh(const std::string&filename);
 			~NavigationMesh();
 
+			void SmoothPath(const std::vector<Vector3>& originalPath, std::vector<Vector3>& smoothedPath);
 			bool FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) override;
-			Vector3 GetNearestPoint(Vector3& point);
 		
 		protected:
+
+
 			struct NavTri {
 				Plane   triPlane;
 				Vector3 centroid;
@@ -35,7 +37,23 @@ namespace NCL {
 				}
 			};
 
+			struct AStarNode {
+				const NavTri* tri;
+				AStarNode* parent;
+				float g;
+				float f;
+
+				AStarNode(const NavTri* tri, AStarNode* parent, float g, float h)
+					: tri(tri), parent(parent), g(g), f(g + h) {}
+			};
+
 			const NavTri* GetTriForPosition(const Vector3& pos) const;
+			bool NodeInList(AStarNode* n, std::vector<AStarNode*>& list) const;
+			bool HasLineOfSight(const Vector3& start, const Vector3& end) const;
+			auto RemoveBestNode(std::vector<AStarNode*>& list);
+			auto FindNodeInList(const NavTri* tri, const std::vector<AStarNode*>& list);
+			float Heuristic(const Vector3& a, const Vector3& b);
+
 
 			std::vector<NavTri>		allTris;
 			std::vector<Vector3>	allVerts;

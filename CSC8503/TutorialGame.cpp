@@ -82,7 +82,13 @@ TutorialGame::~TutorialGame()	{
 	delete world;
 }
 
-void TutorialGame::UpdateGame(float dt) {
+
+
+
+
+
+void TutorialGame::UpdateGame(float dt) 
+{
 	if (!inSelectionMode) {
 		world->GetMainCamera().UpdateCamera(dt);
 	}
@@ -356,28 +362,26 @@ GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimens
 }
 
 
-GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions, float inverseMass) {
-	GameObject* cube = new GameObject();
+GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions) 
+{
+	GameObject* navMesh = new GameObject();
 
 	if (!navigationMesh)
 		std::cout << "No nav mesh found" << std::endl;
 
 	AABBVolume* volume = new AABBVolume(dimensions);
-	cube->SetBoundingVolume((CollisionVolume*)volume);
+	navMesh->SetBoundingVolume((CollisionVolume*)volume);
 
-	cube->GetTransform()
-		.SetPosition(position)
-		.SetScale(dimensions);
+	navMesh->GetTransform().SetPosition(position).SetScale(dimensions);
 
-	cube->SetRenderObject(new RenderObject(&cube->GetTransform(), navigationMesh, basicTex, basicShader));
-	cube->SetPhysicsObject(new PhysicsObject(&cube->GetTransform(), cube->GetBoundingVolume()));
+	navMesh->SetRenderObject(new RenderObject(&navMesh->GetTransform(), navigationMesh, basicTex, basicShader));
+	navMesh->SetPhysicsObject(new PhysicsObject(&navMesh->GetTransform(), navMesh->GetBoundingVolume()));
+	navMesh->GetPhysicsObject()->SetInverseMass(0);
+	navMesh->GetPhysicsObject()->InitCubeInertia();
 
-	cube->GetPhysicsObject()->SetInverseMass(inverseMass);
-	cube->GetPhysicsObject()->InitCubeInertia();
+	world->AddGameObject(navMesh);
 
-	world->AddGameObject(cube);
-
-	return cube;
+	return navMesh;
 }
 
 
@@ -474,7 +478,7 @@ void TutorialGame::InitDefaultFloor() {
 }
 
 void TutorialGame::InitGameExamples() {
-	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(40, 40, 40), 1);
+	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//AddPlayerToWorld(Vector3(0, 5, 0));
 	//AddEnemyToWorld(Vector3(5, 5, 0));
 	//AddBonusToWorld(Vector3(10, 5, 0));
