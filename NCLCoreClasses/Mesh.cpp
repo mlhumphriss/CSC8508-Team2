@@ -45,6 +45,7 @@ bool	Mesh::GetVertexIndicesForTri(unsigned int i, unsigned int& a, unsigned int&
 	return true;
 }
 
+
 bool Mesh::GetTriangle(unsigned int i, Vector3& va, Vector3& vb, Vector3& vc) const {
 	bool hasTri = false;
 	unsigned int a, b, c;

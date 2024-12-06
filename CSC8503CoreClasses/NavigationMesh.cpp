@@ -105,27 +105,25 @@ auto NavigationMesh::FindNodeInList(const NavTri* tri, const std::vector<AStarNo
 }
 
 
-bool NavigationMesh::FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) 
-{
+bool NavigationMesh::FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) {
     const NavTri* start = GetTriForPosition(from);
     const NavTri* end = GetTriForPosition(to);
 
-    if (!start || !end) 
+    if (!start || !end)
         return false;
-    
+
     std::vector<AStarNode*> openList;
     std::vector<AStarNode*> closedList;
 
-    AStarNode* startNode = new AStarNode(start, nullptr, 0, Heuristic(start->centroid, end->centroid));
+    AStarNode* startNode = new AStarNode(start, nullptr, 0, Heuristic(from, to)); 
     openList.push_back(startNode);
+
     AStarNode* currentNode = nullptr;
 
-    while (!openList.empty()) 
-    {
+    while (!openList.empty()) {
         currentNode = RemoveBestNode(openList);
 
-        if (currentNode->tri == end) 
-        {
+        if (currentNode->tri == end) {
             AStarNode* pathNode = currentNode;
             while (pathNode != nullptr) {
                 outPath.PushWaypoint(pathNode->tri->centroid);
@@ -137,23 +135,20 @@ bool NavigationMesh::FindPath(const Vector3& from, const Vector3& to, Navigation
         }
 
         for (int i = 0; i < 3; ++i) 
-        { 
+        {
             const NavTri* neighborTri = currentNode->tri->neighbours[i];
             if (!neighborTri) continue;
 
-            AStarNode* inClosed = FindNodeInList(neighborTri, closedList);
-
-            if (inClosed) 
-                continue;
-
             float g = currentNode->g + Heuristic(currentNode->tri->centroid, neighborTri->centroid);
-            float h = Heuristic(neighborTri->centroid, end->centroid);
+            float h = Heuristic(neighborTri->centroid, to); 
 
             AStarNode* inOpen = FindNodeInList(neighborTri, openList);
+            AStarNode* inClosed = FindNodeInList(neighborTri, closedList);
 
-            if (!inOpen) 
+            if (!inOpen && !inClosed) {
                 openList.push_back(new AStarNode(neighborTri, currentNode, g, h));
-            else if (g < inOpen->g) {
+            }
+            else if (inOpen && g < inOpen->g) {
                 inOpen->g = g;
                 inOpen->f = g + h;
                 inOpen->parent = currentNode;
@@ -165,67 +160,51 @@ bool NavigationMesh::FindPath(const Vector3& from, const Vector3& to, Navigation
     for (auto node : openList) delete node;
     for (auto node : closedList) delete node;
 
-    return false; 
+    return false;
 }
 
 
-bool NavigationMesh::HasLineOfSight(const Vector3& start, const Vector3& end) const 
-{
+
+bool NavigationMesh::HasLineOfSight(const Vector3& start, const Vector3& end) const {
     Vector3 direction = Vector::Normalise(end - start);
     float distance = Vector::Length(end - start);
 
-    for (const NavTri& tri : allTris)
-    {
-        for (int i = 0; i < 3; ++i) 
-        {
-            Vector3 edgeStart = allVerts[tri.indices[i]];
-            Vector3 edgeEnd = allVerts[tri.indices[(i + 1) % 3]];
+    for (const NavTri& tri : allTris) {
 
-            if (Maths::RayIntersectsEdge(start, direction, distance, edgeStart, edgeEnd)) 
-                return false; 
-        }
+        Vector3 v0 = allVerts[tri.indices[0]];
+        Vector3 v1 = allVerts[tri.indices[1]];
+        Vector3 v2 = allVerts[tri.indices[2]];
+
+        if (Maths::RayIntersectsTriangle(start, direction, v0, v1, v2, distance))
+            return false;
     }
     return true; 
 }
 
-void NavigationMesh::SmoothPath(NavigationPath& path)
-{
+
+void NavigationMesh::SmoothPath(NavigationPath& path) {
     if (path.IsEmpty())
         return;
 
-    NavigationPath smoothedPath;
-
     Vector3 currentPoint;
-    if (!path.PopWaypoint(currentPoint)) 
+    if (!path.PopWaypoint(currentPoint))
         return;
 
+    NavigationPath smoothedPath;
     smoothedPath.PushWaypoint(currentPoint);
 
     Vector3 nextPoint;
-    std::vector<Vector3> waypoints;
-
-    while (path.PopWaypoint(nextPoint)) {
-        waypoints.push_back(nextPoint);
-    }
-
-    if (waypoints.empty()) { 
-        path = smoothedPath;
-        return;
-    }
-
-    size_t currentIdx = 0;
-    while (currentIdx < waypoints.size() - 1) {
-        size_t nextIdx = waypoints.size() - 1;
-
-        while (nextIdx > currentIdx + 1) {
-            if (HasLineOfSight(waypoints[currentIdx], waypoints[nextIdx]))
-                break;
-            --nextIdx;
+    while (path.PopWaypoint(nextPoint)) 
+    {
+        if (HasLineOfSight(currentPoint, nextPoint)) 
+            currentPoint = nextPoint;
+        else {
+            smoothedPath.PushWaypoint(currentPoint);
+            currentPoint = nextPoint;
         }
-
-        smoothedPath.PushWaypoint(waypoints[nextIdx]);
-        currentIdx = nextIdx;
     }
+
+    smoothedPath.PushWaypoint(currentPoint);
     path = smoothedPath;
 }
 
@@ -236,19 +215,19 @@ as it is currently ignoring height. You might find tri/plane raycasting is handy
 */
 
 const NavigationMesh::NavTri* NavigationMesh::GetTriForPosition(const Vector3& pos) const {
-	for (const NavTri& t : allTris) {
-		Vector3 planePoint = t.triPlane.ProjectPointOntoPlane(pos);
+    for (const NavTri& t : allTris) {
+        Vector3 planePoint = t.triPlane.ProjectPointOntoPlane(pos);
 
-		float ta = Maths::AreaofTri3D(allVerts[t.indices[0]], allVerts[t.indices[1]], planePoint);
-		float tb = Maths::AreaofTri3D(allVerts[t.indices[1]], allVerts[t.indices[2]], planePoint);
-		float tc = Maths::AreaofTri3D(allVerts[t.indices[2]], allVerts[t.indices[0]], planePoint);
+        float ta = Maths::AreaofTri3D(allVerts[t.indices[0]], allVerts[t.indices[1]], planePoint);
+        float tb = Maths::AreaofTri3D(allVerts[t.indices[1]], allVerts[t.indices[2]], planePoint);
+        float tc = Maths::AreaofTri3D(allVerts[t.indices[2]], allVerts[t.indices[0]], planePoint);
 
-		float areaSum = ta + tb + tc;
+        float areaSum = ta + tb + tc;
 
-		if (abs(areaSum - t.area)  > 0.001f) { //floating points are annoying! Are we more or less inside the triangle?
-			continue;
-		}
-		return &t;
-	}
-	return nullptr;
+        if (abs(areaSum - t.area) > 0.001f) { //floating points are annoying! Are we more or less inside the triangle?
+            continue;
+        }
+        return &t;
+    }
+    return nullptr;
 }

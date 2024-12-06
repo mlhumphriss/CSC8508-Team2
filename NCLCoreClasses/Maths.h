@@ -26,12 +26,20 @@ namespace NCL::Maths {
 		return degs * PI / 180.0f;
 	};
 
-	float RandomValue(float min, float max);
 
+	Vector3 ClosestPointOnLine(const Vector3& a, const Vector3& b, const Vector3& p);
+	float RandomValue(float min, float max);
+	bool PointInTri3D(const Vector3& point, const Vector3& a, const Vector3& b, const Vector3& c);
 	void ScreenBoxOfTri(const Vector3& v0, const Vector3& v1, const Vector3& v2, Vector2& topLeft, Vector2& bottomRight);
 
 	int ScreenAreaOfTri(const Vector3 &a, const Vector3 &b, const Vector3 & c);
 	float SignedAreaof2DTri(const Vector3 &a, const Vector3 &b, const Vector3 & c);
+
+
+
 	bool RayIntersectsEdge(const Vector3& rayStart, const Vector3& rayDir, float& distance, const Vector3& edgeStart, const Vector3& edgeEnd);
+	bool RayIntersectsTriangle(const Vector3& rayOrigin, const Vector3& rayDir, const Vector3& v0, const Vector3& v1, const Vector3& v2, float distance);
+	bool RayIntersectsTriangle(const Vector3& orig, const Vector3& dir, const Vector3& v0, const Vector3& v1, const Vector3& v2, float& t, float& u, float& v);
+
 	float AreaofTri3D(const Vector3 &a, const Vector3 &b, const Vector3 & c);
 }

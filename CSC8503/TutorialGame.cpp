@@ -93,9 +93,51 @@ float delta = 0.25f;
 Vector3 startPos = Vector3(0, 0, 0);
 Vector3 endPos = Vector3(25, 0, 5);
 
+
+GameObject* apple;
+
 void TutorialGame::TestPathfinding()
 {
 	testNodes.clear();
+
+	Ray ray = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());	
+	Debug::DrawLine(-ray.GetPosition(), (ray.GetPosition() + (Vector::Normalise(ray.GetDirection()))));
+
+	Debug::DrawLine(Vector3(-100.0f,-0.0f,0), Vector3(0, 0, 0));
+	Debug::DrawLine(Vector3(0, -0, 100), Vector3(0, 0, 0));
+
+	std::cout << ray.GetPosition().x << "," << ray.GetPosition().y << "," <<  ray.GetPosition().z << std::endl;
+	std::cout << -ray.GetPosition().x << "," << -ray.GetPosition().y << "," << -ray.GetPosition().z << std::endl;
+
+	apple->GetTransform().SetPosition(ray.GetPosition());
+
+
+	Vector3 intersectionPoint;
+	float t, u, v;
+
+	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
+	{
+		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
+		const std::vector<unsigned int>& indices = navigationMesh->GetIndexData();
+
+		for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; j += 3)
+		{
+			unsigned int idx0 = indices[j];
+			unsigned int idx1 = indices[j + 1];
+			unsigned int idx2 = indices[j + 2];
+
+			const Vector3& v0 = navigationMesh->GetPositionData()[idx0];
+			const Vector3& v1 = navigationMesh->GetPositionData()[idx1];
+			const Vector3& v2 = navigationMesh->GetPositionData()[idx2];
+
+			if (RayIntersectsTriangle(ray.GetPosition(), ray.GetDirection(), v0, v1, v2, t, u, v))
+			{
+				intersectionPoint = ray.GetPosition() + ray.GetDirection() * t;
+				break; 
+			}
+		}
+	}	
+	endPos = intersectionPoint;
 
 	Vector3 pos;
 	bool found = navMesh->FindPath(startPos, endPos, outPath);
@@ -195,15 +237,6 @@ void TutorialGame::UpdateKeys() {
 		useGravity = !useGravity; //Toggle gravity!
 		physics->UseGravity(useGravity);
 	}
-
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::T))
-		endPos.x += delta;
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::F))
-		endPos.z -= delta;
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::G))
-		endPos.x -= delta;
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::H))
-		endPos.z += delta;
 
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F9)) 
 		world->ShuffleConstraints(true);
@@ -416,7 +449,7 @@ StateGameObject* TutorialGame::AddStateObjectToWorld(const Vector3& position) {
 }
 
 GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
-	GameObject* apple = new GameObject();
+	apple = new GameObject();
 
 	SphereVolume* volume = new SphereVolume(0.5f);
 	apple->SetBoundingVolume((CollisionVolume*)volume);
@@ -443,7 +476,7 @@ void TutorialGame::InitGameExamples() {
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//AddPlayerToWorld(Vector3(0, 5, 0));
 	//AddEnemyToWorld(Vector3(5, 5, 0));
-	//AddBonusToWorld(Vector3(10, 5, 0));
+	AddBonusToWorld(Vector3(10, 5, 0));
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {

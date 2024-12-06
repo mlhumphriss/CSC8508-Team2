@@ -398,6 +398,9 @@ int main(int argc, char** argv)
 	Window* w = Window::CreateGameWindow(initInfo);
 	NetworkedGame* g = new NetworkedGame();
 
+	w->LockMouseToWindow(true);
+	w->ShowOSPointer(false);
+
 	if (!w->HasInitialised()) 
 		return -1;
 		
