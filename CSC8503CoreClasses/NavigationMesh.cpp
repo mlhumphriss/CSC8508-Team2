@@ -2,6 +2,9 @@
 #include "Assets.h"
 #include "Maths.h"
 #include <fstream>
+#include "Mesh.h"
+#include "RenderObject.h"
+
 using namespace NCL;
 using namespace CSC8503;
 using namespace std;
@@ -42,16 +45,9 @@ NavigationMesh::NavigationMesh(const std::string&filename)
 		file >> tri->indices[1];
 		file >> tri->indices[2];
 
-		tri->centroid = allVerts[tri->indices[0]] +
-			allVerts[tri->indices[1]] +
-			allVerts[tri->indices[2]];
-
+		tri->centroid = allVerts[tri->indices[0]] + allVerts[tri->indices[1]] + allVerts[tri->indices[2]];
 		tri->centroid = allTris[i].centroid / 3.0f;
-
-		tri->triPlane = Plane::PlaneFromTri(allVerts[tri->indices[0]],
-			allVerts[tri->indices[1]],
-			allVerts[tri->indices[2]]);
-
+		tri->triPlane = Plane::PlaneFromTri(allVerts[tri->indices[0]], allVerts[tri->indices[1]], allVerts[tri->indices[2]]);
 		tri->area = Maths::AreaofTri3D(allVerts[tri->indices[0]], allVerts[tri->indices[1]], allVerts[tri->indices[2]]);
 	}
 	for (int i = 0; i < allTris.size(); ++i) 
@@ -69,6 +65,12 @@ NavigationMesh::NavigationMesh(const std::string&filename)
 
 NavigationMesh::~NavigationMesh()
 {
+}
+
+
+void NavigationMesh::SetMesh(Mesh* mesh)
+{
+    mesh->SetVertexPositions(allVerts);
 }
 
 bool NavigationMesh::NodeInList(AStarNode* n, std::vector<AStarNode*>& list) const 
@@ -183,29 +185,48 @@ bool NavigationMesh::HasLineOfSight(const Vector3& start, const Vector3& end) co
                 return false; 
         }
     }
-
     return true; 
 }
 
-void NavigationMesh::SmoothPath(const std::vector<Vector3>& originalPath, std::vector<Vector3>& smoothedPath) 
+void NavigationMesh::SmoothPath(NavigationPath& path)
 {
-    if (originalPath.empty()) 
+    if (path.IsEmpty())
         return;
 
-    smoothedPath.push_back(originalPath.front()); 
-    size_t currentIdx = 0;
+    NavigationPath smoothedPath;
 
-    while (currentIdx < originalPath.size() - 1) {
-        size_t nextIdx = originalPath.size() - 1; 
+    Vector3 currentPoint;
+    if (!path.PopWaypoint(currentPoint)) 
+        return;
+
+    smoothedPath.PushWaypoint(currentPoint);
+
+    Vector3 nextPoint;
+    std::vector<Vector3> waypoints;
+
+    while (path.PopWaypoint(nextPoint)) {
+        waypoints.push_back(nextPoint);
+    }
+
+    if (waypoints.empty()) { 
+        path = smoothedPath;
+        return;
+    }
+
+    size_t currentIdx = 0;
+    while (currentIdx < waypoints.size() - 1) {
+        size_t nextIdx = waypoints.size() - 1;
 
         while (nextIdx > currentIdx + 1) {
-            if (HasLineOfSight(originalPath[currentIdx], originalPath[nextIdx])) 
-                break; 
+            if (HasLineOfSight(waypoints[currentIdx], waypoints[nextIdx]))
+                break;
             --nextIdx;
         }
-        smoothedPath.push_back(originalPath[nextIdx]);
+
+        smoothedPath.PushWaypoint(waypoints[nextIdx]);
         currentIdx = nextIdx;
     }
+    path = smoothedPath;
 }
 
 

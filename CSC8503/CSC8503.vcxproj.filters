@@ -22,6 +22,7 @@
     <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\TutorialGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyGameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\GameTechRenderer.h">
@@ -45,6 +46,7 @@
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\CMakeFiles\CSC8503.dir\Release\cmake_pch.hxx">
       <Filter>Precompile Header File</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyGameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\CMakeLists.txt" />

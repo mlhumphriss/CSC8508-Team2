@@ -2,7 +2,10 @@
 #include "NavigationMap.h"
 #include "Plane.h"
 #include <string>
+#include "Mesh.h"
+#include "RenderObject.h"
 #include <vector>
+
 namespace NCL {
 	namespace CSC8503 {
 		class NavigationMesh : public NavigationMap	{
@@ -11,9 +14,10 @@ namespace NCL {
 			NavigationMesh(const std::string&filename);
 			~NavigationMesh();
 
-			void SmoothPath(const std::vector<Vector3>& originalPath, std::vector<Vector3>& smoothedPath);
+			void SmoothPath(NavigationPath& originalPath);
 			bool FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) override;
-		
+			void SetMesh(Mesh* mesh);
+
 		protected:
 
 

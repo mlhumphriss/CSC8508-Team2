@@ -9,19 +9,23 @@ namespace NCL {
 			NavigationPath() {}
 			~NavigationPath() {}
 
-			void	Clear() {
+			void lear() {
 				waypoints.clear();
 			}
-			void	PushWaypoint(const Vector3& wp) {
+			void PushWaypoint(const Vector3& wp) {
 				waypoints.emplace_back(wp);
 			}
-			bool	PopWaypoint(Vector3& waypoint) {
-				if (waypoints.empty()) {
+			bool PopWaypoint(Vector3& waypoint) 
+			{
+				if (waypoints.empty()) 
 					return false;
-				}
 				waypoint = waypoints.back();
 				waypoints.pop_back();
 				return true;
+			}
+
+			bool IsEmpty() {
+				return waypoints.empty();
 			}
 
 		protected:

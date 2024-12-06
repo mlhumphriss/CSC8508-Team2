@@ -1,4 +1,6 @@
 #include "../NCLCoreClasses/KeyboardMouseController.h"
+#include "NavigationGrid.h"
+#include "NavigationMesh.h"
 
 #pragma once
 #include "GameTechRenderer.h"
@@ -53,6 +55,10 @@ namespace NCL {
 			GameObject* AddEnemyToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
 
+
+			void DisplayPathfinding();
+			void TestPathfinding();
+
 			StateGameObject* AddStateObjectToWorld(const Vector3& position);
 			StateGameObject* testStateObject;
 
@@ -78,7 +84,8 @@ namespace NCL {
 			Mesh*	sphereMesh	= nullptr;
 
 			Mesh* navigationMesh = nullptr;
-
+			NavigationPath outPath;
+			NavigationMesh* navMesh = nullptr;
 
 			Texture*	basicTex	= nullptr;
 			Shader*		basicShader = nullptr;
