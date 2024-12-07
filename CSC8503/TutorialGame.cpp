@@ -8,8 +8,6 @@
 #include "OrientationConstraint.h"
 #include "StateGameObject.h"
 
-
-
 using namespace NCL;
 using namespace CSC8503;
 
@@ -100,20 +98,12 @@ void TutorialGame::TestPathfinding()
 {
 	testNodes.clear();
 
-	Ray ray = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());	
-	Debug::DrawLine(-ray.GetPosition(), (ray.GetPosition() + (Vector::Normalise(ray.GetDirection()))));
-
-	Debug::DrawLine(Vector3(-100.0f,-0.0f,0), Vector3(0, 0, 0));
-	Debug::DrawLine(Vector3(0, -0, 100), Vector3(0, 0, 0));
-
-	std::cout << ray.GetPosition().x << "," << ray.GetPosition().y << "," <<  ray.GetPosition().z << std::endl;
-	std::cout << -ray.GetPosition().x << "," << -ray.GetPosition().y << "," << -ray.GetPosition().z << std::endl;
-
-	apple->GetTransform().SetPosition(ray.GetPosition());
-
-
-	Vector3 intersectionPoint;
+	Vector3 intersectionPoint = endPos;
 	float t, u, v;
+
+
+	Vector3 playerPos = endPos;
+	Vector3 rayDir = Vector3(0, -1, 0);
 
 	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
 	{
@@ -130,14 +120,17 @@ void TutorialGame::TestPathfinding()
 			const Vector3& v1 = navigationMesh->GetPositionData()[idx1];
 			const Vector3& v2 = navigationMesh->GetPositionData()[idx2];
 
-			if (RayIntersectsTriangle(ray.GetPosition(), ray.GetDirection(), v0, v1, v2, t, u, v))
+			if (RayIntersectsTriangle(playerPos, rayDir, v0, v1, v2, t, u, v))
 			{
-				intersectionPoint = ray.GetPosition() + ray.GetDirection() * t;
+				intersectionPoint = playerPos + rayDir * t;
 				break; 
 			}
 		}
 	}	
+
 	endPos = intersectionPoint;
+	apple->GetTransform().SetPosition(intersectionPoint);
+
 
 	Vector3 pos;
 	bool found = navMesh->FindPath(startPos, endPos, outPath);
@@ -225,31 +218,21 @@ void TutorialGame::UpdateGame(float dt)
 	Debug::UpdateRenderables(dt);
 }
 
-void TutorialGame::UpdateKeys() {
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F1)) {
-		InitWorld(); //We can reset the simulation at any time with F1
-		selectionObject = nullptr;
-	}
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F2)) 
-		InitCamera();
-
+void TutorialGame::UpdateKeys() 
+{
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::G)) {
-		useGravity = !useGravity; //Toggle gravity!
+		useGravity = !useGravity; 
 		physics->UseGravity(useGravity);
 	}
 
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F9)) 
-		world->ShuffleConstraints(true);
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F10)) 
-		world->ShuffleConstraints(false);
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F7)) 
-		world->ShuffleObjects(true);
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::F8)) 
-		world->ShuffleObjects(false);
-	if (lockedObject) 
-		LockedObjectMovement();
-	else 
-		DebugObjectMovement();
+	if (Window::GetKeyboard()->KeyDown(KeyCodes::T))
+		endPos.x += delta;
+	if (Window::GetKeyboard()->KeyDown(KeyCodes::F))
+		endPos.z -= delta;
+	if (Window::GetKeyboard()->KeyDown(KeyCodes::G))
+		endPos.x -= delta;
+	if (Window::GetKeyboard()->KeyDown(KeyCodes::H))
+		endPos.z += delta;
 }
 
 void TutorialGame::LockedObjectMovement() 
@@ -270,29 +253,6 @@ void TutorialGame::LockedObjectMovement()
 		selectionObject->GetPhysicsObject()->AddForce(Vector3(0,-10,0));
 }
 
-void TutorialGame::DebugObjectMovement() 
-{
-	if (inSelectionMode && selectionObject) {
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::LEFT)) 
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(-10, 0, 0));
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::RIGHT)) 
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(10, 0, 0));
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::NUM7)) 
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(0, 10, 0));
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::NUM8)) 
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(0, -10, 0));
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::RIGHT)) 
-			selectionObject->GetPhysicsObject()->AddTorque(Vector3(10, 0, 0));
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::UP)) 
-			selectionObject->GetPhysicsObject()->AddForce(Vector3(0, 0, -10));
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::DOWN)) 
-			selectionObject->GetPhysicsObject()->AddForce(Vector3(0, 0, 10));
-		if (Window::GetKeyboard()->KeyDown(KeyCodes::NUM5))
-			selectionObject->GetPhysicsObject()->AddForce(Vector3(0, -10, 0));
-
-	}
-}
-
 void TutorialGame::InitCamera() {
 	world->GetMainCamera().SetNearPlane(0.1f);
 	world->GetMainCamera().SetFarPlane(500.0f);
@@ -307,9 +267,8 @@ void TutorialGame::InitWorld()
 	world->ClearAndErase();
 	physics->Clear();
 	//BridgeConstraintTest();
-	//InitMixedGridWorld(15, 15, 3.5f, 3.5f);
+	InitMixedGridWorld(15, 15, 3.5f, 3.5f);
 	InitGameExamples();
-	InitDefaultFloor();
 	testStateObject = AddStateObjectToWorld(Vector3(0, 10, 0));
 
 }
@@ -373,17 +332,19 @@ GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dim
 {
 	navMesh = new NavigationMesh("smalltest.navmesh");
 	navMesh->SetMesh(navigationMesh);
-
+	// Render Objects
 	GameObject* navMeshObject = new GameObject();
-	AABBVolume* volume = new AABBVolume(dimensions);
+	navMeshObject->SetRenderObject(new RenderObject(&navMeshObject->GetTransform(), navigationMesh, basicTex, basicShader));
 
+
+
+	/*AABBVolume* volume = new AABBVolume(dimensions);
 	navMeshObject->SetBoundingVolume((CollisionVolume*)volume);
 	navMeshObject->GetTransform().SetPosition(position).SetScale(dimensions);
 
-	navMeshObject->SetRenderObject(new RenderObject(&navMeshObject->GetTransform(), navigationMesh, basicTex, basicShader));
 	navMeshObject->SetPhysicsObject(new PhysicsObject(&navMeshObject->GetTransform(), navMeshObject->GetBoundingVolume()));
 	navMeshObject->GetPhysicsObject()->SetInverseMass(0);
-	navMeshObject->GetPhysicsObject()->InitCubeInertia();
+	navMeshObject->GetPhysicsObject()->InitCubeInertia();*/
 
 	world->AddGameObject(navMeshObject);
 
@@ -411,11 +372,11 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	return character;
 }
 
-GameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) {
+EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) {
 	float meshSize		= 3.0f;
 	float inverseMass	= 0.5f;
 
-	GameObject* character = new GameObject();
+	EnemyGameObject* character = new EnemyGameObject();
 	AABBVolume* volume = new AABBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
 
 	character->SetBoundingVolume((CollisionVolume*)volume);
@@ -468,10 +429,6 @@ GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 	return apple;
 }
 
-void TutorialGame::InitDefaultFloor() {
-	AddFloorToWorld(Vector3(0, -20, 0));
-}
-
 void TutorialGame::InitGameExamples() {
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//AddPlayerToWorld(Vector3(0, 5, 0));
@@ -482,7 +439,7 @@ void TutorialGame::InitGameExamples() {
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
 	for (int x = 0; x < numCols; ++x) {
 		for (int z = 0; z < numRows; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 10.0f, z * rowSpacing);
+			Vector3 position = Vector3(x * colSpacing, 100.0f, z * rowSpacing);
 			AddSphereToWorld(position, radius, 1.0f);
 		}
 	}
@@ -495,7 +452,7 @@ void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing
 
 	for (int x = 0; x < numCols; ++x) {
 		for (int z = 0; z < numRows; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 10.0f, z * rowSpacing);
+			Vector3 position = Vector3(x * colSpacing, 100.0f, z * rowSpacing);
 			if (rand() % 2) 
 				AddCubeToWorld(position, cubeDims);
 			else 
