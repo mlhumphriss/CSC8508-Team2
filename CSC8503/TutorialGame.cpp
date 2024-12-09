@@ -347,13 +347,10 @@ std::vector<Vector3> GetVertices(Mesh* navigationMesh, int i)
 }
 
 
-void CalculateCubeTransformations(const std::vector<Vector3>& vertices, 
-	Vector3& position, Vector3& scale, Quaternion& rotation) 
+void CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation)
 {
-	Vector3 minBound(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), 
-		std::numeric_limits<float>::max());
-	Vector3 maxBound(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), 
-		std::numeric_limits<float>::lowest());
+	Vector3 minBound(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+	Vector3 maxBound(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
 
 	for (const auto& vertex : vertices) {
 		minBound = Vector::Min(minBound, vertex);
@@ -361,19 +358,35 @@ void CalculateCubeTransformations(const std::vector<Vector3>& vertices,
 	}
 
 	position = (minBound + maxBound) * 0.5f;
-	scale = (maxBound - minBound) * 0.5f;
+	Vector3 extent = maxBound - minBound;
 
-	Vector3 forward = Vector::Normalise((maxBound - minBound));
-	Vector3 right = Vector3(1, 0, 0); 
-	Vector3 up = Vector::Normalise(Vector::Cross(forward, right));
+	Vector3 a, b, c;
+	a = vertices[1] - vertices[0];
+	b = vertices[4] - vertices[5];
+	c = vertices[8] - vertices[9];
 
-	Matrix3 rotationMatrix;
-	rotationMatrix.SetColumn(0, right);
-	rotationMatrix.SetColumn(1, up);
-	rotationMatrix.SetColumn(2, forward);
+	extent = Vector3(Vector::Length(a),Vector::Length(b),Vector::Length(c));
 
-	rotation = Quaternion();  
+	Vector3 localX = Vector::Normalise(a); 
+	Vector3 localY = Vector::Normalise(b); 
+	Vector3 localZ = Vector::Normalise(c); 
+
+	Matrix3 rotationMatrix = Matrix3();
+	rotationMatrix.SetColumn(0, Vector4(localX, 0));
+	rotationMatrix.SetColumn(1, Vector4(localY, 0));
+	rotationMatrix.SetColumn(2, Vector4(localZ, 0));
+
+
+	std::cout << "Checking" << std::endl;
+	std::cout << localX.x<< ", " << localX.y  << ", " << localX.z << std::endl;	
+	std::cout << localY.x << ", " << localY.y << ", " << localY.z << std::endl;
+	std::cout << localZ.x << ", " << localZ.y << ", " << localZ.z << std::endl;
+
+
+	rotation = Quaternion(rotationMatrix);
+	scale = extent * 0.5f;
 }
+
 
 GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions) 
 {
