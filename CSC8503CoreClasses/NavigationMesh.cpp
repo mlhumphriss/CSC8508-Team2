@@ -68,10 +68,6 @@ NavigationMesh::~NavigationMesh()
 }
 
 
-void NavigationMesh::SetMesh(Mesh* mesh)
-{
-    mesh->SetVertexPositions(allVerts);
-}
 
 bool NavigationMesh::NodeInList(AStarNode* n, std::vector<AStarNode*>& list) const 
 {

@@ -22,7 +22,7 @@ TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *
 	renderer = new GameTechRenderer(*world);
 #endif
 
-	physics		= new PhysicsSystem(*world);
+	physics = new PhysicsSystem(*world);
 
 	forceMagnitude	= 10.0f;
 	useGravity		= false;
@@ -103,75 +103,30 @@ void TutorialGame::TestPathfinding()
 	Vector3 intersectionPoint = endPos;
 	float t, u, v;
 
-
 	Vector3 playerPos = endPos;
 	Vector3 rayDir = Vector3(0, -1, 0);
 
-	auto x = navigationMesh->GetPositionData();
 	auto submeshCount = navigationMesh->GetSubMeshCount();
-
-	for (const auto& position : x) 
-	{
-		Debug::DrawLine(position, position + Vector3(0, 1, 0));
-	}
+	auto x = navigationMesh->GetPositionData();
+	auto triCount = navigationMesh->GetIndexCount() / 3;
 
 
-	/*auto y = navigationMesh->GetIndexData();
-	auto x = navigationMesh->GetPositionData(); 
+	for (int i = 0; i < triCount; ++i) {
 
-	for (size_t i = 0; i < y.size(); i += 3)
-	{
-		unsigned int idx0 = y[i];
-		unsigned int idx1 = y[i + 1];
-		unsigned int idx2 = y[i + 2];
+		Vector3 a, b, c;
+		navigationMesh->GetTriangle(i, a, b, c);
 
-		Vector3 v0 = x[idx0];
-		Vector3 v1 = x[idx1];
-		Vector3 v2 = x[idx2];
+		Debug::DrawLine(a,b);
+		Debug::DrawLine(b,c);
+		Debug::DrawLine(c,a);
 
-		Debug::DrawLine(v0, v1, Vector4(1.0f, 0.0f, 0.0f, 1.0f)); 
-		Debug::DrawLine(v1, v2, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-		Debug::DrawLine(v2, v0, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-	}*/
-
-	/*
-	int startIdx = 0;
-
-	if (submeshCount == 0) 
-		submeshCount = 1;  
-
-	for (size_t i = 0; i < submeshCount; ++i) {
-		Vector4 color = colors[i % colors.size()];
-
-		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
-		size_t submeshSize = (submeshCount == 1) ? navigationMesh->GetIndexData().size() : subMesh->start;
-
-		std::cout << subMesh->count << " :: " << subMesh->start << " => " << startIdx << std::endl;
-	
-		const std::vector<unsigned int>& indices = navigationMesh->GetIndexData();
-		const std::vector<Vector3>& positionData = navigationMesh->GetPositionData();
-		std::vector<Vector3> vertices;
-
-		for (size_t j = startIdx; j < startIdx + submeshSize; j += 3) {
-			const auto& v0 = x[j];
-			const auto& v1 = x[j + 1];
-			const auto& v2 = x[j + 2];
-
-			Debug::DrawLine(v0, v1, color);
-			Debug::DrawLine(v1, v2, color);
-			Debug::DrawLine(v2, v0, color);
-
-			//if (RayIntersectsTriangle(playerPos, rayDir, v0, v1, v2, t, u, v)) {
-			//	intersectionPoint = playerPos + rayDir * t;
+		if (RayIntersectsTriangle(playerPos, rayDir, a, b, c, t, u, v))
+		{
+				intersectionPoint = playerPos + rayDir * t;
 				//break;
-			//}
 		}
-		startIdx += submeshSize;
 	}
 	
-	*/
-
-
 	endPos = intersectionPoint;
 	apple->GetTransform().SetPosition(intersectionPoint);
 
@@ -406,7 +361,7 @@ void CalculateCubeTransformations(const std::vector<Vector3>& vertices,
 	}
 
 	position = (minBound + maxBound) * 0.5f;
-	scale = maxBound - minBound;
+	scale = (maxBound - minBound) * 0.5f;
 
 	Vector3 forward = Vector::Normalise((maxBound - minBound));
 	Vector3 right = Vector3(1, 0, 0); 
@@ -423,11 +378,10 @@ void CalculateCubeTransformations(const std::vector<Vector3>& vertices,
 GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions) 
 {
 	navMesh = new NavigationMesh("smalltest.navmesh");
-	navMesh->SetMesh(navigationMesh);
 	GameObject* navMeshObject = new GameObject();
-	navMeshObject->SetRenderObject(new RenderObject(&navMeshObject->GetTransform(), navigationMesh, basicTex, basicShader));
+	//navMeshObject->SetRenderObject(new RenderObject(&navMeshObject->GetTransform(), navigationMesh, basicTex, basicShader));
 
-	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i) 
+	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
 	{
 		if (navigationMesh->GetSubMesh(i)->count != 36)
 			continue;  
@@ -443,7 +397,8 @@ GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dim
 		AABBVolume* volume = new AABBVolume(dimensions);
 
 		colliderObject->SetBoundingVolume((CollisionVolume*)volume);
-		colliderObject->GetTransform().SetScale(dimensions).SetPosition(localPosition); // .SetOrientation(rotationMatrix);
+		colliderObject->GetTransform().SetScale(dimensions * 2.0f).SetPosition(localPosition).SetOrientation(rotationMatrix);
+		colliderObject->SetRenderObject(new RenderObject(&colliderObject->GetTransform(), cubeMesh, basicTex, basicShader));
 
 		colliderObject->SetPhysicsObject(new PhysicsObject(&colliderObject->GetTransform(), colliderObject->GetBoundingVolume()));
 		colliderObject->GetPhysicsObject()->SetInverseMass(0);

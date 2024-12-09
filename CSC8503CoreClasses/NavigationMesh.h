@@ -16,7 +16,6 @@ namespace NCL {
 
 			void SmoothPath(NavigationPath& originalPath);
 			bool FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) override;
-			void SetMesh(Mesh* mesh);
 
 		protected:
 
