@@ -1,16 +1,15 @@
 #pragma once
-#include "NavigationMesh.h"
 #include "GameObject.h"
 
 #include "BehaviourNode.h"
 #include "BehaviourSelector.h"
 #include "BehaviourSequence.h"
 #include "BehaviourAction.h"
+#include "NavigationMesh.h"
 
 
 namespace NCL {
     namespace CSC8503 {
-        class BehaviourTree;
         class EnemyGameObject : public GameObject {
         public:
             EnemyGameObject();

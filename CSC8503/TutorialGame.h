@@ -96,6 +96,16 @@ namespace NCL {
 				lockedObject = o;
 			}
 
+
+			std::vector<Vector4> colors = {
+				Vector4(1.0f, 0.0f, 0.0f, 1.0f), // Red
+				Vector4(0.0f, 1.0f, 0.0f, 1.0f), // Green
+				Vector4(0.0f, 0.0f, 1.0f, 1.0f), // Blue
+				Vector4(1.0f, 1.0f, 0.0f, 1.0f), // Yellow
+				Vector4(1.0f, 0.0f, 1.0f, 1.0f), // Magenta
+				Vector4(0.0f, 1.0f, 1.0f, 1.0f)  // Cyan
+			};
+
 			GameObject* objClosest = nullptr;
 		};
 	}

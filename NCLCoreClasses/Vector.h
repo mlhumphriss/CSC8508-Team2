@@ -302,6 +302,25 @@ namespace NCL::Maths {
         }
 
         template <typename T, uint32_t n>
+        constexpr VectorTemplate<T, n> Min(const VectorTemplate<T, n>& a, const VectorTemplate<T, n>& b) {
+            VectorTemplate<T, n> result;
+            for (uint32_t i = 0; i < n; ++i) {
+                result.array[i] = std::min(a.array[i], b.array[i]);
+            }
+            return result;
+        }
+
+        template <typename T, uint32_t n>
+        constexpr VectorTemplate<T, n> Max(const VectorTemplate<T, n>& a, const VectorTemplate<T, n>& b) {
+            VectorTemplate<T, n> result;
+            for (uint32_t i = 0; i < n; ++i) {
+                result.array[i] = std::max(a.array[i], b.array[i]);
+            }
+            return result;
+        }
+
+
+        template <typename T, uint32_t n>
         constexpr T		GetMaxElement(const VectorTemplate<T, n>& a) {
             float v = a.array[0];
             for (int i = 0; i < n; ++i) {

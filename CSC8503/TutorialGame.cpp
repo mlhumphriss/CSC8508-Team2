@@ -3,6 +3,7 @@
 #include "PhysicsObject.h"
 #include "RenderObject.h"
 #include "TextureLoader.h"
+#include "EnemyGameObject.h"
 
 #include "PositionConstraint.h"
 #include "OrientationConstraint.h"
@@ -90,9 +91,10 @@ NavigationPath outPath;
 float delta = 0.25f;
 Vector3 startPos = Vector3(0, 0, 0);
 Vector3 endPos = Vector3(25, 0, 5);
-
-
 GameObject* apple;
+
+
+
 
 void TutorialGame::TestPathfinding()
 {
@@ -105,28 +107,70 @@ void TutorialGame::TestPathfinding()
 	Vector3 playerPos = endPos;
 	Vector3 rayDir = Vector3(0, -1, 0);
 
-	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
+	auto x = navigationMesh->GetPositionData();
+	auto submeshCount = navigationMesh->GetSubMeshCount();
+
+	for (const auto& position : x) 
 	{
+		Debug::DrawLine(position, position + Vector3(0, 1, 0));
+	}
+
+
+	/*auto y = navigationMesh->GetIndexData();
+	auto x = navigationMesh->GetPositionData(); 
+
+	for (size_t i = 0; i < y.size(); i += 3)
+	{
+		unsigned int idx0 = y[i];
+		unsigned int idx1 = y[i + 1];
+		unsigned int idx2 = y[i + 2];
+
+		Vector3 v0 = x[idx0];
+		Vector3 v1 = x[idx1];
+		Vector3 v2 = x[idx2];
+
+		Debug::DrawLine(v0, v1, Vector4(1.0f, 0.0f, 0.0f, 1.0f)); 
+		Debug::DrawLine(v1, v2, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+		Debug::DrawLine(v2, v0, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+	}*/
+
+	/*
+	int startIdx = 0;
+
+	if (submeshCount == 0) 
+		submeshCount = 1;  
+
+	for (size_t i = 0; i < submeshCount; ++i) {
+		Vector4 color = colors[i % colors.size()];
+
 		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
+		size_t submeshSize = (submeshCount == 1) ? navigationMesh->GetIndexData().size() : subMesh->start;
+
+		std::cout << subMesh->count << " :: " << subMesh->start << " => " << startIdx << std::endl;
+	
 		const std::vector<unsigned int>& indices = navigationMesh->GetIndexData();
+		const std::vector<Vector3>& positionData = navigationMesh->GetPositionData();
+		std::vector<Vector3> vertices;
 
-		for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; j += 3)
-		{
-			unsigned int idx0 = indices[j];
-			unsigned int idx1 = indices[j + 1];
-			unsigned int idx2 = indices[j + 2];
+		for (size_t j = startIdx; j < startIdx + submeshSize; j += 3) {
+			const auto& v0 = x[j];
+			const auto& v1 = x[j + 1];
+			const auto& v2 = x[j + 2];
 
-			const Vector3& v0 = navigationMesh->GetPositionData()[idx0];
-			const Vector3& v1 = navigationMesh->GetPositionData()[idx1];
-			const Vector3& v2 = navigationMesh->GetPositionData()[idx2];
+			Debug::DrawLine(v0, v1, color);
+			Debug::DrawLine(v1, v2, color);
+			Debug::DrawLine(v2, v0, color);
 
-			if (RayIntersectsTriangle(playerPos, rayDir, v0, v1, v2, t, u, v))
-			{
-				intersectionPoint = playerPos + rayDir * t;
-				break; 
-			}
+			//if (RayIntersectsTriangle(playerPos, rayDir, v0, v1, v2, t, u, v)) {
+			//	intersectionPoint = playerPos + rayDir * t;
+				//break;
+			//}
 		}
-	}	
+		startIdx += submeshSize;
+	}
+	
+	*/
+
 
 	endPos = intersectionPoint;
 	apple->GetTransform().SetPosition(intersectionPoint);
@@ -328,26 +372,88 @@ GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimens
 	return cube;
 }
 
+std::vector<Vector3> GetVertices(Mesh* navigationMesh, int i)
+{
+	const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
+	const std::vector<unsigned int>& indices = navigationMesh->GetIndexData();
+	const std::vector<Vector3>& positionData = navigationMesh->GetPositionData();
+	std::vector<Vector3> vertices;
+
+	for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; j += 3) {
+		unsigned int idx0 = indices[j];
+		unsigned int idx1 = indices[j + 1];
+		unsigned int idx2 = indices[j + 2];
+
+		vertices.push_back(positionData[idx0]);
+		vertices.push_back(positionData[idx1]);
+		vertices.push_back(positionData[idx2]);
+	}
+	return vertices;
+}
+
+
+void CalculateCubeTransformations(const std::vector<Vector3>& vertices, 
+	Vector3& position, Vector3& scale, Quaternion& rotation) 
+{
+	Vector3 minBound(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), 
+		std::numeric_limits<float>::max());
+	Vector3 maxBound(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), 
+		std::numeric_limits<float>::lowest());
+
+	for (const auto& vertex : vertices) {
+		minBound = Vector::Min(minBound, vertex);
+		maxBound = Vector::Max(maxBound, vertex);
+	}
+
+	position = (minBound + maxBound) * 0.5f;
+	scale = maxBound - minBound;
+
+	Vector3 forward = Vector::Normalise((maxBound - minBound));
+	Vector3 right = Vector3(1, 0, 0); 
+	Vector3 up = Vector::Normalise(Vector::Cross(forward, right));
+
+	Matrix3 rotationMatrix;
+	rotationMatrix.SetColumn(0, right);
+	rotationMatrix.SetColumn(1, up);
+	rotationMatrix.SetColumn(2, forward);
+
+	rotation = Quaternion();  
+}
+
 GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions) 
 {
 	navMesh = new NavigationMesh("smalltest.navmesh");
 	navMesh->SetMesh(navigationMesh);
-	// Render Objects
 	GameObject* navMeshObject = new GameObject();
 	navMeshObject->SetRenderObject(new RenderObject(&navMeshObject->GetTransform(), navigationMesh, basicTex, basicShader));
 
+	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i) 
+	{
+		if (navigationMesh->GetSubMesh(i)->count != 36)
+			continue;  
 
+		std::vector<Vector3> vertices = GetVertices(navigationMesh, i);
 
-	/*AABBVolume* volume = new AABBVolume(dimensions);
-	navMeshObject->SetBoundingVolume((CollisionVolume*)volume);
-	navMeshObject->GetTransform().SetPosition(position).SetScale(dimensions);
+		Vector3 dimensions, localPosition;
+		Quaternion rotationMatrix;
 
-	navMeshObject->SetPhysicsObject(new PhysicsObject(&navMeshObject->GetTransform(), navMeshObject->GetBoundingVolume()));
-	navMeshObject->GetPhysicsObject()->SetInverseMass(0);
-	navMeshObject->GetPhysicsObject()->InitCubeInertia();*/
+		CalculateCubeTransformations(vertices, localPosition, dimensions, rotationMatrix);
+
+		GameObject* colliderObject = new GameObject();
+		AABBVolume* volume = new AABBVolume(dimensions);
+
+		colliderObject->SetBoundingVolume((CollisionVolume*)volume);
+		colliderObject->GetTransform().SetScale(dimensions).SetPosition(localPosition); // .SetOrientation(rotationMatrix);
+
+		colliderObject->SetPhysicsObject(new PhysicsObject(&colliderObject->GetTransform(), colliderObject->GetBoundingVolume()));
+		colliderObject->GetPhysicsObject()->SetInverseMass(0);
+		colliderObject->GetPhysicsObject()->InitCubeInertia();
+
+		world->AddGameObject(colliderObject);
+		std::cout << "Adding cube collider for submesh " << i << std::endl;
+	}
 
 	world->AddGameObject(navMeshObject);
-
 	return navMeshObject;
 }
 
@@ -429,7 +535,8 @@ GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 	return apple;
 }
 
-void TutorialGame::InitGameExamples() {
+void TutorialGame::InitGameExamples() 
+{
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//AddPlayerToWorld(Vector3(0, 5, 0));
 	//AddEnemyToWorld(Vector3(5, 5, 0));
@@ -497,13 +604,6 @@ void TutorialGame::BridgeConstraintTest()
 }
 
 
-/*
-Every frame, this code will let you perform a raycast, to see if there's an object
-underneath the cursor, and if so 'select it' into a pointer, so that it can be 
-manipulated later. Pressing Q will let you toggle between this behaviour and instead
-letting you move the camera around. 
-
-*/
 bool TutorialGame::SelectObject() {
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::Q)) {
 		inSelectionMode = !inSelectionMode;

@@ -28,7 +28,7 @@ bool Mesh::HasTriangle(unsigned int i) const {
 	return i < (unsigned int)triCount;
 }
 
-bool	Mesh::GetVertexIndicesForTri(unsigned int i, unsigned int& a, unsigned int& b, unsigned int& c) const {
+bool Mesh::GetVertexIndicesForTri(unsigned int i, unsigned int& a, unsigned int& b, unsigned int& c) const {
 	if (!HasTriangle(i)) {
 		return false;
 	}
