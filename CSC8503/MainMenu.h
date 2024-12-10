@@ -2,37 +2,46 @@
 #include "PushdownMachine.h"
 #include "PushdownState.h"
 
-#include "Debug.h"
+#include "PushdownMachine.h"
+#include "PushdownState.h"
+
 
 #include "StateMachine.h"
 #include "StateTransition.h"
 #include "State.h"
+#include "Window.h"
 
-#include "TutorialGame.h"
-
-#include "PushdownMachine.h"
-#include "PushdownState.h"
-
-#include "BehaviourNode.h"
-#include "BehaviourSelector.h"
-#include "BehaviourSequence.h"
-#include "BehaviourAction.h"
+#include "Debug.h"
+#include "Controller.h"
 
 
+namespace NCL {
+	namespace CSC8503 {
+		class MainMenu {
 
-class MainMenu {
+		public:			
+			typedef std::function<void(bool state)> SetPauseGame;
 
-public:
-	MainMenu();
-	~MainMenu();
-	void Update(float dt);
-	bool CheckUpdateGame();
+			MainMenu(SetPauseGame setPauseFunc);
+			~MainMenu();
+			void Update(float dt);
+			bool CheckUpdateGame();
 
-protected:
-	bool isPaused;
-	PushdownMachine* machine = nullptr;
-	const Controller* activeController = nullptr;
+			SetPauseGame setPause;
+
+		protected:
+			PushdownMachine* machine = nullptr;
+			const Controller* activeController = nullptr;
+			void UpdateGameStates();
+			void OnStateAwake();
+
+			void OnStateAwakePause() { setPause(true); }
+			void OnStateAwakeUnpause() { setPause(false); }
 
 
-
-};
+			PushdownState::PushdownResult IntroScreenOnUpdate(float dt, PushdownState** newState);
+			PushdownState::PushdownResult GameScreenOnUpdate(float dt, PushdownState** newState);
+			PushdownState::PushdownResult PauseScreenOnUpdate(float dt, PushdownState** newState);
+		};
+	}
+}

@@ -12,6 +12,8 @@
 using namespace NCL;
 using namespace CSC8503;
 
+
+
 TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *Window::GetWindow()->GetMouse()) {
 	world		= new GameWorld();
 #ifdef USEVULKAN
@@ -28,6 +30,7 @@ TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *
 	useGravity		= false;
 	inSelectionMode = false;
 
+
 	world->GetMainCamera().SetController(controller);
 
 	controller.MapAxis(0, "Sidestep");
@@ -37,16 +40,18 @@ TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *
 	controller.MapAxis(3, "XLook");
 	controller.MapAxis(4, "YLook");
 
-	InitialiseAssets();
+	InitialiseAssets();	
+	
+	mainMenu = new MainMenu([&](bool state) -> void { this->SetPause(state);});	
+
+	world->UpdateWorld(0.1f);
+	physics->Update(0.1f);
 }
 
-/*
+void TutorialGame::SetPause(bool state) {
+	inPause = state;
+}
 
-Each of the little demo scenarios used in the game uses the same 2 meshes, 
-and the same texture and shader. There's no need to ever load in anything else
-for this module, even in the coursework, but you can add it if you like!
-
-*/
 void TutorialGame::InitialiseAssets() {
 	cubeMesh	= renderer->LoadMesh("cube.msh");
 	navigationMesh = renderer->LoadMesh("NavMeshObject.msh");
@@ -156,8 +161,19 @@ void TutorialGame::DisplayPathfinding()
 
 void TutorialGame::UpdateGame(float dt) 
 {
+
+	mainMenu->Update(dt);
+	renderer->Render();
+	renderer->Update(dt);
+
+	Debug::UpdateRenderables(dt);
+
+	if (inPause)
+		return;
+
 	if (!inSelectionMode) 
 		world->GetMainCamera().UpdateCamera(dt);
+
 	if (testStateObject) 
 		testStateObject -> Update(dt);
 
@@ -179,11 +195,6 @@ void TutorialGame::UpdateGame(float dt)
 	TestPathfinding();
 	DisplayPathfinding();
 	UpdateKeys();
-
-	if (useGravity) 
-		Debug::Print("(G)ravity on", Vector2(5, 95), Debug::RED);
-	else 
-		Debug::Print("(G)ravity off", Vector2(5, 95), Debug::RED);
 
 	RayCollision closestCollision;
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::K) && selectionObject) {
@@ -210,11 +221,7 @@ void TutorialGame::UpdateGame(float dt)
 	MoveSelectedObject();
 
 	world->UpdateWorld(dt);
-	renderer->Update(dt);
 	physics->Update(dt);
-
-	renderer->Render();
-	Debug::UpdateRenderables(dt);
 }
 
 void TutorialGame::UpdateKeys() 
@@ -372,9 +379,9 @@ void CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3&
 	Vector3 localZ = Vector::Normalise(c); 
 
 	Matrix3 rotationMatrix = Matrix3();
-	rotationMatrix.SetColumn(0, Vector4(localX, 0));
-	rotationMatrix.SetColumn(1, Vector4(localY, 0));
-	rotationMatrix.SetColumn(2, Vector4(localZ, 0));
+	rotationMatrix.SetRow(0, Vector4(localX, 0));
+	rotationMatrix.SetRow(1, Vector4(localY, 0));
+	rotationMatrix.SetRow(2, Vector4(localZ, 0));
 
 
 	std::cout << "Checking" << std::endl;
@@ -585,7 +592,6 @@ bool TutorialGame::SelectObject() {
 		}
 	}
 	if (inSelectionMode) {
-		Debug::Print("Press Q to change to camera mode!", Vector2(5, 85));
 
 		if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::Left)) {
 			if (selectionObject) {	//set colour to deselected;
@@ -614,13 +620,11 @@ bool TutorialGame::SelectObject() {
 			}
 		}
 	}
-	else 
-		Debug::Print("Press Q to change to select mode!", Vector2(5, 85));
+
 	return false;
 }
 
 void TutorialGame::MoveSelectedObject() {
-	Debug::Print("Click Force:" + std::to_string(forceMagnitude), Vector2(5, 90));
 	forceMagnitude += Window::GetMouse()->GetWheelMovement() * 100.0f;
 
 	if (!selectionObject) 

@@ -1,4 +1,5 @@
 #pragma once
+#include "PushdownState.h"
 
 namespace NCL {
 	namespace CSC8503 {
@@ -10,7 +11,11 @@ namespace NCL {
 			PushdownMachine(PushdownState* initialState);
 			~PushdownMachine();
 
+			void PushStateToStack(PushdownState* newState);
+			PushdownState* GetActiveState();
+
 			bool Update(float dt);
+			bool ModifyStack(PushdownState* newState, PushdownState::PushdownResult result);
 
 		protected:
 			PushdownState* activeState;

@@ -8,7 +8,7 @@ namespace NCL {
 		public:
 			State() {}
 			State(StateUpdateFunction someFunc) {
-				func		= someFunc;
+				func = someFunc;
 			}
 			void Update(float dt)  {
 				if (func != nullptr) {

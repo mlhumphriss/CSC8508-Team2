@@ -2,6 +2,8 @@
 #include "NavigationGrid.h"
 #include "EnemyGameObject.h"
 #include "NavigationMesh.h"
+#include "MainMenu.h"
+
 
 #pragma once
 #include "GameTechRenderer.h"
@@ -27,6 +29,7 @@ namespace NCL {
 			void InitCamera();
 			void UpdateKeys();
 
+			void SetPause(bool state);
 			void InitWorld();
 			void BridgeConstraintTest();
 			void InitGameExamples();
@@ -66,6 +69,7 @@ namespace NCL {
 			KeyboardMouseController controller;
 
 			bool useGravity;
+			bool inPause = false;
 			bool inSelectionMode;
 
 			float		forceMagnitude;
@@ -88,6 +92,8 @@ namespace NCL {
 			Mesh*	kittenMesh	= nullptr;
 			Mesh*	enemyMesh	= nullptr;
 			Mesh*	bonusMesh	= nullptr;
+
+			MainMenu* mainMenu = nullptr;
 
 			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
