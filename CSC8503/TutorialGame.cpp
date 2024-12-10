@@ -319,7 +319,7 @@ GameObject* TutorialGame::AddSphereToWorld(const Vector3& position, float radius
 
 GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass) {
 	GameObject* cube = new GameObject();
-	AABBVolume* volume = new AABBVolume(dimensions);
+	OBBVolume* volume = new OBBVolume(dimensions);
 
 	cube->SetBoundingVolume((CollisionVolume*)volume);
 	cube->GetTransform().SetPosition(position).SetScale(dimensions * 2.0f);
@@ -414,7 +414,7 @@ GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dim
 		CalculateCubeTransformations(vertices, localPosition, dimensions, rotationMatrix);
 
 		GameObject* colliderObject = new GameObject();
-		AABBVolume* volume = new AABBVolume(dimensions);
+		OBBVolume* volume = new OBBVolume(dimensions);
 
 		colliderObject->SetBoundingVolume((CollisionVolume*)volume);
 		colliderObject->GetTransform().SetScale(dimensions * 2.0f).SetPosition(localPosition).SetOrientation(rotationMatrix);

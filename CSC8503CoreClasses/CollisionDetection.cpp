@@ -326,11 +326,104 @@ bool CollisionDetection::AABBSphereIntersection(
 	return false;
 }
 
+bool CollisionDetection::OBBSphereIntersection(
+	const OBBVolume& volumeA, const Transform& worldTransformA,
+	const SphereVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo)
+{
 
-bool  CollisionDetection::OBBSphereIntersection(const OBBVolume& volumeA, const Transform& worldTransformA,
-	const SphereVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo) {
+	Matrix3 orientation =  Quaternion::RotationMatrix<Matrix3>(worldTransformA.GetOrientation());
+	Vector3 boxSize = volumeA.GetHalfDimensions();
+	Vector3 delta = worldTransformB.GetPosition() - worldTransformA.GetPosition();
+
+	Vector3 localPoint = Matrix::Transpose(orientation) * delta;
+	Vector3 negativeBoxSize = -boxSize;
+
+	Vector3 closestPointOnBox = Vector::Clamp(localPoint, negativeBoxSize, boxSize);
+	Vector3 localToSphere = localPoint - closestPointOnBox;
+	float distance = Vector::Length(localToSphere);
+
+	if (distance < volumeB.GetRadius()) 
+	{ 
+		Vector3 collisionNormal = orientation * Vector::Normalise(localToSphere);
+		float penetration = volumeB.GetRadius() - distance;
+
+		Vector3 localA = orientation * closestPointOnBox;
+		Vector3 localB = -collisionNormal * volumeB.GetRadius();
+
+		collisionInfo.AddContactPoint(localA, localB, collisionNormal, penetration);
+		return true;
+	}
 	return false;
 }
+
+
+bool CollisionDetection::OBBIntersection(
+	const OBBVolume& volumeA, const Transform& worldTransformA,
+	const OBBVolume& volumeB, const Transform& worldTransformB,
+	CollisionInfo& collisionInfo) {
+
+	Matrix3 orientationA = Quaternion::RotationMatrix<Matrix3>(worldTransformA.GetOrientation());
+	Matrix3 orientationB = Quaternion::RotationMatrix<Matrix3>(worldTransformB.GetOrientation());
+
+	Vector3 positionA = worldTransformA.GetPosition();
+	Vector3 positionB = worldTransformB.GetPosition();
+
+	Vector3 halfSizeA = volumeA.GetHalfDimensions();
+	Vector3 halfSizeB = volumeB.GetHalfDimensions();
+
+	Vector3 delta = positionB - positionA;
+
+	Matrix3 rotation = Matrix::Transpose(orientationA) * orientationB;
+
+	Matrix3 absRotation;
+	for (int i = 0; i < 3; i++) {
+		Vector3 row = rotation.GetRow(i);
+		Vector3 absRow = Vector3(fabs(row.x) + FLT_EPSILON, fabs(row.y) + FLT_EPSILON, fabs(row.z) + FLT_EPSILON);
+		absRotation.SetRow(i, absRow);
+	}
+
+	Vector3 projA = Vector3(halfSizeA.x, halfSizeA.y, halfSizeA.z);
+	Vector3 projB = Vector3(halfSizeB.x, halfSizeB.y, halfSizeB.z);
+
+	Vector3 separation = Matrix::Transpose(orientationA) * delta;
+
+	for (int i = 0; i < 3; i++) {
+		float r = projA.x + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
+		if (fabs(separation.x) > r) return false;
+
+		r = projA.y + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
+		if (fabs(separation.y) > r) return false;
+
+		r = projA.z + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
+		if (fabs(separation.z) > r) return false;
+	}
+
+	Vector3 normal = Vector::Normalise(delta);
+	float penetration = 0.0f;
+
+	for (int i = 0; i < 3; i++) {
+		float r = projA.x + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
+		float depth = r - fabs(separation[i]);
+		if (depth < penetration || penetration == 0.0f) {
+			penetration = depth;
+		}
+	}
+
+	Vector3 localA = Vector3();
+	for (int i = 0; i < 3; i++) {
+		localA += orientationA.GetColumn(i) * (halfSizeA[i] * ((separation[i] < 0.0f) ? -1.0f : 1.0f));
+	}
+
+	Vector3 localB = -normal * penetration;
+
+	localA = positionA + orientationA * localA;
+	localB = positionB + orientationB * localB;
+
+	collisionInfo.AddContactPoint(localA, localB, normal, penetration);
+
+	return true;
+}
+
 
 bool CollisionDetection::AABBCapsuleIntersection(
 	const CapsuleVolume& volumeA, const Transform& worldTransformA,
@@ -344,10 +437,7 @@ bool CollisionDetection::SphereCapsuleIntersection(
 	return false;
 }
 
-bool CollisionDetection::OBBIntersection(const OBBVolume& volumeA, const Transform& worldTransformA,
-	const OBBVolume& volumeB, const Transform& worldTransformB, CollisionInfo& collisionInfo) {
-	return false;
-}
+
 
 Matrix4 GenerateInverseView(const Camera &c) {
 	float pitch = c.GetPitch();
@@ -390,17 +480,9 @@ Vector3 CollisionDetection::Unproject(const Vector3& screenPos, const Perspectiv
 	float nearPlane = cam.GetNearPlane();
 	float farPlane  = cam.GetFarPlane();
 
-	//Create our inverted matrix! Note how that to get a correct inverse matrix,
-	//the order of matrices used to form it are inverted, too.
 	Matrix4 invVP = GenerateInverseView(cam) * GenerateInverseProjection(aspect, fov, nearPlane, farPlane);
-
 	Matrix4 proj  = cam.BuildProjectionMatrix(aspect);
 
-	//Our mouse position x and y values are in 0 to screen dimensions range,
-	//so we need to turn them into the -1 to 1 axis range of clip space.
-	//We can do that by dividing the mouse values by the width and height of the
-	//screen (giving us a range of 0.0 to 1.0), multiplying by 2 (0.0 to 2.0)
-	//and then subtracting 1 (-1.0 to 1.0).
 	Vector4 clipSpace = Vector4(
 		(screenPos.x / (float)screenSize.x) * 2.0f - 1.0f,
 		(screenPos.y / (float)screenSize.y) * 2.0f - 1.0f,
@@ -408,11 +490,7 @@ Vector3 CollisionDetection::Unproject(const Vector3& screenPos, const Perspectiv
 		1.0f
 	);
 
-	//Then, we multiply our clipspace coordinate by our inverted matrix
 	Vector4 transformed = invVP * clipSpace;
-
-	//our transformed w coordinate is now the 'inverse' perspective divide, so
-	//we can reconstruct the final world space by dividing x,y,and z by w.
 	return Vector3(transformed.x / transformed.w, transformed.y / transformed.w, transformed.z / transformed.w);
 }
 
@@ -420,8 +498,6 @@ Ray CollisionDetection::BuildRayFromMouse(const PerspectiveCamera& cam) {
 	Vector2 screenMouse = Window::GetMouse()->GetAbsolutePosition();
 	Vector2i screenSize	= Window::GetWindow()->GetScreenSize();
 
-	//We remove the y axis mouse position from height as OpenGL is 'upside down',
-	//and thinks the bottom left is the origin, instead of the top left!
 	Vector3 nearPos = Vector3(screenMouse.x,
 		screenSize.y - screenMouse.y,
 		-0.99999f
