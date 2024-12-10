@@ -356,7 +356,6 @@ bool CollisionDetection::OBBSphereIntersection(
 	return false;
 }
 
-
 bool CollisionDetection::OBBIntersection(
 	const OBBVolume& volumeA, const Transform& worldTransformA,
 	const OBBVolume& volumeB, const Transform& worldTransformB,
@@ -372,57 +371,56 @@ bool CollisionDetection::OBBIntersection(
 	Vector3 halfSizeB = volumeB.GetHalfDimensions();
 
 	Vector3 delta = positionB - positionA;
-
 	Matrix3 rotation = Matrix::Transpose(orientationA) * orientationB;
 
-	Matrix3 absRotation;
+	Vector3 axes[15];
 	for (int i = 0; i < 3; i++) {
-		Vector3 row = rotation.GetRow(i);
-		Vector3 absRow = Vector3(fabs(row.x) + FLT_EPSILON, fabs(row.y) + FLT_EPSILON, fabs(row.z) + FLT_EPSILON);
-		absRotation.SetRow(i, absRow);
+		axes[i] = orientationA.GetRow(i);        
+		axes[i + 3] = orientationB.GetRow(i);  
 	}
 
-	Vector3 projA = Vector3(halfSizeA.x, halfSizeA.y, halfSizeA.z);
-	Vector3 projB = Vector3(halfSizeB.x, halfSizeB.y, halfSizeB.z);
-
-	Vector3 separation = Matrix::Transpose(orientationA) * delta;
-
+	int index = 6;
 	for (int i = 0; i < 3; i++) {
-		float r = projA.x + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
-		if (fabs(separation.x) > r) return false;
-
-		r = projA.y + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
-		if (fabs(separation.y) > r) return false;
-
-		r = projA.z + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
-		if (fabs(separation.z) > r) return false;
-	}
-
-	Vector3 normal = Vector::Normalise(delta);
-	float penetration = 0.0f;
-
-	for (int i = 0; i < 3; i++) {
-		float r = projA.x + absRotation.GetRow(i).x * projB.x + absRotation.GetRow(i).y * projB.y + absRotation.GetRow(i).z * projB.z;
-		float depth = r - fabs(separation[i]);
-		if (depth < penetration || penetration == 0.0f) {
-			penetration = depth;
+		for (int j = 0; j < 3; j++) {
+			axes[index++] = Vector::Cross(orientationA.GetRow(i), orientationB.GetRow(j));
 		}
 	}
 
+	float penetration = FLT_MAX;
+	Vector3 normal;
 	Vector3 localA = Vector3();
-	for (int i = 0; i < 3; i++) {
-		localA += orientationA.GetColumn(i) * (halfSizeA[i] * ((separation[i] < 0.0f) ? -1.0f : 1.0f));
+	Vector3 localB = Vector3();
+
+	for (int i = 0; i < 15; i++) {
+		float rA = halfSizeA.x * fabs(axes[i].x) + halfSizeA.y * fabs(axes[i].y) + halfSizeA.z * fabs(axes[i].z);
+		float rB = halfSizeB.x * fabs(axes[i].x) + halfSizeB.y * fabs(axes[i].y) + halfSizeB.z * fabs(axes[i].z);
+
+		float projectionA = Vector::Dot(delta, axes[i]);
+		float projectionB = Vector::Dot(delta, axes[i]);
+
+		if (fabs(projectionA) + fabs(projectionB) > rA + rB) 
+			return false;
 	}
 
-	Vector3 localB = -normal * penetration;
+	for (int i = 0; i < 15; i++) {
+		float rA = halfSizeA.x * fabs(axes[i].x) + halfSizeA.y * fabs(axes[i].y) + halfSizeA.z * fabs(axes[i].z);
+		float rB = halfSizeB.x * fabs(axes[i].x) + halfSizeB.y * fabs(axes[i].y) + halfSizeB.z * fabs(axes[i].z);
 
-	localA = positionA + orientationA * localA;
-	localB = positionB + orientationB * localB;
+		float overlap = rA + rB - fabs(Vector::Dot(delta, axes[i]));
+		if (overlap < penetration) {
+			penetration = overlap;
+			normal = axes[i];
+		}
+	}
+
+	localA = positionA + (normal * penetration);
+	localB = positionB - (normal * penetration);
 
 	collisionInfo.AddContactPoint(localA, localB, normal, penetration);
 
 	return true;
 }
+
 
 
 bool CollisionDetection::AABBCapsuleIntersection(
