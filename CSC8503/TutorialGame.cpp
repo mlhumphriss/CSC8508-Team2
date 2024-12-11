@@ -14,8 +14,10 @@ using namespace CSC8503;
 
 
 
-TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *Window::GetWindow()->GetMouse()) {
-	world		= new GameWorld();
+TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *Window::GetWindow()->GetMouse()) 
+{
+
+	world = new GameWorld();
 #ifdef USEVULKAN
 	renderer	= new GameTechVulkanRenderer(*world);
 	renderer->Init();
@@ -105,6 +107,16 @@ void TutorialGame::TestPathfinding()
 {
 	testNodes.clear();
 
+
+	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
+	{
+		std::vector<Vector3> vertices = GetVertices(navigationMesh, i);
+
+		Vector3 dimensions, localPosition;
+		Quaternion rotationMatrix;
+		CalculateCubeTransformations(vertices, localPosition, dimensions, rotationMatrix);
+	}
+
 	Vector3 intersectionPoint = endPos;
 	float t, u, v;
 
@@ -116,7 +128,7 @@ void TutorialGame::TestPathfinding()
 	auto triCount = navigationMesh->GetIndexCount() / 3;
 
 
-	for (int i = 0; i < triCount; ++i) {
+	/*for (int i = 0; i < triCount; ++i) {
 
 		Vector3 a, b, c;
 		navigationMesh->GetTriangle(i, a, b, c);
@@ -130,7 +142,7 @@ void TutorialGame::TestPathfinding()
 				intersectionPoint = playerPos + rayDir * t;
 				//break;
 		}
-	}
+	}*/
 	
 	endPos = intersectionPoint;
 	apple->GetTransform().SetPosition(intersectionPoint);
@@ -334,7 +346,7 @@ GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimens
 	return cube;
 }
 
-std::vector<Vector3> GetVertices(Mesh* navigationMesh, int i)
+std::vector<Vector3>  TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 {
 	const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
 	const std::vector<unsigned int>& indices = navigationMesh->GetIndexData();
@@ -354,7 +366,7 @@ std::vector<Vector3> GetVertices(Mesh* navigationMesh, int i)
 }
 
 
-void CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation)
+void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation)
 {
 	Vector3 minBound(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
 	Vector3 maxBound(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
@@ -368,21 +380,33 @@ void CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3&
 	Vector3 extent = maxBound - minBound;
 
 	Vector3 a, b, c;
-	a = vertices[1] - vertices[0];
+	a = vertices[1] - vertices[2];
 	b = vertices[4] - vertices[5];
 	c = vertices[8] - vertices[9];
+
+	Debug::DrawLine(vertices[1], vertices[2], Vector4(1, 0, 0, 1));
+	Debug::DrawLine(vertices[4], vertices[5], Vector4(0, 0, 1, 1));
+	Debug::DrawLine(vertices[8], vertices[9], Vector4(0, 1, 0, 1));
+
 
 	extent = Vector3(Vector::Length(a),Vector::Length(b),Vector::Length(c));
 
 	Vector3 localX = Vector::Normalise(a); 
 	Vector3 localY = Vector::Normalise(b); 
-	Vector3 localZ = Vector::Normalise(c); 
+	Vector3 localZ = -Vector::Normalise(c); 
+
+	
+	/*
+	localX = Vector3(roundf(localX.x), roundf(localX.y), roundf(localX.z));
+	localY = Vector3(roundf(localY.x), roundf(localY.y), roundf(localY.z));
+	localZ = Vector3(roundf(localZ.x), roundf(localZ.y), roundf(localZ.z));
+	*/
 
 	Matrix3 rotationMatrix = Matrix3();
-	rotationMatrix.SetRow(0, Vector4(localX, 0));
-	rotationMatrix.SetRow(1, Vector4(localY, 0));
-	rotationMatrix.SetRow(2, Vector4(localZ, 0));
 
+	rotationMatrix.SetRow(0, Vector4(localZ, 0));
+	rotationMatrix.SetRow(1, Vector4(localY, 0));
+	rotationMatrix.SetRow(2, Vector4(localX, 0));
 
 	std::cout << "Checking" << std::endl;
 	std::cout << localX.x<< ", " << localX.y  << ", " << localX.z << std::endl;	
@@ -453,12 +477,13 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	return character;
 }
 
-EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) {
+EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) 
+{
 	float meshSize		= 3.0f;
 	float inverseMass	= 0.5f;
 
-	EnemyGameObject* character = new EnemyGameObject();
-	AABBVolume* volume = new AABBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
+	EnemyGameObject* character = new EnemyGameObject(navMesh);
+	OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
 
 	character->SetBoundingVolume((CollisionVolume*)volume);
 	character->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
@@ -514,8 +539,11 @@ void TutorialGame::InitGameExamples()
 {
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//AddPlayerToWorld(Vector3(0, 5, 0));
-	//AddEnemyToWorld(Vector3(5, 5, 0));
-	AddBonusToWorld(Vector3(10, 5, 0));
+	AddBonusToWorld(Vector3(10, 5, 0));	
+	
+	
+	//AddEnemyToWorld(Vector3(5, 5, 0)); // Must be after navMesh
+
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {

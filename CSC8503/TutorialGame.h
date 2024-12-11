@@ -58,6 +58,10 @@ namespace NCL {
 			StateGameObject* AddStateObjectToWorld(const Vector3& position);
 			StateGameObject* testStateObject;
 
+			void  CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation);
+			std::vector<Vector3>  GetVertices(Mesh* navigationMesh, int i);
+
+
 #ifdef USEVULKAN
 			GameTechVulkanRenderer*	renderer;
 #else
