@@ -1,7 +1,4 @@
 #include "EnemyGameObject.h"
-#include "PhysicsObject.h"
-#include "Ray.h"
-#include "CollisionDetection.h"
 
 using namespace NCL;
 using namespace CSC8503;
@@ -31,34 +28,29 @@ EnemyGameObject::~EnemyGameObject() {
 }
 
 
+
 bool EnemyGameObject::RayCastPlayer() 
 {
+    Vector3 playerPos = getPlayerPos();
+    Vector3 enemyPos = this->GetTransform().GetPosition();
+    Vector3 playerToEnemy = enemyPos - playerPos;
 
-   // Ray ray = CollisionDetection::BuildRayFromMouse();
+    Ray ray = Ray(enemyPos, playerToEnemy);
+    playerDis = Vector::Length(playerToEnemy);
+
     RayCollision closestCollision;
-    Vector3 playerPos;
 
-    /*if (world->Raycast(ray, closestCollision, true))
-    {
-        playerPos = closestCollision.collidedAt;
+    if (rayHit(ray, closestCollision, true))
         return true;
-    }
-    */
     return false;
 }
 
-float EnemyGameObject::GetPlayerDistance()
-{
-    return 0.0f;
-    /*if () {
+void EnemyGameObject::MoveAlongPath() {
 
-    } else
-        playerDis = FLT_MAX;*/
 }
 
 void EnemyGameObject::Update(float dt) 
 {
-    playerDis = GetPlayerDistance();
     state = sequence->Execute(dt);
 }
 

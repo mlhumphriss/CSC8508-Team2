@@ -51,7 +51,7 @@ namespace NCL {
 			EnemyGameObject* AddEnemyToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
 
-
+			Vector3 GetPlayerPos();
 			void DisplayPathfinding();
 			void TestPathfinding();
 
@@ -117,6 +117,8 @@ namespace NCL {
 			};
 
 			GameObject* objClosest = nullptr;
+			GameObject* players = nullptr;
+
 		};
 	}
 }

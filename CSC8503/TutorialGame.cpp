@@ -100,14 +100,16 @@ Vector3 startPos = Vector3(0, 0, 0);
 Vector3 endPos = Vector3(25, 0, 5);
 GameObject* apple;
 
-
+Vector3 TutorialGame::GetPlayerPos() {
+	return players->GetTransform().GetPosition();
+}
 
 
 void TutorialGame::TestPathfinding()
 {
 	testNodes.clear();
 
-
+/*
 	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
 	{
 		std::vector<Vector3> vertices = GetVertices(navigationMesh, i);
@@ -116,7 +118,7 @@ void TutorialGame::TestPathfinding()
 		Quaternion rotationMatrix;
 		CalculateCubeTransformations(vertices, localPosition, dimensions, rotationMatrix);
 	}
-
+	*/
 	Vector3 intersectionPoint = endPos;
 	float t, u, v;
 
@@ -346,7 +348,7 @@ GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimens
 	return cube;
 }
 
-std::vector<Vector3>  TutorialGame::GetVertices(Mesh* navigationMesh, int i)
+std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 {
 	const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
 	const std::vector<unsigned int>& indices = navigationMesh->GetIndexData();
@@ -365,6 +367,7 @@ std::vector<Vector3>  TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 	return vertices;
 }
 
+const bool DebugCubeTransforms = false;
 
 void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation)
 {
@@ -384,10 +387,11 @@ void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& ver
 	b = vertices[4] - vertices[5];
 	c = vertices[8] - vertices[9];
 
-	Debug::DrawLine(vertices[1], vertices[2], Vector4(1, 0, 0, 1));
-	Debug::DrawLine(vertices[4], vertices[5], Vector4(0, 0, 1, 1));
-	Debug::DrawLine(vertices[8], vertices[9], Vector4(0, 1, 0, 1));
-
+	if (DebugCubeTransforms) {
+		Debug::DrawLine(vertices[1], vertices[2], Vector4(1, 0, 0, 1));
+		Debug::DrawLine(vertices[4], vertices[5], Vector4(0, 0, 1, 1));
+		Debug::DrawLine(vertices[8], vertices[9], Vector4(0, 1, 0, 1));
+	}
 
 	extent = Vector3(Vector::Length(a),Vector::Length(b),Vector::Length(c));
 
@@ -395,25 +399,11 @@ void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& ver
 	Vector3 localY = Vector::Normalise(b); 
 	Vector3 localZ = -Vector::Normalise(c); 
 
-	
-	/*
-	localX = Vector3(roundf(localX.x), roundf(localX.y), roundf(localX.z));
-	localY = Vector3(roundf(localY.x), roundf(localY.y), roundf(localY.z));
-	localZ = Vector3(roundf(localZ.x), roundf(localZ.y), roundf(localZ.z));
-	*/
-
 	Matrix3 rotationMatrix = Matrix3();
 
-
-	rotationMatrix.SetColumn(0, Vector4(localY, 0));
-	rotationMatrix.SetColumn(1, Vector4(localX, 0));
 	rotationMatrix.SetColumn(2, Vector4(localZ, 0));
-
-	std::cout << "Checking" << std::endl;
-	std::cout << localX.x<< ", " << localX.y  << ", " << localX.z << std::endl;	
-	std::cout << localY.x << ", " << localY.y << ", " << localY.z << std::endl;
-	std::cout << localZ.x << ", " << localZ.y << ", " << localZ.z << std::endl;
-
+	rotationMatrix.SetColumn(1, Vector4(localY, 0));
+	rotationMatrix.SetColumn(0, Vector4(-localX, 0));
 
 	rotation = Quaternion(rotationMatrix);
 	scale = extent * 0.5f;
@@ -450,7 +440,6 @@ GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dim
 		colliderObject->GetPhysicsObject()->InitCubeInertia();
 
 		world->AddGameObject(colliderObject);
-		std::cout << "Adding cube collider for submesh " << i << std::endl;
 	}
 
 	world->AddGameObject(navMeshObject);
@@ -461,21 +450,21 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	float meshSize		= 1.0f;
 	float inverseMass	= 0.5f;
 
-	GameObject* character = new GameObject();
+	players = new GameObject();
 	SphereVolume* volume  = new SphereVolume(1.0f);
 
-	character->SetBoundingVolume((CollisionVolume*)volume);
-	character->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
+	players->SetBoundingVolume((CollisionVolume*)volume);
+	players->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
 
-	character->SetRenderObject(new RenderObject(&character->GetTransform(), catMesh, nullptr, basicShader));
-	character->SetPhysicsObject(new PhysicsObject(&character->GetTransform(), character->GetBoundingVolume()));
+	players->SetRenderObject(new RenderObject(&players->GetTransform(), catMesh, nullptr, basicShader));
+	players->SetPhysicsObject(new PhysicsObject(&players->GetTransform(), players->GetBoundingVolume()));
 
-	character->GetPhysicsObject()->SetInverseMass(inverseMass);
-	character->GetPhysicsObject()->InitSphereInertia();
+	players->GetPhysicsObject()->SetInverseMass(inverseMass);
+	players->GetPhysicsObject()->InitSphereInertia();
 
-	world->AddGameObject(character);
+	world->AddGameObject(players);
 
-	return character;
+	return players;
 }
 
 EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) 
@@ -484,8 +473,10 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	float inverseMass	= 0.5f;
 
 	EnemyGameObject* character = new EnemyGameObject(navMesh);
-	OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
+	character->SetRay([&](Ray& r, RayCollision& closestCollision, bool closestObject) -> bool { return world->Raycast(r, closestCollision, closestObject); });
+	character->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
 
+	OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
 	character->SetBoundingVolume((CollisionVolume*)volume);
 	character->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
 
@@ -539,11 +530,9 @@ GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 void TutorialGame::InitGameExamples() 
 {
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
-	//AddPlayerToWorld(Vector3(0, 5, 0));
+	AddPlayerToWorld(Vector3(25, 22, 25));
 	AddBonusToWorld(Vector3(10, 5, 0));	
-	
-	
-	//AddEnemyToWorld(Vector3(5, 5, 0)); // Must be after navMesh
+	AddEnemyToWorld(Vector3(5, 25, 0)); 
 
 }
 
