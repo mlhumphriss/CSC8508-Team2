@@ -404,9 +404,10 @@ void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& ver
 
 	Matrix3 rotationMatrix = Matrix3();
 
-	rotationMatrix.SetRow(0, Vector4(localZ, 0));
-	rotationMatrix.SetRow(1, Vector4(localY, 0));
-	rotationMatrix.SetRow(2, Vector4(localX, 0));
+
+	rotationMatrix.SetColumn(0, Vector4(localY, 0));
+	rotationMatrix.SetColumn(1, Vector4(localX, 0));
+	rotationMatrix.SetColumn(2, Vector4(localZ, 0));
 
 	std::cout << "Checking" << std::endl;
 	std::cout << localX.x<< ", " << localX.y  << ", " << localX.z << std::endl;	
