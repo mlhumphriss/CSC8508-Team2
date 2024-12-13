@@ -40,7 +40,7 @@ namespace NCL {
 				shuffleObjects = state;
 			}
 
-			bool Raycast(Ray& r, RayCollision& closestCollision, bool closestObject = false, GameObject* ignore = nullptr) const;
+			bool Raycast(Ray& r, RayCollision& closestCollision, bool closestObject, GameObject* ignoreThis = nullptr, vector<GameObject::LayerID>* ignoreLayers = nullptr) const;
 
 			virtual void UpdateWorld(float dt);
 

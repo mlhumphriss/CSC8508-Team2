@@ -12,7 +12,7 @@
 #include "CollisionDetection.h"
 
 
-
+#include "GameWorld.h"
 
 namespace NCL {
     namespace CSC8503 {
@@ -33,6 +33,7 @@ namespace NCL {
         protected:
  
             bool RayCastPlayer();
+            void DisplayPathfinding();
             void SetPath(Vector3 startPos, Vector3 endPos);
 
             RaycastToWorld rayHit;
@@ -41,76 +42,99 @@ namespace NCL {
 
             BehaviourSequence* sequence = nullptr;
             NavigationMesh* navMesh = nullptr;
+            vector<Vector3> testNodes;
 
             NavigationPath outPath;
             BehaviourState state;
 
-            const int wayPointsLength = 3;
+            const int wayPointsLength = 4;
    
-            Vector3 wayPoints[3] = {
+            Vector3 wayPoints[4] = { 
+                Vector3(25, 100, 30),
                 Vector3(50, 22, -50),
                 Vector3(-50, 22, 0),
-                Vector3(0, 22, 50)
+                Vector3(25, 22, 50)
             };
 
             float playerDis = 0.0f;
-
+            const float yOffSet = 3.0f; 
+            bool playerVisible;
             int wayPointIndex = 0;
             int outPathIndex = 0;
 
-            float minWayPointDistanceOffset = 10;
+            float minWayPointDistanceOffset = 2;
 
-            BehaviourAction* patrol = new BehaviourAction("Patrol", 
-                [&](float dt, BehaviourState state) -> BehaviourState 
-                {
-                    Vector3 pos = this->transform.GetPosition();
-                    if (state == Initialise)
-                    {   
-                        SetPath(pos, wayPoints[wayPointIndex]);
-                        state = Ongoing;
-                    }
-                    else if (state == Ongoing)
-                    {
-                        if (playerDis <= 100.0f) {
-                            wayPointIndex = 0;
-                            return Success;
-                        }
-                        else if (Vector::Length(pos - wayPoints[wayPointIndex]) < minWayPointDistanceOffset) 
-                        {
-                            wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;
-                            SetPath(pos, wayPoints[wayPointIndex]);
-                        }
-                    }
-                    return state; 
-                }
-
-            );
-
-            BehaviourAction* chase = new BehaviourAction("Chase",
+            BehaviourAction* patrol = new BehaviourAction("Patrol",
                 [&](float dt, BehaviourState state) -> BehaviourState
                 {
                     Vector3 pos = this->transform.GetPosition();
+                    Vector3 playerPos = getPlayerPos();
+
                     if (state == Initialise)
-                    {
+                    {                         
                         SetPath(pos, wayPoints[wayPointIndex]);
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
                     {
-                        if (playerDis <= 0.0f) {
+             
+                        if (!RayCastPlayer())
+                        {
                             wayPointIndex = 0;
-                            return Success;
+                            return Success;     
                         }
-                        else if (Vector::Length(pos - wayPoints[wayPointIndex]) < minWayPointDistanceOffset)
+
+                        if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset)
                         {
                             wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;
                             SetPath(pos, wayPoints[wayPointIndex]);
+                        }           
+                        
+                        pos.y += yOffSet;
+                        playerPos.y += yOffSet;
+                        
+                        if (RayCastPlayer())
+                        {                   
+                            //std::cout << "spotted" << std::endl;
+                            // wayPointIndex = 0;
+                            //return Success;     
+                            Debug::DrawLine(pos, playerPos, Vector4(1, 0, 0, 1));
+                        }
+                        else {
+                            Debug::DrawLine(pos, playerPos, Vector4(0, 1, 0, 1));
                         }
                     }
                     return state;
                 }
             );
 
+            BehaviourAction* chase = new BehaviourAction("Chase",
+                [&](float dt, BehaviourState state) -> BehaviourState
+                {
+                    Vector3 pos = this->transform.GetPosition();
+                    Vector3 playerPos = getPlayerPos();
+
+                    if (state == Initialise)
+                    {
+                        SetPath(pos, playerPos);
+                        state = Ongoing;
+                    }
+                    else if (state == Ongoing)
+                    {
+                        if (RayCastPlayer()) {
+                            if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) {
+                                std::cout << "failure" << std::endl;
+                                return  Failure;
+                            }
+                        }
+                        else {
+                            std::cout << "In sight" << std::endl;
+                            SetPath(pos, playerPos);
+                        }
+                    }
+                    return state;
+                }
+            );
         };
     }
 }

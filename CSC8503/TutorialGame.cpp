@@ -45,7 +45,7 @@ TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *
 	InitialiseAssets();	
 	
 	mainMenu = new MainMenu([&](bool state) -> void { this->SetPause(state);});	
-
+	physics->UseGravity(true);
 	world->UpdateWorld(0.1f);
 	physics->Update(0.1f);
 }
@@ -219,7 +219,7 @@ void TutorialGame::UpdateGame(float dt)
 		rayPos = selectionObject->GetTransform().GetPosition();
 
 		Ray r = Ray(rayPos, rayDir);
-		bool hit = world->Raycast(r, closestCollision, true, selectionObject);
+		bool hit = world->Raycast(r, closestCollision, true, selectionObject, new std::vector<GameObject::LayerID>({ GameObject::LayerID::Player,  GameObject::LayerID::Enemy }));
 
 		if (hit) 
 		{
@@ -234,17 +234,13 @@ void TutorialGame::UpdateGame(float dt)
 	SelectObject();
 	MoveSelectedObject();
 
+	enemies->Update(dt);
 	world->UpdateWorld(dt);
 	physics->Update(dt);
 }
 
 void TutorialGame::UpdateKeys() 
 {
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::G)) {
-		useGravity = !useGravity; 
-		physics->UseGravity(useGravity);
-	}
-
 	if (Window::GetKeyboard()->KeyDown(KeyCodes::T))
 		endPos.x += delta;
 	if (Window::GetKeyboard()->KeyDown(KeyCodes::F))
@@ -438,11 +434,12 @@ GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dim
 		colliderObject->SetPhysicsObject(new PhysicsObject(&colliderObject->GetTransform(), colliderObject->GetBoundingVolume()));
 		colliderObject->GetPhysicsObject()->SetInverseMass(0);
 		colliderObject->GetPhysicsObject()->InitCubeInertia();
+		colliderObject->SetLayerID(GameObject::LayerID::Default);
 
 		world->AddGameObject(colliderObject);
 	}
 
-	world->AddGameObject(navMeshObject);
+	//world->AddGameObject(navMeshObject);
 	return navMeshObject;
 }
 
@@ -455,7 +452,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 
 	players->SetBoundingVolume((CollisionVolume*)volume);
 	players->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-
+	players->SetLayerID(GameObject::LayerID::Player);
 	players->SetRenderObject(new RenderObject(&players->GetTransform(), catMesh, nullptr, basicShader));
 	players->SetPhysicsObject(new PhysicsObject(&players->GetTransform(), players->GetBoundingVolume()));
 
@@ -472,22 +469,25 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	float meshSize		= 3.0f;
 	float inverseMass	= 0.5f;
 
-	EnemyGameObject* character = new EnemyGameObject(navMesh);
-	character->SetRay([&](Ray& r, RayCollision& closestCollision, bool closestObject) -> bool { return world->Raycast(r, closestCollision, closestObject); });
-	character->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
+	enemies = new EnemyGameObject(navMesh);
+	enemies->SetRay([&](Ray& r, RayCollision& closestCollision, bool closestObject) -> bool { return world->Raycast(r, closestCollision, closestObject); });
+	enemies->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
 
-	OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
-	character->SetBoundingVolume((CollisionVolume*)volume);
-	character->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
+	SphereVolume* volume = new SphereVolume(0.6f);
+	//OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
+	enemies->SetBoundingVolume((CollisionVolume*)volume);
+	enemies->SetLayerID(GameObject::LayerID::Enemy);
 
-	character->SetRenderObject(new RenderObject(&character->GetTransform(), enemyMesh, nullptr, basicShader));
-	character->SetPhysicsObject(new PhysicsObject(&character->GetTransform(), character->GetBoundingVolume()));
+	enemies->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
 
-	character->GetPhysicsObject()->SetInverseMass(inverseMass);
-	character->GetPhysicsObject()->InitSphereInertia();
+	enemies->SetRenderObject(new RenderObject(&enemies->GetTransform(), enemyMesh, nullptr, basicShader));
+	enemies->SetPhysicsObject(new PhysicsObject(&enemies->GetTransform(), enemies->GetBoundingVolume()));
 
-	world->AddGameObject(character);
-	return character;
+	enemies->GetPhysicsObject()->SetInverseMass(inverseMass);
+	enemies->GetPhysicsObject()->InitSphereInertia();
+
+	world->AddGameObject(enemies);
+	return enemies;
 }
 
 StateGameObject* TutorialGame::AddStateObjectToWorld(const Vector3& position) {
@@ -530,9 +530,9 @@ GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 void TutorialGame::InitGameExamples() 
 {
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
-	AddPlayerToWorld(Vector3(25, 22, 25));
+	AddPlayerToWorld(Vector3(-100, 22, 25));
 	AddBonusToWorld(Vector3(10, 5, 0));	
-	AddEnemyToWorld(Vector3(5, 25, 0)); 
+	AddEnemyToWorld(Vector3(5, 15, 0)); 
 
 }
 
@@ -553,9 +553,9 @@ void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing
 	for (int x = 0; x < numCols; ++x) {
 		for (int z = 0; z < numRows; ++z) {
 			Vector3 position = Vector3(x * colSpacing, 100.0f, z * rowSpacing);
-			if (rand() % 2) 
-				AddCubeToWorld(position, cubeDims);
-			else 
+			//if (rand() % 2) 
+				//AddCubeToWorld(position, cubeDims);
+			//else 
 				AddSphereToWorld(position, sphereRadius);
 		}
 	}

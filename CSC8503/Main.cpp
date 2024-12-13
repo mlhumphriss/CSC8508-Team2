@@ -97,7 +97,6 @@ void TestBehaviourTree()
 	float behaviourTimer;
 	float distanceToTarget;
 
-
 	BehaviourAction* findKey = new BehaviourAction("Find Key",
 		[&](float dt, BehaviourState state) -> BehaviourState {
 			if (state == Initialise) {

@@ -78,7 +78,7 @@ namespace NCL::CSC8503 {
 			return worldID;
 		}	
 
-		enum LayerID {Default, Ignore_RayCast, UI};
+		enum LayerID {Default, Ignore_RayCast, UI, Player, Enemy};
 
 		void SetLayerID(LayerID newID) {
 			layerID = newID;

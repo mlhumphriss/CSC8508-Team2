@@ -9,7 +9,7 @@ namespace NCL {
 			NavigationPath() {}
 			~NavigationPath() {}
 
-			void lear() {
+			void clear() {
 				waypoints.clear();
 			}
 			void PushWaypoint(const Vector3& wp) {

@@ -118,6 +118,7 @@ namespace NCL {
 
 			GameObject* objClosest = nullptr;
 			GameObject* players = nullptr;
+			EnemyGameObject* enemies = nullptr;
 
 		};
 	}
