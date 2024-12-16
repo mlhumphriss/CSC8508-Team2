@@ -38,6 +38,18 @@ namespace NCL {
 
         protected:
 
+            struct BoidRules {
+                float minDistanceRule2 = 2.0f;
+                float minDistanceRule3 = 0.5f;
+                float forceMultiplier = 0.5f;
+                float maxDistanceToCenter = 9.0f;
+
+                float rule1Weight = 1.0f;
+                float rule2Weight = 1.0f;
+                float rule3Weight = 0.0f;
+                int roundingPrecision = 1;
+            };
+            BoidRules ruleConfig;
             RaycastToWorld rayHit;
             GetPlayerPos getPlayerPos;
 

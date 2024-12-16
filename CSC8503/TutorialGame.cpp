@@ -466,6 +466,27 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	return players;
 }
 
+
+GameObject* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, float inverseMass)
+{
+	GameObject* sphere = new GameObject();
+	Vector3 sphereSize = Vector3(radius, radius, radius);
+	//sphereSize = sphereSize * 0.25f;
+	SphereVolume* volume = new SphereVolume(radius * 0.25f);
+
+	sphere->SetBoundingVolume((CollisionVolume*)volume);
+	sphere->GetTransform().SetScale(sphereSize).SetPosition(position);
+
+	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), kittenMesh, basicTex, basicShader));
+	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
+
+	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
+	sphere->GetPhysicsObject()->InitSphereInertia();
+
+	world->AddGameObject(sphere);
+	return sphere;
+}
+
 EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) 
 {
 	float meshSize		= 3.0f;
@@ -492,18 +513,6 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	return enemies;
 }
 
-GameObject* TutorialGame::AddVisualSphere(const Vector3 & position, float radius, float inverseMass)
-{
-	GameObject* sphere = new GameObject();
-	Vector3 sphereSize = Vector3(radius, radius, radius);
-
-	sphere->GetTransform().SetScale(sphereSize).SetPosition(position);
-	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
-
-	world->AddGameObject(sphere);
-	return sphere;
-};
-
 
 Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 {
@@ -513,9 +522,6 @@ Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 	swarm = new Swarm(navMesh);
 	swarm->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
 
-	SphereVolume* volume = new SphereVolume(0.6f);
-	//OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
-	swarm->SetBoundingVolume((CollisionVolume*)volume);
 	swarm->SetLayerID(GameObject::LayerID::Enemy);
 
 	swarm->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
@@ -529,11 +535,11 @@ Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 	world->AddGameObject(swarm);
 
 
-	auto offset = Vector3(0, 6, 0);
+	auto offset = Vector3(0.3f, 0, 0.3f);
 
-	swarm->AddObjectToSwarm(AddSphereToWorld(position, 2));
-	swarm->AddObjectToSwarm(AddSphereToWorld(position + offset, 2));
-	swarm->AddObjectToSwarm(AddSphereToWorld(position + (offset * 0.2f), 2));
+	for (float i = 0; i < 120; i++) {
+		swarm->AddObjectToSwarm(AddKittenToWorld(position + (offset * i), 1));
+	}
 
 	return swarm;
 }
@@ -583,7 +589,7 @@ void TutorialGame::InitGameExamples()
 	AddBonusToWorld(Vector3(10, 5, 0));	
 	AddEnemyToWorld(Vector3(5, 30, 0)); 
 
-	AddSwarmToWorld(Vector3(50, 22, 0));
+	AddSwarmToWorld(Vector3(75, 22, -50));
 
 }
 

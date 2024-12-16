@@ -51,9 +51,10 @@ namespace NCL {
 			GameObject* AddNavMeshToWorld(const Vector3& position, Vector3 dimensions);
 			GameObject* AddPlayerToWorld(const Vector3& position);
 			EnemyGameObject* AddEnemyToWorld(const Vector3& position);
+			GameObject* AddKittenToWorld(const Vector3& position, float radius, float inverseMass = 10.0f);
+
 			Swarm* AddSwarmToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
-			GameObject* AddVisualSphere(const Vector3& position, float radius, float inverseMass = 10.0f);
 
 
 			Vector3 GetPlayerPos();
