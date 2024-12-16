@@ -204,26 +204,38 @@ void NavigationMesh::SmoothPath(NavigationPath& path) {
     path = smoothedPath;
 }
 
-
-/*
-If you have triangles on top of triangles in a full 3D environment, you'll need to change this slightly,
-as it is currently ignoring height. You might find tri/plane raycasting is handy.
-*/
+#include <iostream>
+#include <limits>
 
 const NavigationMesh::NavTri* NavigationMesh::GetTriForPosition(const Vector3& pos) const {
+    const NavTri* closestTri = nullptr;
+    float closestDistance = std::numeric_limits<float>::max();
+
+    Vector3 rayOrigin = pos;
+    Vector3 rayDirection(0, -1, 0);
+
+    float lastDist = -std::numeric_limits<float>::max();  
+
     for (const NavTri& t : allTris) {
-        Vector3 planePoint = t.triPlane.ProjectPointOntoPlane(pos);
+        const Vector3& v0 = allVerts[t.indices[0]];
+        const Vector3& v1 = allVerts[t.indices[1]];
+        const Vector3& v2 = allVerts[t.indices[2]];
 
-        float ta = Maths::AreaofTri3D(allVerts[t.indices[0]], allVerts[t.indices[1]], planePoint);
-        float tb = Maths::AreaofTri3D(allVerts[t.indices[1]], allVerts[t.indices[2]], planePoint);
-        float tc = Maths::AreaofTri3D(allVerts[t.indices[2]], allVerts[t.indices[0]], planePoint);
+        float tDist = 0.0f;
+        float u = 0.0f;
+        float v = 0.0f;
 
-        float areaSum = ta + tb + tc;
+        bool intersects = Maths::RayIntersectsTriangle(rayOrigin, rayDirection, v0, v1, v2, tDist, u, v);
 
-        if (abs(areaSum - t.area) > 0.001f) { //floating points are annoying! Are we more or less inside the triangle?
-            continue;
+        if (intersects && tDist > 0.0f) {
+            if (fabs(tDist - lastDist) > 0.001f) {  
+                lastDist = tDist;    
+                if (tDist < closestDistance) {
+                    closestDistance = tDist;
+                    closestTri = &t;
+                }
+            }
         }
-        return &t;
     }
-    return nullptr;
+    return closestTri;
 }

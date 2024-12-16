@@ -284,7 +284,7 @@ void TutorialGame::InitWorld()
 {
 	world->ClearAndErase();
 	physics->Clear();
-	//BridgeConstraintTest();
+	BridgeConstraintTest();
 	InitMixedGridWorld(15, 15, 3.5f, 3.5f);
 	InitGameExamples();
 	testStateObject = AddStateObjectToWorld(Vector3(0, 10, 0));
@@ -571,7 +571,7 @@ void TutorialGame::InitGameExamples()
 	AddBonusToWorld(Vector3(10, 5, 0));	
 	AddEnemyToWorld(Vector3(5, 30, 0)); 
 
-	AddSwarmToWorld(Vector3(50, 30, 0));
+	AddSwarmToWorld(Vector3(50, 22, 0));
 
 }
 

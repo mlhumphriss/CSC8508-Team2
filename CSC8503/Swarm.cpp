@@ -84,7 +84,7 @@ void Swarm::Update(float dt)
     }
 
     state = sequence->Execute(dt);
-    DisplayPathfinding();
+    DisplayPathfinding(Vector4(0, 1, 0, 1));
     MoveAlongPath();
 }
 

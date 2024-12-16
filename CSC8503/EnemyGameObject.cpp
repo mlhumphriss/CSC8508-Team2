@@ -49,7 +49,7 @@ void EnemyGameObject::Update(float dt)
     }
 
     state = sequence->Execute(dt);
-    DisplayPathfinding();
+    DisplayPathfinding(Vector4(0, 0, 1, 1));
     MoveAlongPath();
 }
 

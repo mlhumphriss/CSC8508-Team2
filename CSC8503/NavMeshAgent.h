@@ -31,6 +31,9 @@ namespace NCL {
                 if (outPathIndex < 0)
                     return;
 
+                if (testNodes.size() == 0)
+                    return;
+
                 if (Vector::Length(pos - testNodes[outPathIndex]) < minWayPointDistanceOffset)
                     outPathIndex--;
 
@@ -45,20 +48,20 @@ namespace NCL {
                 dir = Vector::Normalise(dir);
                 dir.y += 0.2f;
 
-                this->transform.SetPosition(pos += (dir * 0.5f));
-                //this->GetPhysicsObject()->AddForce(dir * 5.0f);
+               // this->transform.SetPosition(pos += (dir * 0.5f));
+                this->GetPhysicsObject()->SetLinearVelocity(dir * 5.0f);
             }
 
 
         protected:
 
-            void DisplayPathfinding()
+            void DisplayPathfinding(Vector4 colour)
             {
                 for (int i = 1; i < testNodes.size(); ++i) {
                     Vector3 a = testNodes[i - 1];
                     Vector3 b = testNodes[i];
 
-                    Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
+                    Debug::DrawLine(a, b, colour);
                 }
             }
 
