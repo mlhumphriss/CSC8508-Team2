@@ -44,24 +44,22 @@ namespace NCL {
             BehaviourSequence* sequence = nullptr;
             BehaviourState state;
             void MoveObjectsAlongSwarm();
-            Vector3 CalculateSwarmOffset(GameObject* obj);
+
+            Vector3 rule1(GameObject*& b, std::vector<GameObject*>& boids);
+            Vector3 rule2(GameObject*& b, std::vector<GameObject*>& boids);
+            Vector3 rule3(GameObject*& b, std::vector<GameObject*>& boids);
 
             vector<GameObject*> objects;
-            float playerDis = 0.0f;
 
+            float separationRadius = 10.0f;
+            float alignmentRadius = 20.0f;
+            float cohesionRadius = 30.0f;
 
-            float separationRadius = 5.0f;
-            float alignmentRadius = 10.0f;
-            float cohesionRadius = 15.0f;
+            float separationWeight = 3.0f;
+            float alignmentWeight = 2.0f;
+            float cohesionWeight = 2.0f;
 
-            float separationWeight = 1.5f;
-            float alignmentWeight = 1.0f;
-            float cohesionWeight = 1.0f;
-
-            float maxForce = 2.0f;
-
-            const float yOffSet = 3.0f;
-            bool playerVisible;
+            float maxForce = 20.0f;
 
             BehaviourAction* chase = new BehaviourAction("FollowPlayer",
                 [&](float dt, BehaviourState state) -> BehaviourState

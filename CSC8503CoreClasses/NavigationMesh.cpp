@@ -204,9 +204,6 @@ void NavigationMesh::SmoothPath(NavigationPath& path) {
     path = smoothedPath;
 }
 
-#include <iostream>
-#include <limits>
-
 const NavigationMesh::NavTri* NavigationMesh::GetTriForPosition(const Vector3& pos) const {
     const NavTri* closestTri = nullptr;
     float closestDistance = std::numeric_limits<float>::max();

@@ -42,7 +42,6 @@ namespace NCL {
 				point.penetration	= p;
 			}
 
-			//Advanced collision detection / resolution
 			bool operator < (const CollisionInfo& other) const {
 				size_t otherHash = (size_t)other.a + ((size_t)other.b << 32);
 				size_t thisHash  = (size_t)a + ((size_t)b << 32);
@@ -52,13 +51,6 @@ namespace NCL {
 				}
 				return false;
 			}
-
-			/*bool operator<(const CollisionInfo& other) const {
-				size_t otherHash = (size_t)other.a->GetWorldID() + ((size_t)other.b->GetWorldID() << 32);
-				size_t thisHash = (size_t)a->GetWorldID() + ((size_t)b->GetWorldID() << 32);
-				return thisHash < otherHash;
-			}*/
-
 
 			bool operator ==(const CollisionInfo& other) const {
 				if (other.a == a && other.b == b) {

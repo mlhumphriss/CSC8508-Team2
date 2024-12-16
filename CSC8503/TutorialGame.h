@@ -53,6 +53,8 @@ namespace NCL {
 			EnemyGameObject* AddEnemyToWorld(const Vector3& position);
 			Swarm* AddSwarmToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
+			GameObject* AddVisualSphere(const Vector3& position, float radius, float inverseMass = 10.0f);
+
 
 			Vector3 GetPlayerPos();
 			void DisplayPathfinding();

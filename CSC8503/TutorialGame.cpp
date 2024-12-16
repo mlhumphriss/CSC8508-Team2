@@ -492,10 +492,22 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	return enemies;
 }
 
+GameObject* TutorialGame::AddVisualSphere(const Vector3 & position, float radius, float inverseMass)
+{
+	GameObject* sphere = new GameObject();
+	Vector3 sphereSize = Vector3(radius, radius, radius);
+
+	sphere->GetTransform().SetScale(sphereSize).SetPosition(position);
+	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
+
+	world->AddGameObject(sphere);
+	return sphere;
+};
+
 
 Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 {
-	float meshSize = 3.0f;
+	float meshSize = 0.6f;
 	float inverseMass = 0.5f;
 
 	swarm = new Swarm(navMesh);
@@ -516,12 +528,12 @@ Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 
 	world->AddGameObject(swarm);
 
+
 	auto offset = Vector3(0, 6, 0);
 
-
-	swarm->AddObjectToSwarm(AddSphereToWorld(position, 5));
-	swarm->AddObjectToSwarm(AddSphereToWorld(position + offset, 5));
-	swarm->AddObjectToSwarm(AddSphereToWorld(position + (offset * 0.2f), 5));
+	swarm->AddObjectToSwarm(AddSphereToWorld(position, 2));
+	swarm->AddObjectToSwarm(AddSphereToWorld(position + offset, 2));
+	swarm->AddObjectToSwarm(AddSphereToWorld(position + (offset * 0.2f), 2));
 
 	return swarm;
 }
