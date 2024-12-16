@@ -3,6 +3,8 @@
 #include "EnemyGameObject.h"
 #include "NavigationMesh.h"
 #include "MainMenu.h"
+#include "Swarm.h"
+
 
 
 #pragma once
@@ -49,6 +51,7 @@ namespace NCL {
 			GameObject* AddNavMeshToWorld(const Vector3& position, Vector3 dimensions);
 			GameObject* AddPlayerToWorld(const Vector3& position);
 			EnemyGameObject* AddEnemyToWorld(const Vector3& position);
+			Swarm* AddSwarmToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
 
 			Vector3 GetPlayerPos();
@@ -118,6 +121,8 @@ namespace NCL {
 
 			GameObject* objClosest = nullptr;
 			GameObject* players = nullptr;
+			Swarm* swarm = nullptr;
+
 			EnemyGameObject* enemies = nullptr;
 
 		};

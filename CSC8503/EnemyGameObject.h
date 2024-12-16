@@ -9,6 +9,8 @@
 
 #include "PhysicsObject.h"
 #include "Ray.h"
+#include "NavMeshAgent.h"
+
 #include "CollisionDetection.h"
 
 
@@ -16,7 +18,7 @@
 
 namespace NCL {
     namespace CSC8503 {
-        class EnemyGameObject : public GameObject {
+        class EnemyGameObject : public NavMeshAgent {
         public:    
 
             typedef std::function<bool(Ray& r, RayCollision& closestCollision, bool closestObject)> RaycastToWorld; 
@@ -28,23 +30,15 @@ namespace NCL {
 
             void SetRay(RaycastToWorld rayHit){ this->rayHit = rayHit; }
             void SetGetPlayer(GetPlayerPos getPlayerPos) { this->getPlayerPos = getPlayerPos; }
-            void MoveAlongPath();
 
         protected:
  
             bool RayCastPlayer();
-            void DisplayPathfinding();
-            void SetPath(Vector3 startPos, Vector3 endPos);
 
             RaycastToWorld rayHit;
             GetPlayerPos getPlayerPos;
 
-
             BehaviourSequence* sequence = nullptr;
-            NavigationMesh* navMesh = nullptr;
-            vector<Vector3> testNodes;
-
-            NavigationPath outPath;
             BehaviourState state;
 
             const int wayPointsLength = 4;
@@ -60,9 +54,7 @@ namespace NCL {
             const float yOffSet = 3.0f; 
             bool playerVisible;
             int wayPointIndex = 0;
-            int outPathIndex = 0;
 
-            float minWayPointDistanceOffset = 2;
 
             BehaviourAction* patrol = new BehaviourAction("Patrol",
                 [&](float dt, BehaviourState state) -> BehaviourState
@@ -85,10 +77,7 @@ namespace NCL {
                         }
 
                         if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset)
-                        {
-                            wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;
-                            SetPath(pos, wayPoints[wayPointIndex]);
-                        }           
+                            wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;      
                         
                         pos.y += yOffSet;
                         playerPos.y += yOffSet;
@@ -103,6 +92,9 @@ namespace NCL {
                         else {
                             Debug::DrawLine(pos, playerPos, Vector4(0, 1, 0, 1));
                         }
+
+                        SetPath(pos, wayPoints[wayPointIndex]);
+
                     }
                     return state;
                 }

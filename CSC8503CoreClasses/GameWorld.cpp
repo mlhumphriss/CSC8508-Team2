@@ -79,16 +79,13 @@ void GameWorld::UpdateWorld(float dt) {
 }
 
 bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObject, GameObject* ignoreThis, vector<GameObject::LayerID>* ignoreLayers) const {
-	//The simplest raycast just goes through each object and sees if there's a collision
 	RayCollision collision;
 
-	for (auto& i : gameObjects) {
-		if (!i->GetBoundingVolume()) { //objects might not be collideable etc...
+	for (auto& i : gameObjects) {//objects might not be collideable etc...
+		if (!i->GetBoundingVolume()) 
 			continue;
-		}
-		if (i == ignoreThis) {
+		if (i == ignoreThis) 
 			continue;
-		}
 		bool toContinue = false;
 
 		if (ignoreLayers != nullptr) {

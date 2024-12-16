@@ -11,6 +11,10 @@ set(PROJECT_NAME CSC8503)
 #    "EnemyGameObject.h"
 #    "TutorialGame.h"
 #    "MainMenu.h"
+#    "Swarm.h"
+#    "PlayerGameObject.h"
+#    "NavMeshAgent.h"
+
 #)
 file(GLOB Header_Files *.h)
 source_group("Header Files" FILES ${Header_Files})
@@ -26,6 +30,8 @@ source_group("Header Files" FILES ${Header_Files})
 #    "StateGameObject.cpp"
 #    "TutorialGame.cpp"
 #    "MainMenu.cpp"
+#    "Swarm.cpp"
+#    "PlayerGameObject.cpp"
 #)
 file(GLOB Source_Files *.cpp)
 

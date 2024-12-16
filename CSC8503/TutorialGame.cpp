@@ -235,6 +235,8 @@ void TutorialGame::UpdateGame(float dt)
 	MoveSelectedObject();
 
 	enemies->Update(dt);
+	swarm->Update(dt);
+
 	world->UpdateWorld(dt);
 	physics->Update(dt);
 }
@@ -490,6 +492,40 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	return enemies;
 }
 
+
+Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
+{
+	float meshSize = 3.0f;
+	float inverseMass = 0.5f;
+
+	swarm = new Swarm(navMesh);
+	swarm->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
+
+	SphereVolume* volume = new SphereVolume(0.6f);
+	//OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
+	swarm->SetBoundingVolume((CollisionVolume*)volume);
+	swarm->SetLayerID(GameObject::LayerID::Enemy);
+
+	swarm->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
+	swarm->SetRenderObject(new RenderObject(&swarm->GetTransform(), sphereMesh, nullptr, basicShader));
+
+	swarm->SetPhysicsObject(new PhysicsObject(&swarm->GetTransform(), swarm->GetBoundingVolume()));
+
+	swarm->GetPhysicsObject()->SetInverseMass(inverseMass);
+	swarm->GetPhysicsObject()->InitSphereInertia();
+
+	world->AddGameObject(swarm);
+
+	auto offset = Vector3(0, 6, 0);
+
+
+	swarm->AddObjectToSwarm(AddSphereToWorld(position, 5));
+	swarm->AddObjectToSwarm(AddSphereToWorld(position + offset, 5));
+	swarm->AddObjectToSwarm(AddSphereToWorld(position + (offset * 0.2f), 5));
+
+	return swarm;
+}
+
 StateGameObject* TutorialGame::AddStateObjectToWorld(const Vector3& position) {
 	StateGameObject* apple = new StateGameObject();
 	SphereVolume* volume = new SphereVolume(0.5f);
@@ -531,8 +567,11 @@ void TutorialGame::InitGameExamples()
 {
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	AddPlayerToWorld(Vector3(-100, 22, 25));
+
 	AddBonusToWorld(Vector3(10, 5, 0));	
-	AddEnemyToWorld(Vector3(5, 15, 0)); 
+	AddEnemyToWorld(Vector3(5, 30, 0)); 
+
+	AddSwarmToWorld(Vector3(50, 30, 0));
 
 }
 
