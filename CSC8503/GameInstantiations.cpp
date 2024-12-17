@@ -42,7 +42,7 @@ GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dim
 		colliderObject->SetPhysicsObject(new PhysicsObject(&colliderObject->GetTransform(), colliderObject->GetBoundingVolume()));
 		colliderObject->GetPhysicsObject()->SetInverseMass(0);
 		colliderObject->GetPhysicsObject()->InitCubeInertia();
-		colliderObject->SetLayerID(GameObject::LayerID::Default);
+		colliderObject->SetLayerID(Layers::LayerID::Default);
 
 		world->AddGameObject(colliderObject);
 	}
@@ -60,7 +60,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 
 	players->SetBoundingVolume((CollisionVolume*)volume);
 	players->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-	players->SetLayerID(GameObject::LayerID::Player);
+	players->SetLayerID(Layers::LayerID::Player);
 	players->SetRenderObject(new RenderObject(&players->GetTransform(), catMesh, nullptr, basicShader));
 	players->SetPhysicsObject(new PhysicsObject(&players->GetTransform(), players->GetBoundingVolume()));
 
@@ -81,6 +81,8 @@ GameObject* TutorialGame::AddSphereCastToWorld()
 	Vector3 sphereSize = Vector3(radius, radius, radius);
 	SphereVolume* volume = new SphereVolume(radius);
 
+	sphere->SetLayerID(Layers::Ignore_Collisions);
+	sphere->SetTag(Tags::CursorCast);
 	sphere->SetBoundingVolume((CollisionVolume*)volume);
 	sphere->GetTransform().SetScale(sphereSize).SetPosition(Vector3(0,0,0));
 
@@ -131,7 +133,7 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	SphereVolume* volume = new SphereVolume(0.6f);
 	//OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
 	enemies->SetBoundingVolume((CollisionVolume*)volume);
-	enemies->SetLayerID(GameObject::LayerID::Enemy);
+	enemies->SetLayerID(Layers::LayerID::Enemy);
 
 	enemies->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
 
@@ -157,7 +159,7 @@ Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 	SphereVolume* volume = new SphereVolume(meshSize);
 
 	swarm->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
-	swarm->SetLayerID(GameObject::LayerID::Enemy);
+	swarm->SetLayerID(Layers::LayerID::Enemy);
 	swarm->SetBoundingVolume((CollisionVolume*)volume);
 
 	swarm->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);

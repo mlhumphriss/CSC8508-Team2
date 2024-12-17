@@ -131,7 +131,7 @@ void TutorialGame::UpdateObjectSelectMode(float dt) {
 		rayPos = selectionObject->GetTransform().GetPosition();
 
 		Ray r = Ray(rayPos, rayDir);
-		bool hit = world->Raycast(r, closestCollision, true, selectionObject, new std::vector<GameObject::LayerID>({ GameObject::LayerID::Player,  GameObject::LayerID::Enemy }));
+		bool hit = world->Raycast(r, closestCollision, true, selectionObject, new std::vector<Layers::LayerID>({ Layers::LayerID::Player,  Layers::LayerID::Enemy }));
 
 		if (hit)
 		{

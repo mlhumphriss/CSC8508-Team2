@@ -10,7 +10,8 @@ GameObject::GameObject(const std::string& objectName)	{
 	name			= objectName;
 	worldID			= -1;
 	isActive		= true;
-	layerID = LayerID::Default;
+	layerID = Layers::LayerID::Default;
+	tag = Tags::Tag::Default;
 	boundingVolume	= nullptr;
 	physicsObject	= nullptr;
 	renderObject	= nullptr;

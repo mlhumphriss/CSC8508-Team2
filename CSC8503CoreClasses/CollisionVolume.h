@@ -19,5 +19,6 @@ namespace NCL {
 		~CollisionVolume() {}
 
 		VolumeType type;
+		bool isTrigger = false;
 	};
 }

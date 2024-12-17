@@ -167,12 +167,19 @@ void PhysicsSystem::BasicCollisionDetection() {
 	}
 }
 
-void PhysicsSystem::ImpulseResolveCollision(
-	GameObject& a, GameObject& b,
-	CollisionDetection::ContactPoint& p) const {
+void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, CollisionDetection::ContactPoint& p) const {
+
+	auto layerID = Layers::Ignore_Collisions;
+	if (a.GetLayerID() == layerID || b.GetLayerID() == layerID)
+		return;
+
+	if (a.GetBoundingVolume()->isTrigger || b.GetBoundingVolume()->isTrigger)
+		return;
 
 	PhysicsObject* physA = a.GetPhysicsObject();
 	PhysicsObject* physB = b.GetPhysicsObject();
+
+
 
 	Transform& transformA = a.GetTransform();
 	Transform& transformB = b.GetTransform();
@@ -181,7 +188,7 @@ void PhysicsSystem::ImpulseResolveCollision(
 
 	if (totalMass == 0) 
 		return; 
-	
+
 	transformA.SetPosition(transformA.GetPosition() - (p.normal * p.penetration * (physA->GetInverseMass() / totalMass)));
 	transformB.SetPosition(transformB.GetPosition() + (p.normal * p.penetration * (physB->GetInverseMass() / totalMass)));
 

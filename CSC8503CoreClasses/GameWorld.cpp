@@ -78,7 +78,7 @@ void GameWorld::UpdateWorld(float dt) {
 	}
 }
 
-bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObject, GameObject* ignoreThis, vector<GameObject::LayerID>* ignoreLayers) const {
+bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObject, GameObject* ignoreThis, vector<Layers::LayerID>* ignoreLayers) const {
 	RayCollision collision;
 
 	for (auto& i : gameObjects) {//objects might not be collideable etc...
@@ -89,7 +89,7 @@ bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObje
 		bool toContinue = false;
 
 		if (ignoreLayers != nullptr) {
-			for (const GameObject::LayerID& var : *ignoreLayers) {
+			for (const Layers::LayerID& var : *ignoreLayers) {
 				if (i->GetLayerID() == var) {
 					toContinue = true;
 					break;
@@ -100,7 +100,7 @@ bool GameWorld::Raycast(Ray& r, RayCollision& closestCollision, bool closestObje
 		if (toContinue)
 			continue;
 
-		if (i->GetLayerID() == GameObject::Ignore_RayCast || i->GetLayerID() == GameObject::UI)
+		if (i->GetLayerID() == Layers::Ignore_RayCast || i->GetLayerID() == Layers::UI)
 			continue;
 
 		RayCollision thisCollision;

@@ -5,6 +5,15 @@
 using std::vector;
 
 namespace NCL::CSC8503 {
+
+	namespace Tags {
+		enum Tag { Default, Player, Enemy, Kitten, CursorCast, Ground };
+	}
+
+	namespace Layers {
+		enum LayerID { Default, Ignore_RayCast, UI, Player, Enemy, Ignore_Collisions };
+	}
+
 	class NetworkObject;
 	class RenderObject;
 	class PhysicsObject;
@@ -78,15 +87,12 @@ namespace NCL::CSC8503 {
 			return worldID;
 		}	
 
-		enum LayerID {Default, Ignore_RayCast, UI, Player, Enemy};
+		void SetLayerID(Layers::LayerID newID) { layerID = newID;}
+		Layers::LayerID GetLayerID() const {return layerID; }
+		void SetTag(Tags::Tag newTag) {  tag = newTag;}
+		Tags::Tag GetTag() const { return tag;}
 
-		void SetLayerID(LayerID newID) {
-			layerID = newID;
-		}
-		
-		LayerID GetLayerID() const{
-			return layerID;
-		}
+
 
 
 	protected:
@@ -97,9 +103,10 @@ namespace NCL::CSC8503 {
 		RenderObject*		renderObject;
 		NetworkObject*		networkObject;
 
-		bool		isActive;
-		int			worldID;
-		LayerID			layerID;
+		bool isActive;
+		int	worldID;
+		Layers::LayerID	layerID;
+		Tags::Tag	tag;
 		std::string	name;
 
 		Vector3 broadphaseAABB;
