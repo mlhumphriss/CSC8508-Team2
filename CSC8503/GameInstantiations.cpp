@@ -66,6 +66,9 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 
 	players->GetPhysicsObject()->SetInverseMass(inverseMass);
 	players->GetPhysicsObject()->InitSphereInertia();
+	players->AddToIgnoredLayers(Layers::Enemy);
+	players->GetRenderObject()->SetColour(Vector4(0, 0, 0, 1.0f));
+
 
 	world->AddGameObject(players);
 	updateObjects.push_back(players);
@@ -91,6 +94,9 @@ GameObject* TutorialGame::AddSphereCastToWorld()
 
 	sphere->GetPhysicsObject()->SetInverseMass(10.0f);
 	sphere->GetPhysicsObject()->InitSphereInertia();
+
+	sphere->GetRenderObject()->SetColour(Vector4(0, 1, 0, 0.8f));
+
 
 	world->AddGameObject(sphere);
 	sphereCast = sphere;
@@ -136,7 +142,7 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	enemies->SetLayerID(Layers::LayerID::Enemy);
 
 	enemies->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-
+	
 	enemies->SetRenderObject(new RenderObject(&enemies->GetTransform(), enemyMesh, nullptr, basicShader));
 	enemies->SetPhysicsObject(new PhysicsObject(&enemies->GetTransform(), enemies->GetBoundingVolume()));
 

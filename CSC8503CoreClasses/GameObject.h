@@ -92,8 +92,8 @@ namespace NCL::CSC8503 {
 		void SetTag(Tags::Tag newTag) {  tag = newTag;}
 		Tags::Tag GetTag() const { return tag;}
 
-
-
+		void AddToIgnoredLayers(Layers::LayerID layerID) { ignoreLayers.push_back(layerID); }
+		const std::vector<Layers::LayerID>& GetIgnoredLayers() const { return ignoreLayers; }
 
 	protected:
 		Transform			transform;
@@ -110,6 +110,7 @@ namespace NCL::CSC8503 {
 		std::string	name;
 
 		Vector3 broadphaseAABB;
+		vector<Layers::LayerID> ignoreLayers; // Made only for ignoring impluse resolution. Triggers will still activate
 	};
 }
 

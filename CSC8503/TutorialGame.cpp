@@ -234,24 +234,35 @@ std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 void TutorialGame::SphereCastWorld()
 {
 	float t, u, v;
-	Vector3 intersection = Vector3(0,0,0);
+	Vector3 intersection = Vector3(0,25,0);
 	Ray mouseToWorld = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());
 
 	Vector3 dir = Vector::Normalise(mouseToWorld.GetDirection());
 	Vector3 pos = mouseToWorld.GetPosition();
 
-	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
-	{
-		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
-		for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; j += 3)
-		{
-			Vector3 a, b, c;
-			navigationMesh->GetTriangle(j, a, b, c);
+	bool found = false;
+	float closestT = std::numeric_limits<float>::max();
+	Vector3 closestIntersection;
 
-			if (RayIntersectsTriangle(pos, dir, a, b, c, t, u, v))
-				intersection =  pos + (dir * t);
+	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i) {
+		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
+
+		for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; ++j) {
+			Vector3 a, b, c;
+			if (!navigationMesh->GetTriangle(j, a, b, c))
+				continue;
+
+			float t, u, v;
+			if (RayIntersectsTriangle(pos, dir, a, b, c, t, u, v) && t < closestT) {
+				closestT = t;
+				closestIntersection = pos + (dir * t);
+				found = true;
+			}
 		}
 	}
+
+	if (found) 
+		intersection = closestIntersection;
 
 	sphereCast->GetTransform().SetPosition(intersection);
 

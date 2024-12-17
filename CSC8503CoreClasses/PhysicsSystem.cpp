@@ -176,6 +176,17 @@ void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, Collis
 	if (a.GetBoundingVolume()->isTrigger || b.GetBoundingVolume()->isTrigger)
 		return;
 
+
+	for (const auto& layer : a.GetIgnoredLayers()) {
+		if (b.GetLayerID() == layer) 
+			return;
+	}
+
+	for (const auto& layer : b.GetIgnoredLayers()) {
+		if (a.GetLayerID() == layer)
+			return;
+	}
+
 	PhysicsObject* physA = a.GetPhysicsObject();
 	PhysicsObject* physB = b.GetPhysicsObject();
 

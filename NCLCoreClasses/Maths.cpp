@@ -82,6 +82,12 @@ namespace NCL {
 		}
 
 
+		float RandomValue(float min, float max) {
+			float floatValue = rand() / (float)RAND_MAX;
+			float range = max - min;
+			return min + (range * floatValue);
+		}
+
 		#define EPSILON 1e-5f
 
 		bool Maths::RayIntersectsTriangle(const Vector3& rayOrigin, const Vector3& rayDir, const Vector3& v0, const Vector3& v1, const Vector3& v2, float distance)
@@ -110,12 +116,6 @@ namespace NCL {
 			return t > EPSILON && t < distance;
 		}
 
-
-		float RandomValue(float min, float max) {
-			float floatValue = rand() / (float)RAND_MAX;
-			float range = max - min;
-			return min + (range * floatValue);
-		}
 
 
 		// Intersection distance & Barycentric coordinates
