@@ -39,17 +39,3 @@ bool EnemyGameObject::RayCastPlayer()
     return false;
 }
 
-
-void EnemyGameObject::Update(float dt) 
-{
-
-    if (state != Ongoing) {
-        sequence->Reset();
-        state = Ongoing;
-    }
-
-    state = sequence->Execute(dt);
-    DisplayPathfinding(Vector4(0, 0, 1, 1));
-    MoveAlongPath();
-}
-

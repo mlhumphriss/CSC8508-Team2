@@ -4,6 +4,7 @@
 #include "RenderObject.h"
 #include "TextureLoader.h"
 #include "EnemyGameObject.h"
+#include "Kitten.h"
 
 #include "PositionConstraint.h"
 #include "OrientationConstraint.h"
@@ -11,8 +12,6 @@
 
 using namespace NCL;
 using namespace CSC8503;
-
-
 
 TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *Window::GetWindow()->GetMouse()) 
 {
@@ -90,112 +89,25 @@ TutorialGame::~TutorialGame()
 
 	delete navigationMesh;
 	delete navMesh;
+
+	delete players;
+	delete swarm;
 }
-
-vector<Vector3> testNodes;
-NavigationPath outPath;
-
-float delta = 0.25f;
-Vector3 startPos = Vector3(0, 0, 0);
-Vector3 endPos = Vector3(25, 0, 5);
-GameObject* apple;
 
 Vector3 TutorialGame::GetPlayerPos() {
 	return players->GetTransform().GetPosition();
 }
 
+void TutorialGame::UpdateCamera(float dt) {
 
-void TutorialGame::TestPathfinding()
-{
-	testNodes.clear();
-
-/*
-	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
-	{
-		std::vector<Vector3> vertices = GetVertices(navigationMesh, i);
-
-		Vector3 dimensions, localPosition;
-		Quaternion rotationMatrix;
-		CalculateCubeTransformations(vertices, localPosition, dimensions, rotationMatrix);
-	}
-	*/
-	Vector3 intersectionPoint = endPos;
-	float t, u, v;
-
-	Vector3 playerPos = endPos;
-	Vector3 rayDir = Vector3(0, -1, 0);
-
-	auto submeshCount = navigationMesh->GetSubMeshCount();
-	auto x = navigationMesh->GetPositionData();
-	auto triCount = navigationMesh->GetIndexCount() / 3;
-
-
-	/*for (int i = 0; i < triCount; ++i) {
-
-		Vector3 a, b, c;
-		navigationMesh->GetTriangle(i, a, b, c);
-
-		Debug::DrawLine(a,b);
-		Debug::DrawLine(b,c);
-		Debug::DrawLine(c,a);
-
-		if (RayIntersectsTriangle(playerPos, rayDir, a, b, c, t, u, v))
-		{
-				intersectionPoint = playerPos + rayDir * t;
-				//break;
-		}
-	}*/
-	
-	endPos = intersectionPoint;
-	apple->GetTransform().SetPosition(intersectionPoint);
-
-
-	Vector3 pos;
-	bool found = navMesh->FindPath(startPos, endPos, outPath);
-	navMesh->SmoothPath(outPath);
-
-	while (outPath.PopWaypoint(pos))
-	{
-		testNodes.push_back(pos);
-	}
-
-}
-
-void TutorialGame::DisplayPathfinding() 
-{
-	Debug::DrawLine(startPos, endPos, Vector4(1, 0, 0, 1));
-
-	for (int i = 1; i < testNodes.size(); ++i) {
-		Vector3 a = testNodes[i - 1];
-		Vector3 b = testNodes[i];
-
-		Debug::DrawLine(a, b, Vector4(0, 1, 0, 1));
-	}
-}
-
-void TutorialGame::UpdateGame(float dt) 
-{
-
-	mainMenu->Update(dt);
-	renderer->Render();
-	renderer->Update(dt);
-
-	Debug::UpdateRenderables(dt);
-
-	if (inPause)
-		return;
-
-	if (!inSelectionMode) 
+	if (!inSelectionMode)
 		world->GetMainCamera().UpdateCamera(dt);
-
-	if (testStateObject) 
-		testStateObject -> Update(dt);
 
 	if (lockedObject != nullptr) {
 		Vector3 objPos = lockedObject->GetTransform().GetPosition();
 		Vector3 camPos = objPos + lockedOffset;
 
-		Matrix4 temp = Matrix::View(camPos, objPos, Vector3(0,1,0));
+		Matrix4 temp = Matrix::View(camPos, objPos, Vector3(0, 1, 0));
 		Matrix4 modelMat = Matrix::Inverse(temp);
 
 		Quaternion q(modelMat);
@@ -206,9 +118,9 @@ void TutorialGame::UpdateGame(float dt)
 		world->GetMainCamera().SetYaw(angles.y);
 	}
 
-	TestPathfinding();
-	DisplayPathfinding();
-	UpdateKeys();
+}
+
+void TutorialGame::UpdateObjectSelectMode(float dt) {
 
 	RayCollision closestCollision;
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::K) && selectionObject) {
@@ -221,36 +133,40 @@ void TutorialGame::UpdateGame(float dt)
 		Ray r = Ray(rayPos, rayDir);
 		bool hit = world->Raycast(r, closestCollision, true, selectionObject, new std::vector<GameObject::LayerID>({ GameObject::LayerID::Player,  GameObject::LayerID::Enemy }));
 
-		if (hit) 
+		if (hit)
 		{
 			if (objClosest) {
 				objClosest->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
 			}
 			objClosest = (GameObject*)closestCollision.node;
 			objClosest->GetRenderObject()->SetColour(Vector4(1, 0, 1, 1));
-		}		
+		}
 	}
 
 	SelectObject();
 	MoveSelectedObject();
+}
 
-	enemies->Update(dt);
-	swarm->Update(dt);
+void TutorialGame::UpdateGame(float dt) 
+{
+
+	mainMenu->Update(dt);
+	renderer->Render();
+	renderer->Update(dt);
+	Debug::UpdateRenderables(dt);
+
+	if (inPause)
+		return;
+
+	UpdateCamera(dt);
+	UpdateObjectSelectMode(dt);
+
+	for (auto& obj : updateObjects) {
+		obj->Update(dt);
+	}
 
 	world->UpdateWorld(dt);
 	physics->Update(dt);
-}
-
-void TutorialGame::UpdateKeys() 
-{
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::T))
-		endPos.x += delta;
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::F))
-		endPos.z -= delta;
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::G))
-		endPos.x -= delta;
-	if (Window::GetKeyboard()->KeyDown(KeyCodes::H))
-		endPos.z += delta;
 }
 
 void TutorialGame::LockedObjectMovement() 
@@ -291,61 +207,6 @@ void TutorialGame::InitWorld()
 
 }
 
-GameObject* TutorialGame::AddFloorToWorld(const Vector3& position) 
-{
-	GameObject* floor = new GameObject();
-	Vector3 floorSize = Vector3(200, 2, 200);
-	AABBVolume* volume = new AABBVolume(floorSize);
-
-	floor->SetBoundingVolume((CollisionVolume*)volume);
-	floor->GetTransform().SetScale(floorSize * 2.0f).SetPosition(position);
-
-	floor->SetRenderObject(new RenderObject(&floor->GetTransform(), cubeMesh, basicTex, basicShader));
-	floor->SetPhysicsObject(new PhysicsObject(&floor->GetTransform(), floor->GetBoundingVolume()));
-
-	floor->GetPhysicsObject()->SetInverseMass(0);
-	floor->GetPhysicsObject()->InitCubeInertia();
-
-	world->AddGameObject(floor);
-	return floor;
-}
-
-GameObject* TutorialGame::AddSphereToWorld(const Vector3& position, float radius, float inverseMass) 
-{
-	GameObject* sphere = new GameObject();
-	Vector3 sphereSize = Vector3(radius, radius, radius);
-	SphereVolume* volume = new SphereVolume(radius);
-
-	sphere->SetBoundingVolume((CollisionVolume*)volume);
-	sphere->GetTransform().SetScale(sphereSize).SetPosition(position);
-
-	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
-	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
-
-	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
-	sphere->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(sphere);
-	return sphere;
-}
-
-GameObject* TutorialGame::AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass) {
-	GameObject* cube = new GameObject();
-	OBBVolume* volume = new OBBVolume(dimensions);
-
-	cube->SetBoundingVolume((CollisionVolume*)volume);
-	cube->GetTransform().SetPosition(position).SetScale(dimensions * 2.0f);
-
-	cube->SetRenderObject(new RenderObject(&cube->GetTransform(), cubeMesh, basicTex, basicShader));
-	cube->SetPhysicsObject(new PhysicsObject(&cube->GetTransform(), cube->GetBoundingVolume()));
-
-	cube->GetPhysicsObject()->SetInverseMass(inverseMass);
-	cube->GetPhysicsObject()->InitCubeInertia();
-
-	world->AddGameObject(cube);
-	return cube;
-}
-
 std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 {
 	const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
@@ -363,6 +224,33 @@ std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 		vertices.push_back(positionData[idx2]);
 	}
 	return vertices;
+}
+
+
+void TutorialGame::SphereCastWorld()
+{
+	float t, u, v;
+	Vector3 intersection;
+	Ray mouseToWorld = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());
+
+	Vector3 dir = Vector::Normalise(mouseToWorld.GetDirection());
+	Vector3 pos = mouseToWorld.GetPosition();
+
+	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
+	{
+		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
+		for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; j += 3)
+		{
+			Vector3 a, b, c;
+			navigationMesh->GetTriangle(j, a, b, c);
+
+			if (RayIntersectsTriangle(pos, dir, a, b, c, t, u, v))
+				intersection =  pos + (dir * t);
+		}
+	}
+
+	// Then Sphere cast
+
 }
 
 const bool DebugCubeTransforms = false;
@@ -408,179 +296,6 @@ void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& ver
 }
 
 
-GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions) 
-{
-	navMesh = new NavigationMesh("smalltest.navmesh");
-	GameObject* navMeshObject = new GameObject();
-	//navMeshObject->SetRenderObject(new RenderObject(&navMeshObject->GetTransform(), navigationMesh, basicTex, basicShader));
-
-	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
-	{
-		if (navigationMesh->GetSubMesh(i)->count != 36)
-			continue;  
-
-		std::vector<Vector3> vertices = GetVertices(navigationMesh, i);
-
-		Vector3 dimensions, localPosition;
-		Quaternion rotationMatrix;
-
-		CalculateCubeTransformations(vertices, localPosition, dimensions, rotationMatrix);
-
-		GameObject* colliderObject = new GameObject();
-		OBBVolume* volume = new OBBVolume(dimensions);
-
-		colliderObject->SetBoundingVolume((CollisionVolume*)volume);
-		colliderObject->GetTransform().SetScale(dimensions * 2.0f).SetPosition(localPosition).SetOrientation(rotationMatrix);
-		colliderObject->SetRenderObject(new RenderObject(&colliderObject->GetTransform(), cubeMesh, basicTex, basicShader));
-
-		colliderObject->SetPhysicsObject(new PhysicsObject(&colliderObject->GetTransform(), colliderObject->GetBoundingVolume()));
-		colliderObject->GetPhysicsObject()->SetInverseMass(0);
-		colliderObject->GetPhysicsObject()->InitCubeInertia();
-		colliderObject->SetLayerID(GameObject::LayerID::Default);
-
-		world->AddGameObject(colliderObject);
-	}
-
-	//world->AddGameObject(navMeshObject);
-	return navMeshObject;
-}
-
-GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
-	float meshSize		= 1.0f;
-	float inverseMass	= 0.5f;
-
-	players = new GameObject();
-	SphereVolume* volume  = new SphereVolume(1.0f);
-
-	players->SetBoundingVolume((CollisionVolume*)volume);
-	players->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-	players->SetLayerID(GameObject::LayerID::Player);
-	players->SetRenderObject(new RenderObject(&players->GetTransform(), catMesh, nullptr, basicShader));
-	players->SetPhysicsObject(new PhysicsObject(&players->GetTransform(), players->GetBoundingVolume()));
-
-	players->GetPhysicsObject()->SetInverseMass(inverseMass);
-	players->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(players);
-
-	return players;
-}
-
-
-GameObject* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, float inverseMass)
-{
-	GameObject* sphere = new GameObject();
-	Vector3 sphereSize = Vector3(radius, radius, radius);
-	//sphereSize = sphereSize * 0.25f;
-	SphereVolume* volume = new SphereVolume(radius * 0.25f);
-
-	sphere->SetBoundingVolume((CollisionVolume*)volume);
-	sphere->GetTransform().SetScale(sphereSize).SetPosition(position);
-
-	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), kittenMesh, basicTex, basicShader));
-	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
-
-	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
-	sphere->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(sphere);
-	return sphere;
-}
-
-EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position) 
-{
-	float meshSize		= 3.0f;
-	float inverseMass	= 0.5f;
-
-	enemies = new EnemyGameObject(navMesh);
-	enemies->SetRay([&](Ray& r, RayCollision& closestCollision, bool closestObject) -> bool { return world->Raycast(r, closestCollision, closestObject); });
-	enemies->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
-
-	SphereVolume* volume = new SphereVolume(0.6f);
-	//OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
-	enemies->SetBoundingVolume((CollisionVolume*)volume);
-	enemies->SetLayerID(GameObject::LayerID::Enemy);
-
-	enemies->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-
-	enemies->SetRenderObject(new RenderObject(&enemies->GetTransform(), enemyMesh, nullptr, basicShader));
-	enemies->SetPhysicsObject(new PhysicsObject(&enemies->GetTransform(), enemies->GetBoundingVolume()));
-
-	enemies->GetPhysicsObject()->SetInverseMass(inverseMass);
-	enemies->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(enemies);
-	return enemies;
-}
-
-
-Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
-{
-	float meshSize = 0.6f;
-	float inverseMass = 0.5f;
-
-	swarm = new Swarm(navMesh);
-	swarm->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
-
-	swarm->SetLayerID(GameObject::LayerID::Enemy);
-
-	swarm->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-	swarm->SetRenderObject(new RenderObject(&swarm->GetTransform(), sphereMesh, nullptr, basicShader));
-
-	swarm->SetPhysicsObject(new PhysicsObject(&swarm->GetTransform(), swarm->GetBoundingVolume()));
-
-	swarm->GetPhysicsObject()->SetInverseMass(inverseMass);
-	swarm->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(swarm);
-
-
-	auto offset = Vector3(0.3f, 0, 0.3f);
-
-	for (float i = 0; i < 120; i++) {
-		swarm->AddObjectToSwarm(AddKittenToWorld(position + (offset * i), 1));
-	}
-
-	return swarm;
-}
-
-StateGameObject* TutorialGame::AddStateObjectToWorld(const Vector3& position) {
-	StateGameObject* apple = new StateGameObject();
-	SphereVolume* volume = new SphereVolume(0.5f);
-
-	apple->SetBoundingVolume((CollisionVolume*)volume);
-	apple->GetTransform().SetScale(Vector3(2, 2, 2)).SetPosition(position);
-
-	apple->SetRenderObject(new RenderObject(&apple->GetTransform(), bonusMesh, nullptr, basicShader));
-	apple->SetPhysicsObject(new PhysicsObject(&apple->GetTransform(), apple->GetBoundingVolume()));
-
-	apple->GetPhysicsObject()->SetInverseMass(1.0f);
-	apple->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(apple);
-	return apple;
-}
-
-GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
-	apple = new GameObject();
-
-	SphereVolume* volume = new SphereVolume(0.5f);
-	apple->SetBoundingVolume((CollisionVolume*)volume);
-	apple->GetTransform()
-		.SetScale(Vector3(2, 2, 2))
-		.SetPosition(position);
-
-	apple->SetRenderObject(new RenderObject(&apple->GetTransform(), bonusMesh, nullptr, basicShader));
-	apple->SetPhysicsObject(new PhysicsObject(&apple->GetTransform(), apple->GetBoundingVolume()));
-
-	apple->GetPhysicsObject()->SetInverseMass(1.0f);
-	apple->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(apple);
-
-	return apple;
-}
-
 void TutorialGame::InitGameExamples() 
 {
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
@@ -618,24 +333,14 @@ void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing
 	}
 }
 
-void TutorialGame::InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims)
-{
-	for (int x = 1; x < numCols+1; ++x) {
-		for (int z = 1; z < numRows+1; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 10.0f, z * rowSpacing);
-			AddCubeToWorld(position, cubeDims, 1.0f);
-		}
-	}
-}
-
 void TutorialGame::BridgeConstraintTest() 
 {
-	Vector3 cubeSize = Vector3(8, 8, 8);
+	Vector3 cubeSize = Vector3(3, 3, 3);
 	float invCubeMass = 5;
-	int numLinks = 10;
-	float maxDistance = 30;
-	float cubeDistance = 20;
-	Vector3 startPos = Vector3(0, 0, 0);
+	int numLinks = 12;
+	float maxDistance = 10;
+	float cubeDistance = 2;
+	Vector3 startPos = Vector3(100, 90, 100);
 
 	GameObject* start = AddCubeToWorld(startPos + Vector3(0, 0, 0), cubeSize, 0);
 	GameObject* end = AddCubeToWorld(startPos + Vector3((numLinks + 2) * cubeDistance, 0, 0), cubeSize, 0);

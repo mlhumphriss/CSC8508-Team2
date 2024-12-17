@@ -13,12 +13,13 @@
 
 #include "CollisionDetection.h"
 
-
 #include "GameWorld.h"
+#include "UpdateObject.h"
+
 
 namespace NCL {
     namespace CSC8503 {
-        class EnemyGameObject : public NavMeshAgent {
+        class EnemyGameObject : public NavMeshAgent, public UpdateObject {
         public:    
 
             typedef std::function<bool(Ray& r, RayCollision& closestCollision, bool closestObject)> RaycastToWorld; 
@@ -26,10 +27,22 @@ namespace NCL {
 
             EnemyGameObject(NavigationMesh* navMesh);
             ~EnemyGameObject();
-            virtual void Update(float dt);
 
             void SetRay(RaycastToWorld rayHit){ this->rayHit = rayHit; }
             void SetGetPlayer(GetPlayerPos getPlayerPos) { this->getPlayerPos = getPlayerPos; }
+
+            void Update(float dt) override 
+            {
+                if (state != Ongoing) {
+                    sequence->Reset();
+                    state = Ongoing;
+                }
+
+                state = sequence->Execute(dt);
+                DisplayPathfinding(Vector4(0, 0, 1, 1));
+                MoveAlongPath();
+                this->GetPhysicsObject()->RotateTowardsVelocity();
+            }
 
         protected:
  
@@ -56,6 +69,7 @@ namespace NCL {
             int wayPointIndex = 0;
 
 
+
             BehaviourAction* patrol = new BehaviourAction("Patrol",
                 [&](float dt, BehaviourState state) -> BehaviourState
                 {
@@ -69,7 +83,6 @@ namespace NCL {
                     }
                     else if (state == Ongoing)
                     {
-             
                         if (!RayCastPlayer())
                         {
                             wayPointIndex = 0;
@@ -82,16 +95,10 @@ namespace NCL {
                         pos.y += yOffSet;
                         playerPos.y += yOffSet;
                         
-                        if (RayCastPlayer())
-                        {                   
-                            //std::cout << "spotted" << std::endl;
-                            // wayPointIndex = 0;
-                            //return Success;     
+                        if (RayCastPlayer())        
                             Debug::DrawLine(pos, playerPos, Vector4(1, 0, 0, 1));
-                        }
-                        else {
+                        else 
                             Debug::DrawLine(pos, playerPos, Vector4(0, 1, 0, 1));
-                        }
 
                         SetPath(pos, wayPoints[wayPointIndex]);
 
@@ -114,15 +121,11 @@ namespace NCL {
                     else if (state == Ongoing)
                     {
                         if (RayCastPlayer()) {
-                            if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) {
-                                std::cout << "failure" << std::endl;
+                            if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
                                 return  Failure;
-                            }
                         }
-                        else {
-                            std::cout << "In sight" << std::endl;
+                        else 
                             SetPath(pos, playerPos);
-                        }
                     }
                     return state;
                 }

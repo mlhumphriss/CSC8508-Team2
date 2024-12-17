@@ -41,7 +41,7 @@ const float idealDT = 1.0f / idealHZ;
 int realHZ		= idealHZ;
 float realDT	= idealDT;
 
-void PhysicsSystem::Update(float dt) {	
+void PhysicsSystem::DebugConstraints() {
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::B)) {
 		useBroadPhase = !useBroadPhase;
 		std::cout << "Setting broadphase to " << useBroadPhase << std::endl;
@@ -58,8 +58,11 @@ void PhysicsSystem::Update(float dt) {
 		constraintIterationCount++;
 		std::cout << "Setting constraint iterations to " << constraintIterationCount << std::endl;
 	}
+}
 
-	dTOffset += dt; //We accumulate time delta here - there might be remainders from previous frame!
+void PhysicsSystem::Update(float dt) {	
+
+	dTOffset += dt;
 
 	GameTimer t;
 	t.GetTimeDeltaSeconds();
@@ -70,7 +73,7 @@ void PhysicsSystem::Update(float dt) {
 	int iteratorCount = 0;
 
 	while(dTOffset > realDT) {
-		IntegrateAccel(realDT); //Update accelerations from external forces
+		IntegrateAccel(realDT); 
 		if (useBroadPhase) {
 			BroadPhase();
 			NarrowPhase();
@@ -82,26 +85,23 @@ void PhysicsSystem::Update(float dt) {
 		for (int i = 0; i < constraintIterationCount; ++i) {
 			UpdateConstraints(constraintDt);	
 		}
-		IntegrateVelocity(realDT); //update positions from new velocity changes
+		IntegrateVelocity(realDT);
 
 		dTOffset -= realDT;
 		iteratorCount++;
 	}
 
-	ClearForces();	//Once we've finished with the forces, reset them to zero
-
-	UpdateCollisionList(); //Remove any old collisions
+	ClearForces();	
+	UpdateCollisionList(); 
 
 	t.Tick();
 	float updateTime = t.GetTimeDeltaSeconds();
 
-	//Uh oh, physics is taking too long...
 	if (updateTime > realDT) {
 		realHZ /= 2;
 		realDT *= 2;
-		//std::cout << "Dropping iteration count due to long physics time...(now " << realHZ << ")\n";
 	}
-	else if(dt*2 < realDT) { //we have plenty of room to increase iteration count!
+	else if(dt*2 < realDT) { 
 		int temp = realHZ;
 		realHZ *= 2;
 		realDT /= 2;
@@ -109,9 +109,6 @@ void PhysicsSystem::Update(float dt) {
 		if (realHZ > idealHZ) {
 			realHZ = idealHZ;
 			realDT = idealDT;
-		}
-		if (temp != realHZ) {
-			//std::cout << "Raising iteration count due to short physics time...(now " << realHZ << ")\n";
 		}
 	}
 }

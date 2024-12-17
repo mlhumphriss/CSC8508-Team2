@@ -45,6 +45,14 @@ void PhysicsObject::ClearForces() {
 	torque				= Vector3();
 }
 
+void  PhysicsObject::RotateTowardsVelocity() {
+	auto rotDir = Vector::Normalise(this->GetLinearVelocity());
+	float angle = -std::atan2(rotDir.z, rotDir.x) * (180.0f / PI);
+	angle += 90;
+	Quaternion rot = Quaternion::AxisAngleToQuaterion(Vector3(0, 1, 0), angle);
+	transform->SetOrientation(rot);
+}
+
 void PhysicsObject::InitCubeInertia() {
 	Vector3 dimensions	= transform->GetScale();
 

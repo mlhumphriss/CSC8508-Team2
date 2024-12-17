@@ -13,6 +13,7 @@ set(PROJECT_NAME CSC8503)
 #    "MainMenu.h"
 #    "Swarm.h"
 #    "PlayerGameObject.h"
+#    "Kitten.h"
 #    "NavMeshAgent.h"
 
 #)
@@ -31,7 +32,9 @@ source_group("Header Files" FILES ${Header_Files})
 #    "TutorialGame.cpp"
 #    "MainMenu.cpp"
 #    "Swarm.cpp"
+#    "Kitten.cpp"
 #    "PlayerGameObject.cpp"
+#    "GameInstantiations.cpp"
 #)
 file(GLOB Source_Files *.cpp)
 

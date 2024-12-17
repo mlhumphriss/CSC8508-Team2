@@ -27,6 +27,7 @@ namespace NCL {
 			void NarrowPhase();
 
 			void ClearForces();
+			void DebugConstraints();
 
 			void IntegrateAccel(float dt);
 			void IntegrateVelocity(float dt);

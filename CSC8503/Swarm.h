@@ -14,26 +14,39 @@
 
 #include "CollisionDetection.h"
 
-
 #include "GameWorld.h"
+#include "Kitten.h"
+#include "UpdateObject.h"
+
 
 namespace NCL {
     namespace CSC8503 {
-        class Swarm : public NavMeshAgent {
+        class Swarm : public NavMeshAgent, public UpdateObject {
         public:
 
-            typedef std::function<bool(Ray& r, RayCollision& closestCollision, bool closestObject)> RaycastToWorld;
             typedef std::function<Vector3()> GetPlayerPos;
 
             Swarm(NavigationMesh* navMesh);
             ~Swarm();
-            virtual void Update(float dt);
             void SetGetPlayer(GetPlayerPos getPlayerPos) { this->getPlayerPos = getPlayerPos; }
 
-            void AddObjectToSwarm(GameObject* object) { objects.push_back(object); }
+            void AddObjectToSwarm(Kitten* object) { objects.push_back(object); }
 
-            void RemoveObjectFromSwarm(GameObject* object) {
+            void RemoveObjectFromSwarm(Kitten* object) {
                 objects.erase(std::remove(objects.begin(), objects.end(), object), objects.end());
+            }
+
+            void Update(float dt) override {
+
+                if (state != Ongoing) {
+                    sequence->Reset();
+                    state = Ongoing;
+                }
+
+                state = sequence->Execute(dt);
+                DisplayPathfinding(Vector4(0, 1, 0, 1));
+                MoveAlongPath();
+                MoveObjectsAlongSwarm();
             }
 
         protected:
@@ -49,29 +62,22 @@ namespace NCL {
                 float rule3Weight = 0.0f;
                 int roundingPrecision = 1;
             };
+
+
+
             BoidRules ruleConfig;
-            RaycastToWorld rayHit;
             GetPlayerPos getPlayerPos;
 
             BehaviourSequence* sequence = nullptr;
             BehaviourState state;
+
             void MoveObjectsAlongSwarm();
 
-            Vector3 rule1(GameObject*& b, std::vector<GameObject*>& boids);
-            Vector3 rule2(GameObject*& b, std::vector<GameObject*>& boids);
-            Vector3 rule3(GameObject*& b, std::vector<GameObject*>& boids);
+            Vector3 rule1(Kitten*& b, std::vector<Kitten*>& boids);
+            Vector3 rule2(Kitten*& b, std::vector<Kitten*>& boids);
+            Vector3 rule3(Kitten*& b, std::vector<Kitten*>& boids);
 
-            vector<GameObject*> objects;
-
-            float separationRadius = 10.0f;
-            float alignmentRadius = 20.0f;
-            float cohesionRadius = 30.0f;
-
-            float separationWeight = 3.0f;
-            float alignmentWeight = 2.0f;
-            float cohesionWeight = 2.0f;
-
-            float maxForce = 20.0f;
+            vector<Kitten*> objects;
 
             BehaviourAction* chase = new BehaviourAction("FollowPlayer",
                 [&](float dt, BehaviourState state) -> BehaviourState

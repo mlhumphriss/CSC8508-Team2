@@ -12,6 +12,7 @@
 #include "CollisionDetection.h"
 
 #include "GameWorld.h"
+#include "UpdateObject.h"
 
 namespace NCL {
     namespace CSC8503 {
@@ -28,22 +29,20 @@ namespace NCL {
             {
                 Vector3 pos = this->transform.GetPosition();
 
-                if (outPathIndex < 0)
+                if (outPathIndex < 0 || testNodes.size() == 0)
                     return;
 
-                if (testNodes.size() == 0)
-                    return;
-
-                if (Vector::Length(pos - testNodes[outPathIndex]) < minWayPointDistanceOffset)
+                if (Vector::Length(pos - testNodes[outPathIndex]) < minWayPointDistanceOffset) {
                     outPathIndex--;
 
-                if (outPathIndex < 0)
-                    return;
+                    if (outPathIndex < 0)
+                        return;
+                }
+
 
                 Vector3 target = testNodes[outPathIndex];
-                Vector3 enemyPos = this->GetTransform().GetPosition();
-
-                Vector3 dir = target - enemyPos;
+                //; Vector3 target = outPathIndex > 0 ? testNodes[outPathIndex] : targetPos;
+                Vector3 dir = target - pos;
 
                 dir = Vector::Normalise(dir);
                 dir.y += 0.2f;
@@ -54,6 +53,14 @@ namespace NCL {
 
 
         protected:
+            NavigationMesh* navMesh = nullptr;
+            vector<Vector3> testNodes;
+            NavigationPath outPath;
+
+            int outPathIndex = 0;
+            float minWayPointDistanceOffset = 2;
+
+            Vector3 targetPos = Vector3();
 
             void DisplayPathfinding(Vector4 colour)
             {
@@ -119,18 +126,11 @@ namespace NCL {
                     outPathIndex = testNodes.size() - 2;
                 else
                     outPathIndex = testNodes.size() - 1;
+
+                targetPos = endPos;
             }
 
 
-            BehaviourSequence* sequence = nullptr;
-            NavigationMesh* navMesh = nullptr;
-            vector<Vector3> testNodes;
-
-            NavigationPath outPath;
-            BehaviourState state;
-
-            int outPathIndex = 0;
-            float minWayPointDistanceOffset = 2;
 
         };
     }

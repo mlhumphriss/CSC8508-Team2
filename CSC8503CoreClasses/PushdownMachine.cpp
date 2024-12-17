@@ -47,9 +47,8 @@ bool  PushdownMachine::ModifyStack(PushdownState* newState, PushdownState::Pushd
 	return true;
 }
 
-bool PushdownMachine::Update(float dt) {
-	std::cout << "update requested" << std::endl;
-
+bool PushdownMachine::Update(float dt) 
+{
 	if (activeState) {
 		PushdownState* newState = nullptr;
 		PushdownState::PushdownResult result = activeState->OnUpdate(dt, &newState);
@@ -58,7 +57,6 @@ bool PushdownMachine::Update(float dt) {
 			return false;
 	}
 	else {
-		std::cout << "stuck in update" << std::endl;
 		stateStack.push(initialState);
 		activeState = initialState;
 		activeState->OnAwake();

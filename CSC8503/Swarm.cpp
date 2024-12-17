@@ -1,6 +1,4 @@
 #include "Swarm.h"
-
-
 using namespace NCL;
 using namespace CSC8503;
 
@@ -9,7 +7,7 @@ Swarm::Swarm(NavigationMesh* navMesh) : NavMeshAgent(navMesh)
 {
     sequence = new BehaviourSequence("Swarm Sequence");
     sequence->AddChild(chase);
-    objects = vector<GameObject*>();
+    objects = vector<Kitten*>();
     state = Ongoing;
     sequence->Reset();
 }
@@ -20,7 +18,7 @@ Swarm::~Swarm() {
 
 Vector3 lastPos;
 
-void ReduceVelocityOnStop(float roundingPrecision, Vector3 currentPos, vector<GameObject*> objects) {
+void ReduceVelocityOnStop(float roundingPrecision, Vector3 currentPos, vector<Kitten*> objects) {
     
     auto roundToDP = [](float value, int dp) {
         float factor = std::pow(10.0f, dp);
@@ -38,13 +36,11 @@ void ReduceVelocityOnStop(float roundingPrecision, Vector3 currentPos, vector<Ga
 
                 Vector3 dampingForce = -velocity * 0.9f;
                 physicsObject->AddForce(dampingForce);
-
             }
         }
         return;
     }
 }
-
 
 void Swarm::MoveObjectsAlongSwarm()
 {
@@ -52,15 +48,19 @@ void Swarm::MoveObjectsAlongSwarm()
 
     for (auto obj : objects) {
         if (obj) {
+
+            if (!obj->GetSelected())
+                continue;
+
             Vector3 v1 = rule1(obj, objects);
             Vector3 v2 = rule2(obj, objects);
             Vector3 v3 = rule3(obj, objects);
 
             Vector3 combinedForce = Vector::Normalise(v1 * ruleConfig.rule1Weight + v2 * ruleConfig.rule2Weight + v3 * ruleConfig.rule3Weight);            
-            combinedForce.y *= 0.3f;
+            //combinedForce.y *= 0.3f;
+            auto physObj = obj->GetPhysicsObject();
 
-            obj->GetPhysicsObject()->AddForce(combinedForce * ruleConfig.forceMultiplier);
-
+            physObj->AddForce(combinedForce * ruleConfig.forceMultiplier);
             auto pos = obj->GetTransform().GetPosition();
 
             auto dir = currentPos - pos;
@@ -68,18 +68,14 @@ void Swarm::MoveObjectsAlongSwarm()
             force.y = 0;
 
             if (Vector::Length(dir) > ruleConfig.maxDistanceToCenter)
-                obj->GetPhysicsObject()->AddForce(force * 5.0f);
+                physObj->AddForce(force * 5.0f);
 
-            auto rotDir = Vector::Normalise(obj->GetPhysicsObject()->GetLinearVelocity());
-            float angle = -std::atan2(rotDir.z, rotDir.x) * (180.0f / PI);
-            angle += 90;
-            Quaternion rot = Quaternion::AxisAngleToQuaterion(Vector3(0, 1, 0), angle);
-            obj->GetTransform().SetOrientation(rot);
+            physObj->RotateTowardsVelocity();
         }
     }
 }
 
-Vector3 GetCenter(GameObject*& b, std::vector<GameObject*>& boids, float minDis, int& count) {
+Vector3 GetCenter(Kitten*& b, std::vector<Kitten*>& boids, float minDis, int& count) {
     Vector3 perceived_center = Vector3(0,0,0);
 
     for (auto& other : boids) {
@@ -96,13 +92,13 @@ Vector3 GetCenter(GameObject*& b, std::vector<GameObject*>& boids, float minDis,
 }
 
 // Hard coding center as we want the swarm to always follow this object
-Vector3 Swarm::rule1(GameObject*& b, std::vector<GameObject*>& boids) 
+Vector3 Swarm::rule1(Kitten*& b, std::vector<Kitten*>& boids)
 {
     Vector3 perceived_center = this->GetTransform().GetPosition();
     return (perceived_center - b->GetTransform().GetPosition());
 }
 
-Vector3 Swarm::rule2(GameObject*& b, std::vector<GameObject*>& boids) {
+Vector3 Swarm::rule2(Kitten*& b, std::vector<Kitten*>& boids) {
     Vector3 c = Vector3(0, 0, 0);
     for (auto& other : boids) {
         if (&other != &b && Vector::Length(b->GetTransform().GetPosition() - other->GetTransform().GetPosition()) < ruleConfig.minDistanceRule2) {
@@ -113,7 +109,7 @@ Vector3 Swarm::rule2(GameObject*& b, std::vector<GameObject*>& boids) {
     return c;
 }
 
-Vector3 Swarm::rule3(GameObject*& b, std::vector<GameObject*>& boids) {
+Vector3 Swarm::rule3(Kitten*& b, std::vector<Kitten*>& boids) {
     Vector3 perceived_velocity(0, 0, 0);
     int count = 0;
     for (auto& other : boids) {
@@ -129,19 +125,5 @@ Vector3 Swarm::rule3(GameObject*& b, std::vector<GameObject*>& boids) {
         return (perceived_velocity - b->GetTransform().GetPosition()) / 8.0f;
     }
     return Vector3(0, 0, 0);
-}
-
-void Swarm::Update(float dt)
-{
-
-    if (state != Ongoing) {
-        sequence->Reset();
-        state = Ongoing;
-    }
-
-    state = sequence->Execute(dt);
-    DisplayPathfinding(Vector4(0, 1, 0, 1));
-    MoveAlongPath();
-    MoveObjectsAlongSwarm();
 }
 
