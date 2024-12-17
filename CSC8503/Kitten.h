@@ -45,7 +45,7 @@ namespace NCL {
             }
 
             virtual void OnCollisionBegin(GameObject* otherObject) override {
-                std::cout << "OnCollisionBegin event occured!\n";
+                
             }
 
 

@@ -55,7 +55,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	float meshSize = 1.0f;
 	float inverseMass = 0.5f;
 
-	players = new GameObject();
+	players = new PlayerGameObject();
 	SphereVolume* volume = new SphereVolume(1.0f);
 
 	players->SetBoundingVolume((CollisionVolume*)volume);
@@ -68,9 +68,31 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	players->GetPhysicsObject()->InitSphereInertia();
 
 	world->AddGameObject(players);
-	//updateObjects.push_back(players);
+	updateObjects.push_back(players);
 
 	return players;
+}
+
+
+GameObject* TutorialGame::AddSphereCastToWorld()
+{
+	float radius = 5;
+	GameObject* sphere = new GameObject();
+	Vector3 sphereSize = Vector3(radius, radius, radius);
+	SphereVolume* volume = new SphereVolume(radius);
+
+	sphere->SetBoundingVolume((CollisionVolume*)volume);
+	sphere->GetTransform().SetScale(sphereSize).SetPosition(Vector3(0,0,0));
+
+	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
+	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
+
+	sphere->GetPhysicsObject()->SetInverseMass(10.0f);
+	sphere->GetPhysicsObject()->InitSphereInertia();
+
+	world->AddGameObject(sphere);
+	sphereCast = sphere;
+	return sphere;
 }
 
 
@@ -160,23 +182,6 @@ Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 	return swarm;
 }
 
-StateGameObject* TutorialGame::AddStateObjectToWorld(const Vector3& position) {
-	StateGameObject* apple = new StateGameObject();
-	SphereVolume* volume = new SphereVolume(0.5f);
-
-	apple->SetBoundingVolume((CollisionVolume*)volume);
-	apple->GetTransform().SetScale(Vector3(2, 2, 2)).SetPosition(position);
-
-	apple->SetRenderObject(new RenderObject(&apple->GetTransform(), bonusMesh, nullptr, basicShader));
-	apple->SetPhysicsObject(new PhysicsObject(&apple->GetTransform(), apple->GetBoundingVolume()));
-
-	apple->GetPhysicsObject()->SetInverseMass(1.0f);
-	apple->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(apple);
-	return apple;
-}
-
 GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 	GameObject* apple = new GameObject();
 
@@ -196,8 +201,6 @@ GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
 
 	return apple;
 }
-
-
 
 GameObject* TutorialGame::AddFloorToWorld(const Vector3& position)
 {

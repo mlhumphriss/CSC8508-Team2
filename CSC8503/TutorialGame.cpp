@@ -149,6 +149,10 @@ void TutorialGame::UpdateObjectSelectMode(float dt) {
 
 void TutorialGame::UpdateGame(float dt) 
 {
+	SphereCastWorld();
+
+	Window::GetWindow()->ShowOSPointer(true);
+	Window::GetWindow()->LockMouseToWindow(true);
 
 	mainMenu->Update(dt);
 	renderer->Render();
@@ -202,9 +206,9 @@ void TutorialGame::InitWorld()
 	physics->Clear();
 	BridgeConstraintTest();
 	InitMixedGridWorld(15, 15, 3.5f, 3.5f);
-	InitGameExamples();
-	testStateObject = AddStateObjectToWorld(Vector3(0, 10, 0));
 
+
+	InitGameExamples();
 }
 
 std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
@@ -230,7 +234,7 @@ std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 void TutorialGame::SphereCastWorld()
 {
 	float t, u, v;
-	Vector3 intersection;
+	Vector3 intersection = Vector3(0,0,0);
 	Ray mouseToWorld = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());
 
 	Vector3 dir = Vector::Normalise(mouseToWorld.GetDirection());
@@ -249,7 +253,7 @@ void TutorialGame::SphereCastWorld()
 		}
 	}
 
-	// Then Sphere cast
+	sphereCast->GetTransform().SetPosition(intersection);
 
 }
 
@@ -297,15 +301,12 @@ void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& ver
 
 
 void TutorialGame::InitGameExamples() 
-{
+{	
+	AddSphereCastToWorld();
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	AddPlayerToWorld(Vector3(-100, 22, 25));
-
-	AddBonusToWorld(Vector3(10, 5, 0));	
 	AddEnemyToWorld(Vector3(5, 30, 0)); 
-
 	AddSwarmToWorld(Vector3(75, 22, -50));
-
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
@@ -362,14 +363,6 @@ void TutorialGame::BridgeConstraintTest()
 bool TutorialGame::SelectObject() {
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::Q)) {
 		inSelectionMode = !inSelectionMode;
-		if (inSelectionMode) {
-			Window::GetWindow()->ShowOSPointer(true);
-			Window::GetWindow()->LockMouseToWindow(false);
-		}
-		else {
-			Window::GetWindow()->ShowOSPointer(false);
-			Window::GetWindow()->LockMouseToWindow(true);
-		}
 	}
 	if (inSelectionMode) {
 

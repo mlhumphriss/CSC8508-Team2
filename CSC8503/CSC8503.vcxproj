@@ -52,8 +52,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSC8503.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSC8503</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    </LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'"></LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -66,8 +65,7 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <MinimalRebuild>
-      </MinimalRebuild>
+      <MinimalRebuild></MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx</PrecompiledHeaderFile>
@@ -75,8 +73,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
-      <SupportJustMyCode>
-      </SupportJustMyCode>
+      <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;_WINSOCKAPI_;_WINSOCK2API_;_WINSOCK_DEPRECATED_NO_WARNINGS;ASSETROOTLOCATION="C:/Users/c4071068/source/repos/CSC8503TutorialWork/Assets/";NOMINMAX;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
@@ -121,8 +118,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <MinimalRebuild>
-      </MinimalRebuild>
+      <MinimalRebuild></MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx</PrecompiledHeaderFile>
@@ -130,8 +126,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
-      <SupportJustMyCode>
-      </SupportJustMyCode>
+      <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;_WINSOCKAPI_;_WINSOCK2API_;_WINSOCK_DEPRECATED_NO_WARNINGS;ASSETROOTLOCATION="C:/Users/c4071068/source/repos/CSC8503TutorialWork/Assets/";NOMINMAX;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
@@ -208,23 +203,23 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CSC8503.dir/Release/cmake_pch.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="UpdateObject.h" />
-    <ClInclude Include="EnemyGameObject.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\EnemyGameObject.h" />
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\GameTechRenderer.h" />
-    <ClInclude Include="Kitten.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Kitten.h" />
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\MainMenu.h" />
-    <ClInclude Include="NavMeshAgent.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\NavMeshAgent.h" />
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\NetworkPlayer.h" />
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\NetworkedGame.h" />
-    <ClInclude Include="PlayerGameObject.h" />
-    <ClInclude Include="StateGameObject.h" />
-    <ClInclude Include="Swarm.h" />
-    <ClInclude Include="TutorialGame.h" />
-    <ClCompile Include="EnemyGameObject.cpp">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\PlayerGameObject.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\StateGameObject.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Swarm.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\TutorialGame.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\UpdateObject.h" />
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\EnemyGameObject.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="GameInstantiations.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\GameInstantiations.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
@@ -232,7 +227,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="Kitten.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Kitten.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
@@ -252,19 +247,19 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="PlayerGameObject.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\PlayerGameObject.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="StateGameObject.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\StateGameObject.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="Swarm.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Swarm.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="TutorialGame.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\TutorialGame.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>

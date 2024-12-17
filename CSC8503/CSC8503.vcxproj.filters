@@ -4,16 +4,16 @@
     <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\CMakeFiles\CSC8503.dir\cmake_pch.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyGameObject.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\EnemyGameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameInstantiations.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\GameInstantiations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\GameTechRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Kitten.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Kitten.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Main.cpp">
@@ -28,34 +28,33 @@
     <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\NetworkedGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerGameObject.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\PlayerGameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StateGameObject.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\StateGameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Swarm.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Swarm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TutorialGame.cpp">
+    <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\TutorialGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UpdateObject.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EnemyGameObject.h">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\EnemyGameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\GameTechRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Kitten.h">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Kitten.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\MainMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NavMeshAgent.h">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\NavMeshAgent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\NetworkPlayer.h">
@@ -64,16 +63,19 @@
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\NetworkedGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerGameObject.h">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\PlayerGameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StateGameObject.h">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\StateGameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Swarm.h">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Swarm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TutorialGame.h">
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\TutorialGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\UpdateObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\CMakeFiles\CSC8503.dir\Debug\cmake_pch.hxx">

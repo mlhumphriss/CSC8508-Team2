@@ -92,13 +92,8 @@ namespace NCL {
                     }
                     else if (state == Ongoing)
                     {
-                        if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) {
-                            std::cout << "failure" << std::endl;
-                            return Success;
-                        }
-                        else {
+                        if (!(Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset)) 
                             SetPath(pos, playerPos);
-                        }
                     }
                     return state;
                 }

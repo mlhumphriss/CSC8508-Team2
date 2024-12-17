@@ -1,14 +1,12 @@
 #include "../NCLCoreClasses/KeyboardMouseController.h"
+
 #include "NavigationGrid.h"
 #include "EnemyGameObject.h"
 #include "NavigationMesh.h"
 #include "MainMenu.h"
 #include "Math.h"
 #include "UpdateObject.h"
-#include "PlayerGameObject.h"
 #include "Swarm.h"
-
-
 
 #pragma once
 #include "GameTechRenderer.h"
@@ -16,8 +14,7 @@
 #include "GameTechVulkanRenderer.h"
 #endif
 #include "PhysicsSystem.h"
-
-#include "StateGameObject.h"
+#include "PlayerGameObject.h"
 
 namespace NCL {
 	namespace CSC8503 {
@@ -59,13 +56,10 @@ namespace NCL {
 
 			Swarm* AddSwarmToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
-
+			GameObject* AddSphereCastToWorld();
 
 			Vector3 GetPlayerPos();
 			void SphereCastWorld();
-
-			StateGameObject* AddStateObjectToWorld(const Vector3& position);
-			StateGameObject* testStateObject;
 
 			void  CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation);
 			std::vector<Vector3>  GetVertices(Mesh* navigationMesh, int i);
@@ -89,10 +83,6 @@ namespace NCL {
 
 			GameObject* selectionObject = nullptr;
 
-			Mesh*	capsuleMesh = nullptr;
-			Mesh*	cubeMesh	= nullptr;
-			Mesh*	sphereMesh	= nullptr;
-
 			Mesh* navigationMesh = nullptr;
 			NavigationPath outPath;
 			NavigationMesh* navMesh = nullptr;
@@ -100,7 +90,12 @@ namespace NCL {
 			Texture*	basicTex	= nullptr;
 			Shader*		basicShader = nullptr;
 
-			//Coursework Meshes
+
+
+			Mesh*	capsuleMesh = nullptr;
+			Mesh*	cubeMesh	= nullptr;
+			Mesh*	sphereMesh	= nullptr;
+
 			Mesh*	catMesh		= nullptr;
 			Mesh*	kittenMesh	= nullptr;
 			Mesh*	enemyMesh	= nullptr;
@@ -109,7 +104,6 @@ namespace NCL {
 
 			MainMenu* mainMenu = nullptr;
 
-			//Coursework Additional functionality	
 			GameObject* lockedObject	= nullptr;
 			Vector3 lockedOffset		= Vector3(0, 14, 20);
 			void LockCameraToObject(GameObject* o) {
@@ -127,7 +121,7 @@ namespace NCL {
 			};
 
 			GameObject* objClosest = nullptr;
-			GameObject* players = nullptr;
+			PlayerGameObject* players = nullptr;
 			
 			GameObject* sphereCast = nullptr;
 
