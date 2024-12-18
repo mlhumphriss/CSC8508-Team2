@@ -14,12 +14,11 @@ namespace NCL {
 			NavigationMesh(const std::string&filename);
 			~NavigationMesh();
 
+
 			void SmoothPath(NavigationPath& originalPath);
 			bool FindPath(const Vector3& from, const Vector3& to, NavigationPath& outPath) override;
-
-		protected:
-
-
+		protected:			
+			
 			struct NavTri {
 				Plane   triPlane;
 				Vector3 centroid;

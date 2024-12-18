@@ -15,7 +15,7 @@ set(PROJECT_NAME CSC8503)
 #    "PlayerGameObject.h"
 #    "Kitten.h"
 #    "NavMeshAgent.h"
-
+#    "VictoryPlatform.h"
 #)
 file(GLOB Header_Files *.h)
 source_group("Header Files" FILES ${Header_Files})

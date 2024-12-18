@@ -215,6 +215,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\Swarm.h" />
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\TutorialGame.h" />
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\UpdateObject.h" />
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\VictoryPlatform.h" />
     <ClCompile Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\EnemyGameObject.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/Users/c4071068/source/repos/CSC8503TutorialWork/CSC8503/CMakeFiles/CSC8503.dir/Release/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>

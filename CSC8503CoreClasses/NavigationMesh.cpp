@@ -164,6 +164,7 @@ bool NavigationMesh::FindPath(const Vector3& from, const Vector3& to, Navigation
 bool NavigationMesh::HasLineOfSight(const Vector3& start, const Vector3& end) const {
     Vector3 direction = Vector::Normalise(end - start);
     float distance = Vector::Length(end - start);
+    float u, d;
 
     for (const NavTri& tri : allTris) {
 
@@ -171,7 +172,7 @@ bool NavigationMesh::HasLineOfSight(const Vector3& start, const Vector3& end) co
         Vector3 v1 = allVerts[tri.indices[1]];
         Vector3 v2 = allVerts[tri.indices[2]];
 
-        if (Maths::RayIntersectsTriangle(start, direction, v0, v1, v2, distance))
+        if (Maths::RayIntersectsTriangle(start, direction, v0, v1, v2, distance, u, d))
             return false;
     }
     return true; 

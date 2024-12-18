@@ -10,12 +10,12 @@
 #include "OrientationConstraint.h"
 #include "StateGameObject.h"
 
+
 using namespace NCL;
 using namespace CSC8503;
 
 TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *Window::GetWindow()->GetMouse()) 
 {
-
 	world = new GameWorld();
 #ifdef USEVULKAN
 	renderer	= new GameTechVulkanRenderer(*world);
@@ -31,8 +31,8 @@ TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *
 	useGravity		= false;
 	inSelectionMode = false;
 
-
 	world->GetMainCamera().SetController(controller);
+	world->GetMainCamera().SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
 
 	controller.MapAxis(0, "Sidestep");
 	controller.MapAxis(1, "UpDown");
@@ -53,6 +53,13 @@ void TutorialGame::SetPause(bool state) {
 	inPause = state;
 }
 
+void TutorialGame::EndGame(bool hasWon) {
+	inPause = true;
+	endGame = true;
+	this->hasWon = hasWon;
+	Debug::Print(hasWon ? "Victory" : "Game Over", Vector2(5, 85));
+}
+
 void TutorialGame::InitialiseAssets() {
 	cubeMesh	= renderer->LoadMesh("cube.msh");
 	navigationMesh = renderer->LoadMesh("NavMeshObject.msh");
@@ -60,7 +67,7 @@ void TutorialGame::InitialiseAssets() {
 	catMesh		= renderer->LoadMesh("ORIGAMI_Chat.msh");
 	kittenMesh	= renderer->LoadMesh("Kitten.msh");
 
-	enemyMesh	= renderer->LoadMesh("Keeper.msh");
+	enemyMesh	= renderer->LoadMesh("Goose.msh");
 	bonusMesh	= renderer->LoadMesh("19463_Kitten_Head_v1.msh");
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
 
@@ -95,7 +102,7 @@ TutorialGame::~TutorialGame()
 }
 
 Vector3 TutorialGame::GetPlayerPos() {
-	return players->GetTransform().GetPosition();
+	return players == nullptr ? Vector3(0,0,0) : players->GetTransform().GetPosition();
 }
 
 void TutorialGame::UpdateCamera(float dt) {
@@ -149,6 +156,15 @@ void TutorialGame::UpdateObjectSelectMode(float dt) {
 
 void TutorialGame::UpdateGame(float dt) 
 {
+	if (endGame) {
+		renderer->Render();
+		renderer->Update(dt);
+		Debug::UpdateRenderables(dt);
+
+		Debug::Print(hasWon ? "Victory" : "Game Over", Vector2(5, 85));
+		return;
+	}
+
 	SphereCastWorld();
 
 	Window::GetWindow()->ShowOSPointer(true);
@@ -162,15 +178,13 @@ void TutorialGame::UpdateGame(float dt)
 	if (inPause)
 		return;
 
-	UpdateCamera(dt);
-	UpdateObjectSelectMode(dt);
-
 	for (auto& obj : updateObjects) {
 		obj->Update(dt);
 	}
 
 	world->UpdateWorld(dt);
 	physics->Update(dt);
+	UpdateCamera(dt);
 }
 
 void TutorialGame::LockedObjectMovement() 
@@ -206,8 +220,6 @@ void TutorialGame::InitWorld()
 	physics->Clear();
 	BridgeConstraintTest();
 	InitMixedGridWorld(15, 15, 3.5f, 3.5f);
-
-
 	InitGameExamples();
 }
 
@@ -233,6 +245,9 @@ std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 
 void TutorialGame::SphereCastWorld()
 {
+	if (!Window::GetMouse()->ButtonDown(NCL::MouseButtons::Left))
+		return;
+
 	float t, u, v;
 	Vector3 intersection = Vector3(0,25,0);
 	Ray mouseToWorld = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());
@@ -315,9 +330,10 @@ void TutorialGame::InitGameExamples()
 {	
 	AddSphereCastToWorld();
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
-	AddPlayerToWorld(Vector3(-100, 22, 25));
+	AddPlayerToWorld(Vector3(90, 22, -50));
 	AddEnemyToWorld(Vector3(5, 30, 0)); 
 	AddSwarmToWorld(Vector3(75, 22, -50));
+	AddVictoryPlatformToWorld(Vector3(-100, 0, 25), Vector3(10, 20, 10));
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {

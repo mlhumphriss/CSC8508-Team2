@@ -9,6 +9,7 @@ Swarm::Swarm(NavigationMesh* navMesh) : NavMeshAgent(navMesh)
     sequence->AddChild(chase);
     objects = vector<Kitten*>();
     state = Ongoing;
+    speed = 5.0f;
     sequence->Reset();
 }
 

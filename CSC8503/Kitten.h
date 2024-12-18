@@ -46,7 +46,6 @@ namespace NCL {
 
             virtual void OnCollisionBegin(GameObject* otherObject) override {
                 if (otherObject->GetTag() == Tags::CursorCast) {
-                    // and mouse down
                     selected = true;
                 }
             }

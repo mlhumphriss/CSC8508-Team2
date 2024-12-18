@@ -4,6 +4,7 @@
 #include "RenderObject.h"
 #include "TextureLoader.h"
 #include "EnemyGameObject.h"
+
 #include "Kitten.h"
 
 #include "PositionConstraint.h"
@@ -14,12 +15,31 @@ using namespace NCL;
 using namespace CSC8503;
 
 
+VictoryPlatform* TutorialGame::AddVictoryPlatformToWorld(const Vector3& position, Vector3 dimensions) {
+
+
+	VictoryPlatform* victoryPlatform = new VictoryPlatform([&](bool hasWon) {EndGame(hasWon);});
+	OBBVolume* volume = new OBBVolume(dimensions);
+
+	victoryPlatform->SetBoundingVolume((CollisionVolume*)volume);
+	victoryPlatform->GetTransform().SetScale(dimensions * 2.0f).SetPosition(position);
+	victoryPlatform->SetRenderObject(new RenderObject(&victoryPlatform->GetTransform(), cubeMesh, basicTex, basicShader));
+	victoryPlatform->SetPhysicsObject(new PhysicsObject(&victoryPlatform->GetTransform(), victoryPlatform->GetBoundingVolume()));
+	victoryPlatform->GetPhysicsObject()->SetInverseMass(0);
+	victoryPlatform->GetPhysicsObject()->InitCubeInertia();
+	victoryPlatform->GetRenderObject()->SetColour(Vector4(0, 1.0f, 0, 1.0f));
+
+	world->AddGameObject(victoryPlatform);
+	updateObjects.push_back(victoryPlatform);
+
+	return victoryPlatform;
+}
+
+
 GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions)
 {
 	navMesh = new NavigationMesh("smalltest.navmesh");
 	GameObject* navMeshObject = new GameObject();
-	//navMeshObject->SetRenderObject(new RenderObject(&navMeshObject->GetTransform(), navigationMesh, basicTex, basicShader));
-
 	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i)
 	{
 		if (navigationMesh->GetSubMesh(i)->count != 36)
@@ -46,8 +66,6 @@ GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dim
 
 		world->AddGameObject(colliderObject);
 	}
-
-	//world->AddGameObject(navMeshObject);
 	return navMeshObject;
 }
 
@@ -68,6 +86,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	players->GetPhysicsObject()->InitSphereInertia();
 	players->AddToIgnoredLayers(Layers::Enemy);
 	players->GetRenderObject()->SetColour(Vector4(0, 0, 0, 1.0f));
+	players->SetController(controller);
 
 
 	world->AddGameObject(players);
@@ -119,6 +138,7 @@ Kitten* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, Ga
 
 	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
 	sphere->GetPhysicsObject()->InitSphereInertia();
+	sphere->SetTag(Tags::Kitten);
 
 	kittens.push_back(sphere);
 	world->AddGameObject(sphere);
@@ -181,9 +201,8 @@ Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 
 	auto offset = Vector3(0.3f, 0, 0.3f);
 
-	for (float i = 0; i < 3; i++) {
+	for (float i = 0; i < 93; i++) {
 		swarm->AddObjectToSwarm(AddKittenToWorld(position + (offset * i), 1, swarm));
-
 	}
 
 	updateObjects.push_back(swarm);

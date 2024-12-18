@@ -47,8 +47,11 @@ namespace NCL {
                 dir = Vector::Normalise(dir);
                 dir.y += 0.2f;
 
-               // this->transform.SetPosition(pos += (dir * 0.5f));
-                this->GetPhysicsObject()->SetLinearVelocity(dir * 5.0f);
+                auto lastVelocity = this->GetPhysicsObject()->GetLinearVelocity();
+                dir *= speed;
+                dir.y = lastVelocity.y;
+
+                this->GetPhysicsObject()->SetLinearVelocity(dir);
             }
 
 
@@ -58,6 +61,7 @@ namespace NCL {
             NavigationPath outPath;
 
             int outPathIndex = 0;
+            float speed = 5.0f;
             float minWayPointDistanceOffset = 2;
 
             Vector3 targetPos = Vector3();
@@ -89,45 +93,55 @@ namespace NCL {
 
                 if (pathsEqual)
                     return true;
-
                 return false;
-
             }
+
+            const bool smoothPath = false;
+            Vector3 lastStart = Vector3(1,1,1);
+            Vector3 lastEnd = Vector3(1,1,1);
+            const float offset = 5.0f;
+
             void SetPath(Vector3 startPos, Vector3 endPos)
             {
-                NavigationPath lastOutPath = outPath;
+                /*if (Vector::Length(lastEnd - endPos) < offset &&
+                    Vector::Length(lastStart - startPos) < offset)
+                    return;*/
+
                 outPath.clear();
-
                 bool found = navMesh->FindPath(startPos, endPos, outPath);
-                //navMesh->SmoothPath(outPath);
 
-                if (ExistingPath(lastOutPath, outPath))
-                    return;
+                if (smoothPath)
+                    navMesh->SmoothPath(outPath);
 
                 Vector3 pos;
                 testNodes.clear();
-
-                std::stack<Vector3> tempStack;
-
-                // Done twice as smoothpath would invert the list
-                while (outPath.PopWaypoint(pos)) {
-                    tempStack.push(pos);
+           
+                if (smoothPath) {
+                    while (outPath.PopWaypoint(pos)) {
+                        testNodes.push_back(pos);
+                    }
                 }
-
-                while (!tempStack.empty()) {
-                    testNodes.push_back(tempStack.top());
-                    tempStack.pop();
+                else {     
+                    std::stack<Vector3> tempStack;
+                    while (outPath.PopWaypoint(pos)) {
+                        tempStack.push(pos);
+                    }
+                    while (!tempStack.empty()) {
+                        testNodes.push_back(tempStack.top());
+                        tempStack.pop();
+                    }
                 }
 
                 if (testNodes.size() >= 2 &&
                     (Vector::Length(this->GetTransform().GetPosition() - testNodes[testNodes.size() - 2])
                         < Vector::Length(testNodes[testNodes.size() - 2] - testNodes[testNodes.size() - 1])))
-
                     outPathIndex = testNodes.size() - 2;
                 else
                     outPathIndex = testNodes.size() - 1;
 
                 targetPos = endPos;
+                lastEnd = endPos;
+                lastStart = startPos;
             }
 
 

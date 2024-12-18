@@ -24,6 +24,10 @@ namespace NCL {
 			speed		= 100.0f;
 		};
 
+		typedef std::function<Vector3()> GetPlayerPos;
+		void SetGetPlayer(GetPlayerPos getPlayerPos) { this->getPlayerPos = getPlayerPos; }
+
+
 		Camera(float pitch, float yaw, const Vector3& position) : Camera() {
 			this->pitch		= pitch;
 			this->yaw		= yaw;
@@ -57,25 +61,16 @@ namespace NCL {
 			return *this;
 		}
 
-		//Builds a view matrix for the current camera variables, suitable for sending straight
-		//to a vertex shader (i.e it's already an 'inverse camera matrix').
 		Matrix4 BuildViewMatrix() const;
-
 		virtual Matrix4 BuildProjectionMatrix(float aspectRatio = 1.0f) const = 0;
 
-		//Gets position in world space
 		Vector3 GetPosition() const { return position; }
-		//Sets position in world space
 		Camera&	SetPosition(const Vector3& val) { position = val;  return *this; }
 
-		//Gets yaw, in degrees
 		float	GetYaw()   const	{ return yaw; }
-		//Sets yaw, in degrees
 		Camera&	SetYaw(float y)		{ yaw = y;  return *this; }
 
-		//Gets pitch, in degrees
 		float	GetPitch() const	{ return pitch; }
-		//Sets pitch, in degrees
 		Camera& SetPitch(float p)	{ pitch = p; return *this; }
 
 		float	GetSpeed() const	{ return speed; }
@@ -90,6 +85,7 @@ namespace NCL {
 		Vector3 position;
 		float	speed;
 
+		GetPlayerPos getPlayerPos;
 		const Controller* activeController = nullptr;
 	};
 

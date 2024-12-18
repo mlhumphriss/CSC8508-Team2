@@ -9,7 +9,7 @@ Kitten::Kitten(NavigationMesh* navMesh, GameObject* swarm) : NavMeshAgent(navMes
     sequence->AddChild(idle);
     sequence->AddChild(goToSwarm);
     sequence->AddChild(followSwarm);
-
+    speed = 7.5f;
     swarmCenter = swarm;
     selected = false;
 

@@ -293,10 +293,8 @@ void TestNetworking()
 void UpdateWindow(Window* w, NetworkedGame* g)
 {
 	float dt = w->GetTimer().GetTimeDeltaSeconds();
-	if (dt > 0.1f) {
-		std::cout << "Skipping large time delta" << std::endl;
-		return; //must have hit a breakpoint or something to have a 1 second frame time!S
-	}
+	if (dt > 0.1f) 
+		return; 
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::PRIOR))
 		w->ShowConsole(true);
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::NEXT))

@@ -78,6 +78,9 @@
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\UpdateObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\VictoryPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\c4071068\source\repos\CSC8503TutorialWork\CSC8503\CMakeFiles\CSC8503.dir\Debug\cmake_pch.hxx">
       <Filter>Precompile Header File</Filter>
     </ClInclude>

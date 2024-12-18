@@ -2,11 +2,14 @@
 
 #include "NavigationGrid.h"
 #include "EnemyGameObject.h"
+
 #include "NavigationMesh.h"
 #include "MainMenu.h"
 #include "Math.h"
 #include "UpdateObject.h"
 #include "Swarm.h"
+#include "VictoryPlatform.h"
+
 
 #pragma once
 #include "GameTechRenderer.h"
@@ -52,11 +55,13 @@ namespace NCL {
 			GameObject* AddPlayerToWorld(const Vector3& position);
 			EnemyGameObject* AddEnemyToWorld(const Vector3& position);
 			Kitten* AddKittenToWorld(const Vector3& position, float radius, GameObject* swarm, float inverseMass = 10.0f);
-
+			VictoryPlatform* AddVictoryPlatformToWorld(const Vector3& position, Vector3 dimensions);
 
 			Swarm* AddSwarmToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
 			GameObject* AddSphereCastToWorld();
+
+			void EndGame(bool hasWon);
 
 			Vector3 GetPlayerPos();
 			void SphereCastWorld();
@@ -78,6 +83,9 @@ namespace NCL {
 			bool useGravity;
 			bool inPause = false;
 			bool inSelectionMode;
+
+			bool endGame = false;
+			bool hasWon = false;
 
 			float		forceMagnitude;
 

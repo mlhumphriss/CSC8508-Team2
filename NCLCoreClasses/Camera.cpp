@@ -3,21 +3,14 @@
 
 using namespace NCL;
 
-/*
-Polls the camera for keyboard / mouse movement.
-Should be done once per frame! Pass it the msec since
-last frame (default value is for simplicities sake...)
-*/
 void Camera::UpdateCamera(float dt) {
 	if (!activeController) {
 		return;
 	}
 
-	//Update the mouse by how much
 	pitch	-= activeController->GetNamedAxis("YLook");
 	yaw		-= activeController->GetNamedAxis("XLook");
 
-	//Bounds check the pitch, to be between straight up and straight down ;)
 	pitch = std::min(pitch, 90.0f);
 	pitch = std::max(pitch, -90.0f);
 
@@ -27,25 +20,22 @@ void Camera::UpdateCamera(float dt) {
 	if (yaw > 360.0f) {
 		yaw -= 360.0f;
 	}
+	Vector3 dir = Vector3();	
+	Matrix3 yawRotation = Matrix::RotationMatrix3x3(yaw, Vector3(0, 1, 0));	
+	dir += yawRotation * Vector3(0, 0, -1);
 
-	float frameSpeed = speed * dt;
+	auto nextPos = getPlayerPos();	
+	nextPos -=  dir * 30.0f;
+	nextPos.y += 20;
 
-	Matrix3 yawRotation = Matrix::RotationMatrix3x3(yaw, Vector3(0, 1, 0));
 
-	position += yawRotation * Vector3(0, 0, -activeController->GetNamedAxis("Forward")) * frameSpeed;
-	position += yawRotation * Vector3(activeController->GetNamedAxis("Sidestep"), 0, 0) * frameSpeed;
-
-	position.y += activeController->GetNamedAxis("UpDown") * frameSpeed;
-	
+	float lerpSpeed = 3.0f * dt;
+	position.x = std::lerp(position.x, nextPos.x, lerpSpeed);
+	position.y = std::lerp(position.y, nextPos.y, lerpSpeed);
+	position.z = std::lerp(position.z, nextPos.z, lerpSpeed);
 }
 
-/*
-Generates a view matrix for the camera's viewpoint. This matrix can be sent
-straight to the shader...it's already an 'inverse camera' matrix.
-*/
 Matrix4 Camera::BuildViewMatrix() const {
-	//Why do a complicated matrix inversion, when we can just generate the matrix
-	//using the negative values ;). The matrix multiplication order is important!
 	return	Matrix::Rotation(-pitch, Vector3(1, 0, 0)) *
 		Matrix::Rotation(-yaw, Vector3(0, 1, 0)) *
 		Matrix::Translation(-position);
