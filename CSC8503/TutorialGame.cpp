@@ -178,9 +178,9 @@ void TutorialGame::UpdateGame(float dt)
 	if (inPause)
 		return;
 
-	for (auto& obj : updateObjects) {
-		obj->Update(dt);
-	}
+	//for (auto& obj : updateObjects) {
+	//	obj->Update(dt);
+	//}
 
 	world->UpdateWorld(dt);
 	physics->Update(dt);

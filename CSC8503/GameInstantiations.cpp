@@ -111,7 +111,7 @@ GameObject* TutorialGame::AddSphereCastToWorld()
 	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
 	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
 
-	sphere->GetPhysicsObject()->SetInverseMass(10.0f);
+	sphere->GetPhysicsObject()->SetInverseMass(0.0f);
 	sphere->GetPhysicsObject()->InitSphereInertia();
 
 	sphere->GetRenderObject()->SetColour(Vector4(0, 1, 0, 0.8f));
