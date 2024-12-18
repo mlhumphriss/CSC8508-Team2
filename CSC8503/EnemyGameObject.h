@@ -120,6 +120,9 @@ namespace NCL {
                     }
                     else if (state == Ongoing)
                     {
+                        if (testNodes.size() <= 0)
+                            return Failure;
+
                         if (RayCastPlayer()) {
                             if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
                                 return  Failure;
