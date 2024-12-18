@@ -165,12 +165,9 @@ void TutorialGame::UpdateGame(float dt)
 		return;
 	}
 
-	SphereCastWorld();
-
-	Window::GetWindow()->ShowOSPointer(true);
-	Window::GetWindow()->LockMouseToWindow(true);
 
 	mainMenu->Update(dt);
+
 	renderer->Render();
 	renderer->Update(dt);
 	Debug::UpdateRenderables(dt);
@@ -178,13 +175,19 @@ void TutorialGame::UpdateGame(float dt)
 	if (inPause)
 		return;
 
-	//for (auto& obj : updateObjects) {
-	//	obj->Update(dt);
-	//}
 
-	world->UpdateWorld(dt);
+	for (auto& obj : updateObjects) {
+		obj->Update(dt);
+	}
+
+	Window::GetWindow()->ShowOSPointer(true);
+	Window::GetWindow()->LockMouseToWindow(true);
+	//world->UpdateWorld(dt);
 	physics->Update(dt);
 	UpdateCamera(dt);
+
+	SphereCastWorld();
+
 }
 
 void TutorialGame::LockedObjectMovement() 

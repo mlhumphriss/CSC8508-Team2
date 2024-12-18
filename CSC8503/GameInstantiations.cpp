@@ -201,7 +201,7 @@ Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 
 	auto offset = Vector3(0.3f, 0, 0.3f);
 
-	for (float i = 0; i < 93; i++) {
+	for (float i = 0; i < 3; i++) {
 		swarm->AddObjectToSwarm(AddKittenToWorld(position + (offset * i), 1, swarm));
 	}
 

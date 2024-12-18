@@ -112,18 +112,15 @@ namespace NCL {
                     }
                     else if (state == Ongoing)
                     {
-
-                        if (RayCastPlayer()) {               
-
+                        if (RayCastPlayer()) 
+                        {               
                             if (testNodes.size() <= 0)
-                                return Failure;
+                                return state;
                             if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
                                 return  Failure;
                         }                            
                         
                         SetPath(pos, playerPos);
-
-   
                     }
                     return state;
                 }
