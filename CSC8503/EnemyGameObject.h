@@ -77,31 +77,24 @@ namespace NCL {
                     Vector3 playerPos = getPlayerPos();
 
                     if (state == Initialise)
-                    {                         
+                    {
                         SetPath(pos, wayPoints[wayPointIndex]);
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
-                    {
+                    {                        
+                        SetPath(pos, wayPoints[wayPointIndex]);
+
                         if (!RayCastPlayer())
                         {
                             wayPointIndex = 0;
                             return Success;     
                         }
+                        if (testNodes.size() <= 0)
+                            return state;
 
                         if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset)
-                            wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;      
-                        
-                        pos.y += yOffSet;
-                        playerPos.y += yOffSet;
-                        
-                        if (RayCastPlayer())        
-                            Debug::DrawLine(pos, playerPos, Vector4(1, 0, 0, 1));
-                        else 
-                            Debug::DrawLine(pos, playerPos, Vector4(0, 1, 0, 1));
-
-                        SetPath(pos, wayPoints[wayPointIndex]);
-
+                            wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;                          
                     }
                     return state;
                 }
@@ -113,22 +106,24 @@ namespace NCL {
                     Vector3 pos = this->transform.GetPosition();
                     Vector3 playerPos = getPlayerPos();
 
-                    if (state == Initialise)
-                    {
+                    if (state == Initialise) {
                         SetPath(pos, playerPos);
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
                     {
-                        if (testNodes.size() <= 0)
-                            return Failure;
 
-                        if (RayCastPlayer()) {
+                        if (RayCastPlayer()) {               
+
+                            if (testNodes.size() <= 0)
+                                return Failure;
                             if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
                                 return  Failure;
-                        }
-                        else 
-                            SetPath(pos, playerPos);
+                        }                            
+                        
+                        SetPath(pos, playerPos);
+
+   
                     }
                     return state;
                 }

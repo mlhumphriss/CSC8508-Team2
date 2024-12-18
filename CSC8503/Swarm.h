@@ -92,6 +92,9 @@ namespace NCL {
                     }
                     else if (state == Ongoing)
                     {
+                        if (testNodes.size() == 0)
+                            return state;
+
                         if (!(Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset)) 
                             SetPath(pos, playerPos);
                     }

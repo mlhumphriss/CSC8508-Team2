@@ -103,15 +103,19 @@ namespace NCL {
 
             void SetPath(Vector3 startPos, Vector3 endPos)
             {
-                /*if (Vector::Length(lastEnd - endPos) < offset &&
+                if (testNodes.size() != 0 && Vector::Length(lastEnd - endPos) < offset &&
                     Vector::Length(lastStart - startPos) < offset)
-                    return;*/
+                    return;
 
                 outPath.clear();
                 bool found = navMesh->FindPath(startPos, endPos, outPath);
 
+               if (!found)
+                    return;
+
                 if (smoothPath)
                     navMesh->SmoothPath(outPath);
+ 
 
                 Vector3 pos;
                 testNodes.clear();

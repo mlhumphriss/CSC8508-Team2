@@ -37,11 +37,6 @@ namespace NCL {
                     state = sequence->Execute(dt);
                     MoveAlongPath();
                 }
-
-                // check for selection sphere
-                if (!selected) {
-                    
-                }
             }
 
             virtual void OnCollisionBegin(GameObject* otherObject) override {
@@ -77,8 +72,7 @@ namespace NCL {
                     Vector3 pos = this->transform.GetPosition();
                     Vector3 swarmPos  = swarmCenter->GetTransform().GetPosition();
 
-                    if (state == Initialise)
-                    {
+                    if (state == Initialise) {
                         SetPath(pos, swarmPos);
                         state = Ongoing;
                     }
@@ -103,8 +97,10 @@ namespace NCL {
                     Vector3 pos = this->transform.GetPosition();
                     Vector3 swarmPos = swarmCenter->GetTransform().GetPosition();
 
-                    if (state == Initialise)
+                    if (state == Initialise) {
+                        testNodes.clear();
                         state = Ongoing;
+                    }
                     else if (state == Ongoing)
                     {
                         if (Vector::Length(pos - swarmPos) > 10.0f) {
