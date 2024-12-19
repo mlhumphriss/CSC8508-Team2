@@ -43,7 +43,6 @@ TutorialGame::TutorialGame() : controller(*Window::GetWindow()->GetKeyboard(), *
 
 	InitialiseAssets();	
 	
-	mainMenu = new MainMenu([&](bool state) -> void { this->SetPause(state);});	
 	physics->UseGravity(true);
 	world->UpdateWorld(0.1f);
 	physics->Update(0.1f);
@@ -356,7 +355,7 @@ void TutorialGame::InitGameExamples()
 {	
 	AddSphereCastToWorld();
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
-	AddPlayerToWorld(Vector3(90, 22, -50));
+	//AddPlayerToWorld(Vector3(90, 22, -50));
 	AddEnemyToWorld(Vector3(5, 30, 0)); 
 	AddSwarmToWorld(Vector3(75, 22, -50));
 	AddVictoryPlatformToWorld(Vector3(-100, 0, 25), Vector3(10, 20, 10));

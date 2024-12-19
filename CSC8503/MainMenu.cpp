@@ -21,9 +21,12 @@ namespace NCL {
 			}
 		};
 
-		MainMenu::MainMenu(SetPauseGame setPauseFunc)
+		MainMenu::MainMenu(SetPauseGame setPauseFunc, StartClient startClient, StartServer startServer)
 		{
 			setPause = setPauseFunc;
+			this->startClient = startClient;
+			this->startServer = startServer;
+
 			machine = new PushdownMachine(new OverlayScreen(
 				[&]() -> void { this->OnStateAwake(); },
 				[&](float dt, PushdownState** newState) -> PushdownState::PushdownResult {
@@ -76,13 +79,19 @@ namespace NCL {
 
 		PushdownState::PushdownResult MainMenu::IntroScreenOnUpdate(float dt, PushdownState** newState)
 		{
-			Debug::Print("Main Menu: C->Start as client, V->Start as server, B->Start Offline", Vector2(5, 85));
+			Debug::Print("Main Menu", Vector2(5, 85));
+			Debug::Print(" C->Start as client", Vector2(5, 65));
+			Debug::Print("V->Start as server", Vector2(5, 55));
+			Debug::Print("B->Start Offline", Vector2(5, 45));
+
 			if (Window::GetKeyboard()->KeyPressed(KeyCodes::C)) {
 				setPause(false);
+				startClient();
 				return PushdownState::PushdownResult::Pop;
 			}
 			if (Window::GetKeyboard()->KeyPressed(KeyCodes::V)) {
 				setPause(false);
+				startServer();
 				return PushdownState::PushdownResult::Pop;
 			}
 			if (Window::GetKeyboard()->KeyPressed(KeyCodes::B)) {

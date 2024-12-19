@@ -18,15 +18,23 @@ struct MessagePacket : public GamePacket {
 	}
 };
 
+void NetworkedGame::StartClientCallBack() { StartAsClient(127, 0, 0, 1); }
+void NetworkedGame::StartServerCallBack() { StartAsServer(); }
+
 NetworkedGame::NetworkedGame()	{
 	thisServer = nullptr;
 	thisClient = nullptr;
+
+	mainMenu = new MainMenu([&](bool state) -> void { this->SetPause(state); },
+		[&]() -> void { this->StartClientCallBack(); },
+		[&]() -> void { this->StartServerCallBack(); });
 
 	NetworkBase::Initialise();
 	timeToNextPacket  = 0.0f;
 	packetsToSnapshot = 0;
 	playerStates = std::vector<int>();
 }
+
 
 NetworkedGame::~NetworkedGame()	{
 	delete thisServer;
@@ -65,12 +73,6 @@ void NetworkedGame::UpdateGame(float dt)
 
 		timeToNextPacket += 1.0f / 20.0f; //20hz server/client update
 	}
-
-	if (!thisServer && Window::GetKeyboard()->KeyPressed(KeyCodes::O)) 
-		StartAsServer();
-	if (!thisClient && Window::GetKeyboard()->KeyPressed(KeyCodes::P)) 
-		StartAsClient(127,0,0,1);
-
 	TutorialGame::UpdateGame(dt);
 }
 
@@ -117,7 +119,6 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 		{
 			NetworkObject* o = (*i)->GetNetworkObject();
 
-
 			if (!o) 
 				continue;
 
@@ -138,16 +139,14 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 
 void NetworkedGame::UpdateMinimumState() 
 {
-	//Periodically remove old data from the server
 	int minID = INT_MAX;
-	int maxID = 0; //we could use this to see if a player is lagging behind?
+	int maxID = 0; 
 
 	for (auto i : stateIDs) {
 		minID = std::min(minID, i.second);
 		maxID = std::max(maxID, i.second);
 	}
-	//every client has acknowledged reaching at least state minID
-	//so we can get rid of any old states!
+
 	std::vector<GameObject*>::const_iterator first;
 	std::vector<GameObject*>::const_iterator last;
 	world->GetObjectIterators(first, last);
@@ -164,10 +163,8 @@ void NetworkedGame::UpdateMinimumState()
 
 void NetworkedGame::SpawnPlayer() 
 {
-	Vector3 cubeDims = Vector3(1, 1, 1);
-	GameObject* play = AddCubeToWorld( Vector3(1,20,1), cubeDims);
-	play->SetRenderObject(new RenderObject(&play->GetTransform(), cubeMesh, basicTex, basicShader));
-	NetworkObject* player = new NetworkObject(*play, 0); // Network id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	auto play = TutorialGame::AddPlayerToWorld(Vector3(90, 22, -50));
+	NetworkObject* player = new NetworkObject(*play, 0); 
 	play->SetNetworkObject(player);
 	world->AddGameObject(play);
 }

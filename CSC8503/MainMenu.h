@@ -17,17 +17,23 @@
 
 namespace NCL {
 	namespace CSC8503 {
+
+		typedef std::function<void()> StartClient;
+		typedef std::function<void()> StartServer;
+
 		class MainMenu {
 
 		public:			
 			typedef std::function<void(bool state)> SetPauseGame;
 
-			MainMenu(SetPauseGame setPauseFunc);
+			MainMenu(SetPauseGame setPauseFunc, StartClient startClient, StartServer startServer);
 			~MainMenu();
 			void Update(float dt);
 			bool CheckUpdateGame();
 
 			SetPauseGame setPause;
+			StartClient startClient;
+			StartServer startServer;
 
 		protected:
 			PushdownMachine* machine = nullptr;

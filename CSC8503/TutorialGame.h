@@ -47,6 +47,9 @@ namespace NCL {
 			void MoveSelectedObject();
 			void LockedObjectMovement();
 
+
+
+
 			GameObject* AddFloorToWorld(const Vector3& position);
 			GameObject* AddSphereToWorld(const Vector3& position, float radius, float inverseMass = 10.0f);
 			GameObject* AddCubeToWorld(const Vector3& position, Vector3 dimensions, float inverseMass = 10.0f);
@@ -72,6 +75,8 @@ namespace NCL {
 
 			void  CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation);
 			std::vector<Vector3>  GetVertices(Mesh* navigationMesh, int i);
+
+			MainMenu* GetMainMenu() { return mainMenu; }
 
 
 #ifdef USEVULKAN
