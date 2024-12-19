@@ -43,6 +43,9 @@ namespace NCL {
                 if (otherObject->GetTag() == Tags::CursorCast) {
                     selected = true;
                 }
+                if (otherObject->GetTag() == Tags::Enemy) {
+                    alive = false;
+                }
             }
 
             void ThrowSelf(Vector3 dir);
@@ -54,6 +57,7 @@ namespace NCL {
             BehaviourState state;
             GameObject* swarmCenter = nullptr;
 
+            bool alive = true;
             bool selected;
 
 
