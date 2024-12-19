@@ -56,7 +56,7 @@ namespace NCL {
             struct BoidRules {
                 float minDistanceRule2 = 2.0f;
                 float minDistanceRule3 = 0.5f;
-                float forceMultiplier = 0.5f;
+                float forceMultiplier = 1.0f;
                 float maxDistanceToCenter = 9.0f;
 
                 float rule1Weight = 1.0f;

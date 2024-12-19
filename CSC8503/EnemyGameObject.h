@@ -97,7 +97,7 @@ namespace NCL {
                         }
 
                         if (testNodes.size() <= 0) {
-                            SetPath(pos, playerPos);
+                            SetPath(pos, wayPoints[wayPointIndex]);
                             return state;
                         }
 
@@ -119,21 +119,18 @@ namespace NCL {
 
                     if (state == Initialise) {
                         SetPath(pos, playerPos);
+                        testNodes.insert(testNodes.begin(), playerPos);
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
                     {  
-                        if (testNodes.size() <= 0) {
+                        if (CanSeePlayer()) {
                             SetPath(pos, playerPos);
+                            testNodes.insert(testNodes.begin(), playerPos);
                             return state;
                         }
-
-                        if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
-                        {
-                             if (!CanSeePlayer())
-                                return  Failure;
-                        }
-                        //SetPath(pos, playerPos);
+                        else if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
+                            return  Failure;
                     }
                     return state;
                 }

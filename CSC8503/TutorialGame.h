@@ -64,7 +64,7 @@ namespace NCL {
 			GameObject* AddBonusToWorld(const Vector3& position);
 			GameObject* AddSphereCastToWorld();
 
-			void EndGame(bool hasWon);
+			bool EndGame(bool hasWon);
 
 			Vector3 GetPlayerPos();
 			void SphereCastWorld();

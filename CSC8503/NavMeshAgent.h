@@ -39,9 +39,7 @@ namespace NCL {
                         return;
                 }
 
-
                 Vector3 target = testNodes[outPathIndex];
-                //; Vector3 target = outPathIndex > 0 ? testNodes[outPathIndex] : targetPos;
                 Vector3 dir = target - pos;
 
                 dir = Vector::Normalise(dir);
@@ -49,8 +47,7 @@ namespace NCL {
 
                 auto lastVelocity = this->GetPhysicsObject()->GetLinearVelocity();
                 dir *= speed;
-                //dir.y = lastVelocity.y;
-
+                dir.y = dir.y + lastVelocity.y;
                 this->GetPhysicsObject()->SetLinearVelocity(dir);
             }
 
@@ -146,9 +143,6 @@ namespace NCL {
                 lastEnd = endPos;
                 lastStart = startPos;
             }
-
-
-
         };
     }
 }

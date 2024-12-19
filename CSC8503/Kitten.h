@@ -31,7 +31,7 @@ namespace NCL {
             {
                 if (!alive) {
                     selected = false;
-
+                    yearnsForTheSwarm = false;
                     return;
                 }
 
@@ -95,6 +95,7 @@ namespace NCL {
 
                     if (state == Initialise) {
                         SetPath(pos, swarmPos);
+                        testNodes.insert(testNodes.begin(), swarmPos);
                         yearnsForTheSwarm = false;
                         state = Ongoing;
                     }
@@ -106,6 +107,13 @@ namespace NCL {
                             testNodes.clear();
                             return Success;
                         }
+
+                        if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) {
+                            SetPath(pos, swarmPos);
+                            testNodes.insert(testNodes.begin(), swarmPos);
+                            return state;
+                        }
+
                     }
                     return state;
                 }

@@ -69,7 +69,7 @@ namespace NCL {
 
         protected:
             const Controller* activeController = nullptr;
-            float speed = 10.0f;
+            float speed = 5.0f;
             float	yaw;
             EndGame endGame;
         };

@@ -138,7 +138,7 @@ void TutorialGame::UpdateObjectSelectMode(float dt) {
 	MoveSelectedObject();
 }
 
-void TutorialGame::OnEndGame(float dt) {
+bool TutorialGame::OnEndGame(float dt) {
 	if (endGame) {
 		renderer->Render();
 		renderer->Update(dt);
@@ -146,8 +146,10 @@ void TutorialGame::OnEndGame(float dt) {
 		Debug::Print(hasWon ? "Victory" : "Game Over", Vector2(40, 50));
 		Debug::Print("Score: " + std::to_string(score), Vector2(40, 40));
 		Debug::Print("Time: " + std::to_string(time), Vector2(40, 30));
-		return;
+		return true;
 	}
+
+	return false;
 }
 
 void TutorialGame::UpdateDrawScreen(float dt) {
@@ -158,7 +160,8 @@ void TutorialGame::UpdateDrawScreen(float dt) {
 
 void TutorialGame::UpdateGame(float dt) 
 {
-	OnEndGame(dt);
+	if (OnEndGame(dt))
+		return;
 
 	mainMenu->Update(dt);
 	renderer->Render();
