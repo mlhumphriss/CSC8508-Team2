@@ -41,7 +41,7 @@ namespace NCL {
                 state = sequence->Execute(dt);
                 DisplayPathfinding(Vector4(0, 0, 1, 1));
                 MoveAlongPath();
-                this->GetPhysicsObject()->RotateTowardsVelocity();
+                this->GetPhysicsObject()->RotateTowardsVelocity(-90);
             }
 
         protected:

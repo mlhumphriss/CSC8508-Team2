@@ -29,7 +29,7 @@ void Camera::UpdateCamera(float dt) {
 	nextPos.y += 20;
 
 
-	float lerpSpeed = 3.0f * dt;
+	float lerpSpeed = 0.03f;
 	position.x = std::lerp(position.x, nextPos.x, lerpSpeed);
 	position.y = std::lerp(position.y, nextPos.y, lerpSpeed);
 	position.z = std::lerp(position.z, nextPos.z, lerpSpeed);

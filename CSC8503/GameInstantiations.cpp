@@ -74,17 +74,24 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	float inverseMass = 0.5f;
 
 	players = new PlayerGameObject();
-	SphereVolume* volume = new SphereVolume(1.0f);
+	SphereVolume* volume = new SphereVolume(0.25f);
 
 	players->SetBoundingVolume((CollisionVolume*)volume);
 	players->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
+
 	players->SetLayerID(Layers::LayerID::Player);
+	players->SetTag(Tags::Player);
+
 	players->SetRenderObject(new RenderObject(&players->GetTransform(), catMesh, nullptr, basicShader));
 	players->SetPhysicsObject(new PhysicsObject(&players->GetTransform(), players->GetBoundingVolume()));
 
 	players->GetPhysicsObject()->SetInverseMass(inverseMass);
 	players->GetPhysicsObject()->InitSphereInertia();
+	players->SetEndGame([&](bool hasWon) {EndGame(hasWon); });
+
 	players->AddToIgnoredLayers(Layers::Enemy);
+
+
 	players->GetRenderObject()->SetColour(Vector4(0, 0, 0, 1.0f));
 	players->SetController(controller);
 
@@ -128,7 +135,7 @@ Kitten* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, Ga
 	Kitten* sphere = new Kitten(navMesh, swarm);
 	Vector3 sphereSize = Vector3(radius, radius, radius);
 	
-	SphereVolume* volume = new SphereVolume(radius * 0.25f);
+	SphereVolume* volume = new SphereVolume(0.25f);
 
 	sphere->SetBoundingVolume((CollisionVolume*)volume);
 	sphere->GetTransform().SetScale(sphereSize).SetPosition(position);
@@ -138,6 +145,8 @@ Kitten* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, Ga
 
 	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
 	sphere->GetPhysicsObject()->InitSphereInertia();
+
+	sphere->SetLayerID(Layers::LayerID::Enemy);
 	sphere->SetTag(Tags::Kitten);
 
 	kittens.push_back(sphere);
@@ -149,17 +158,19 @@ Kitten* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, Ga
 
 EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 {
-	float meshSize = 3.0f;
+	float meshSize = 2.0f;
 	float inverseMass = 0.5f;
 
 	enemies = new EnemyGameObject(navMesh);
 	enemies->SetRay([&](Ray& r, RayCollision& closestCollision, bool closestObject) -> bool { return world->Raycast(r, closestCollision, closestObject); });
 	enemies->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
 
-	SphereVolume* volume = new SphereVolume(0.6f);
-	//OBBVolume* volume = new OBBVolume(Vector3(0.3f, 0.9f, 0.3f) * meshSize);
+	SphereVolume* volume = new SphereVolume(1.0f);
+
 	enemies->SetBoundingVolume((CollisionVolume*)volume);
 	enemies->SetLayerID(Layers::LayerID::Enemy);
+	enemies->SetTag(Tags::Enemy);
+
 
 	enemies->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
 	
@@ -176,32 +187,34 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 }
 
 
+const bool setAsRenderedObject = false;
+
 Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
 {
 	float meshSize = 0.6f;
 	float inverseMass = 0.5f;
 
 	swarm = new Swarm(navMesh);
-	SphereVolume* volume = new SphereVolume(meshSize);
 
 	swarm->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
-	swarm->SetLayerID(Layers::LayerID::Enemy);
-	swarm->SetBoundingVolume((CollisionVolume*)volume);
 
-	swarm->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-	swarm->SetRenderObject(new RenderObject(&swarm->GetTransform(), sphereMesh, nullptr, basicShader));
-
-	swarm->SetPhysicsObject(new PhysicsObject(&swarm->GetTransform(), swarm->GetBoundingVolume()));
-
-	swarm->GetPhysicsObject()->SetInverseMass(inverseMass);
-	swarm->GetPhysicsObject()->InitSphereInertia();
+	if (setAsRenderedObject) {	
+		SphereVolume* volume = new SphereVolume(meshSize);
+		swarm->SetLayerID(Layers::LayerID::Enemy);
+		swarm->SetBoundingVolume((CollisionVolume*)volume);
+		swarm->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
+		swarm->SetRenderObject(new RenderObject(&swarm->GetTransform(), sphereMesh, nullptr, basicShader));
+		swarm->SetPhysicsObject(new PhysicsObject(&swarm->GetTransform(), swarm->GetBoundingVolume()));
+		swarm->GetPhysicsObject()->SetInverseMass(inverseMass);
+		swarm->GetPhysicsObject()->InitSphereInertia();
+	}
 
 	world->AddGameObject(swarm);
 
 
 	auto offset = Vector3(0.3f, 0, 0.3f);
 
-	for (float i = 0; i < 3; i++) {
+	for (float i = 0; i < 99; i++) {
 		swarm->AddObjectToSwarm(AddKittenToWorld(position + (offset * i), 1, swarm));
 	}
 

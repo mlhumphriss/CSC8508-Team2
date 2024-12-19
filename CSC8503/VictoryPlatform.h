@@ -26,7 +26,7 @@ namespace NCL {
 
 				void Update(float dt) override
 				{						
-					if (kittensCounted >= 50)
+					if (kittensCounted >= 15)
 						endGame(true);
 					kittensCounted = 0;
 				}

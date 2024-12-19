@@ -1,6 +1,10 @@
 #pragma once
 #include "PhysicsObject.h"
 #include "Ray.h"
+#include "Kitten.h"
+
+#include "Window.h"
+
 #include "UpdateObject.h"
 //#include "Controller.h"
 #include "CollisionDetection.h"
@@ -12,6 +16,12 @@ namespace NCL {
 
             PlayerGameObject();
             ~PlayerGameObject();
+
+            typedef std::function<void(bool hasWon)> EndGame;
+
+            void SetEndGame(EndGame endGame) {
+                this->endGame = endGame;
+            }
 
             void SetController(const Controller& c) {
                 activeController = &c;
@@ -30,7 +40,7 @@ namespace NCL {
                 if (yaw > 360.0f) 
                     yaw -= 360.0f;
 
-                float frameSpeed = speed *dt;
+                float frameSpeed = speed * 0.01f;
                 Matrix3 yawRotation = Matrix::RotationMatrix3x3(yaw, Vector3(0, 1, 0));
 
                 dir += yawRotation * Vector3(0, 0, -activeController->GetNamedAxis("Forward")) * frameSpeed;
@@ -45,7 +55,18 @@ namespace NCL {
             }
 
             virtual void OnCollisionBegin(GameObject* otherObject) override {
-                
+                if (otherObject->GetTag() == Tags::Enemy) {
+                    endGame(false);
+                }
+                else if (otherObject->GetTag() == Tags::Kitten)
+
+                {
+                    if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::Right))
+                    {
+                        Kitten* kitten = static_cast<Kitten*>(otherObject);
+                        kitten->ThrowSelf(Vector::Normalise(this->GetPhysicsObject()->GetLinearVelocity()));
+                    }
+                }
             }
 
 
@@ -53,6 +74,7 @@ namespace NCL {
             const Controller* activeController = nullptr;
             float speed = 10.0f;
             float	yaw;
+            EndGame endGame;
         };
     }
 }

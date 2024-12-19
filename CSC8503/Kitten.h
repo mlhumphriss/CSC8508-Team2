@@ -45,6 +45,8 @@ namespace NCL {
                 }
             }
 
+            void ThrowSelf(Vector3 dir);
+
 
         protected:
 
@@ -61,7 +63,7 @@ namespace NCL {
                     if (state == Initialise)
                         state = Ongoing;
                     else if (state == Ongoing && selected)
-                            return Success;
+                        return Success;
                     return state;
                 }
             );

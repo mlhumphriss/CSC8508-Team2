@@ -105,6 +105,8 @@ namespace NCL::CSC8503 {
 
 		bool isActive;
 		int	worldID;
+		float physicsR = 0.2f; 
+
 		Layers::LayerID	layerID;
 		Tags::Tag	tag;
 		std::string	name;

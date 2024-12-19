@@ -37,7 +37,7 @@ namespace NCL {
 				return inverseMass;
 			}
 
-			void RotateTowardsVelocity();
+			void RotateTowardsVelocity(float offset = 90);
 
 			void ApplyAngularImpulse(const Vector3& force);
 			void ApplyLinearImpulse(const Vector3& force);

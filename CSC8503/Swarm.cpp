@@ -80,6 +80,10 @@ Vector3 GetCenter(Kitten*& b, std::vector<Kitten*>& boids, float minDis, int& co
     Vector3 perceived_center = Vector3(0,0,0);
 
     for (auto& other : boids) {
+
+        if (!other->GetSelected())
+            continue;
+
         auto otherPos = other->GetTransform().GetPosition();
         if (&other != &b && (Vector::Length(b->GetTransform().GetPosition() - otherPos) < minDis)) {
             perceived_center += otherPos;
@@ -102,6 +106,8 @@ Vector3 Swarm::rule1(Kitten*& b, std::vector<Kitten*>& boids)
 Vector3 Swarm::rule2(Kitten*& b, std::vector<Kitten*>& boids) {
     Vector3 c = Vector3(0, 0, 0);
     for (auto& other : boids) {
+        if (!other->GetSelected())
+            continue;
         if (&other != &b && Vector::Length(b->GetTransform().GetPosition() - other->GetTransform().GetPosition()) < ruleConfig.minDistanceRule2) {
             c -= (other->GetTransform().GetPosition() - b->GetTransform().GetPosition()); 
         }
@@ -114,6 +120,8 @@ Vector3 Swarm::rule3(Kitten*& b, std::vector<Kitten*>& boids) {
     Vector3 perceived_velocity(0, 0, 0);
     int count = 0;
     for (auto& other : boids) {
+        if (!other->GetSelected())
+            continue;
         if (&other != &b && Vector::Length(b->GetTransform().GetPosition() - other->GetTransform().GetPosition()) < ruleConfig.minDistanceRule3) {
             perceived_velocity += other->GetPhysicsObject()->GetLinearVelocity();
             count++;

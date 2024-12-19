@@ -170,27 +170,27 @@ void PhysicsSystem::BasicCollisionDetection() {
 void PhysicsSystem::ImpulseResolveCollision(GameObject& a, GameObject& b, CollisionDetection::ContactPoint& p) const {
 
 	auto layerID = Layers::Ignore_Collisions;
-	if (a.GetLayerID() == layerID || b.GetLayerID() == layerID)
+	auto aLayerID = a.GetLayerID();
+	auto bLayerID = b.GetLayerID();
+
+	if (aLayerID == layerID || bLayerID == layerID)
 		return;
 
 	if (a.GetBoundingVolume()->isTrigger || b.GetBoundingVolume()->isTrigger)
 		return;
 
-
 	for (const auto& layer : a.GetIgnoredLayers()) {
-		if (b.GetLayerID() == layer) 
+		if (bLayerID == layer)
 			return;
 	}
 
 	for (const auto& layer : b.GetIgnoredLayers()) {
-		if (a.GetLayerID() == layer)
+		if (aLayerID == layer)
 			return;
 	}
 
 	PhysicsObject* physA = a.GetPhysicsObject();
 	PhysicsObject* physB = b.GetPhysicsObject();
-
-
 
 	Transform& transformA = a.GetTransform();
 	Transform& transformB = b.GetTransform();

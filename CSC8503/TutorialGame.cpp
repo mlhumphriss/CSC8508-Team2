@@ -160,14 +160,12 @@ void TutorialGame::UpdateGame(float dt)
 		renderer->Render();
 		renderer->Update(dt);
 		Debug::UpdateRenderables(dt);
-
 		Debug::Print(hasWon ? "Victory" : "Game Over", Vector2(5, 85));
 		return;
 	}
 
 
 	mainMenu->Update(dt);
-
 	renderer->Render();
 	renderer->Update(dt);
 	Debug::UpdateRenderables(dt);
@@ -175,17 +173,16 @@ void TutorialGame::UpdateGame(float dt)
 	if (inPause)
 		return;
 
-
 	for (auto& obj : updateObjects) {
 		obj->Update(dt);
 	}
 
 	Window::GetWindow()->ShowOSPointer(true);
 	Window::GetWindow()->LockMouseToWindow(true);
+
 	//world->UpdateWorld(dt);
 	physics->Update(dt);
 	UpdateCamera(dt);
-
 	SphereCastWorld();
 
 }
@@ -247,12 +244,16 @@ std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 
 
 void TutorialGame::SphereCastWorld()
-{
-	if (!Window::GetMouse()->ButtonDown(NCL::MouseButtons::Left))
+{	
+	
+	Vector3 intersection = Vector3(0,0,0);
+
+	if (!Window::GetMouse()->ButtonDown(NCL::MouseButtons::Left)) {
+		sphereCast->GetTransform().SetPosition(intersection);
 		return;
+	}
 
 	float t, u, v;
-	Vector3 intersection = Vector3(0,25,0);
 	Ray mouseToWorld = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());
 
 	Vector3 dir = Vector::Normalise(mouseToWorld.GetDirection());
@@ -286,7 +287,7 @@ void TutorialGame::SphereCastWorld()
 
 }
 
-const bool DebugCubeTransforms = false;
+const bool DebugCubeTransforms = true;
 
 void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation)
 {
