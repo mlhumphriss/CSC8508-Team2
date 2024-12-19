@@ -68,7 +68,7 @@ namespace NCL {
             bool playerVisible;
 
             int wayPointIndex = 0;
-
+            float timer = 0;
 
 
             BehaviourAction* patrol = new BehaviourAction("Patrol",
@@ -81,13 +81,19 @@ namespace NCL {
                     {
                         SetPath(pos, wayPoints[wayPointIndex]);
                         state = Ongoing;
+                        timer = 0;
                     }
                     else if (state == Ongoing)
                     {   
-                        if (CanSeePlayer())
-                        {
-                            wayPointIndex = 0;
-                            return Success;     
+                        timer += dt;
+
+                        if (timer > 1.0f) {
+                            if (CanSeePlayer())
+                            {
+                                wayPointIndex = 0;
+                                return Success;
+                            }
+                            timer = 0;
                         }
 
                         if (testNodes.size() <= 0) {

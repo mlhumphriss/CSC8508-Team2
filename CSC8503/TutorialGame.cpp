@@ -110,21 +110,6 @@ void TutorialGame::UpdateCamera(float dt) {
 	if (!inSelectionMode)
 		world->GetMainCamera().UpdateCamera(dt);
 
-	if (lockedObject != nullptr) {
-		Vector3 objPos = lockedObject->GetTransform().GetPosition();
-		Vector3 camPos = objPos + lockedOffset;
-
-		Matrix4 temp = Matrix::View(camPos, objPos, Vector3(0, 1, 0));
-		Matrix4 modelMat = Matrix::Inverse(temp);
-
-		Quaternion q(modelMat);
-		Vector3 angles = q.ToEuler(); //nearly there now!
-
-		world->GetMainCamera().SetPosition(camPos);
-		world->GetMainCamera().SetPitch(angles.x);
-		world->GetMainCamera().SetYaw(angles.y);
-	}
-
 }
 
 void TutorialGame::UpdateObjectSelectMode(float dt) {
@@ -154,20 +139,27 @@ void TutorialGame::UpdateObjectSelectMode(float dt) {
 	MoveSelectedObject();
 }
 
-void TutorialGame::UpdateGame(float dt) 
-{
-
-	time += dt;
-	Debug::Print("Score: ", Vector2(85, 85));
-	Debug::Print("Time: ", Vector2(75, 85));
-
+void TutorialGame::OnEndGame(float dt) {
 	if (endGame) {
 		renderer->Render();
 		renderer->Update(dt);
 		Debug::UpdateRenderables(dt);
-		Debug::Print(hasWon ? "Victory" : "Game Over", Vector2(5, 85));
+		Debug::Print(hasWon ? "Victory" : "Game Over", Vector2(40, 50));
+		Debug::Print("Score: " + std::to_string(score), Vector2(40, 40));
+		Debug::Print("Time: " + std::to_string(time), Vector2(40, 30));
 		return;
 	}
+}
+
+void TutorialGame::UpdateDrawScreen(float dt) {
+	time += dt;
+	Debug::Print("Score: " + std::to_string(score), Vector2(70, 20));
+	Debug::Print("Time: " + std::to_string(time), Vector2(70, 10));
+}
+
+void TutorialGame::UpdateGame(float dt) 
+{
+	OnEndGame(dt);
 
 	mainMenu->Update(dt);
 	renderer->Render();
@@ -177,12 +169,14 @@ void TutorialGame::UpdateGame(float dt)
 	if (inPause)
 		return;
 
+	UpdateDrawScreen(dt);
+
 	for (auto& obj : updateObjects) {
 		obj->Update(dt);
 	}
 
-	Window::GetWindow()->ShowOSPointer(true);
-	Window::GetWindow()->LockMouseToWindow(true);
+	//Window::GetWindow()->ShowOSPointer(true);
+	//Window::GetWindow()->LockMouseToWindow(true);
 
 	//world->UpdateWorld(dt);
 	physics->Update(dt);
@@ -223,7 +217,7 @@ void TutorialGame::InitWorld()
 	world->ClearAndErase();
 	physics->Clear();
 	BridgeConstraintTest();
-	InitMixedGridWorld(15, 15, 3.5f, 3.5f);
+	InitMixedGridWorld(2, 2, 3.5f, 3.5f);
 	InitGameExamples();
 }
 
@@ -384,7 +378,7 @@ void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing
 
 	for (int x = 0; x < numCols; ++x) {
 		for (int z = 0; z < numRows; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 100.0f, z * rowSpacing);
+			Vector3 position = Vector3(x * colSpacing, 25.0f, z * rowSpacing);
 			AddSphereToWorld(position, sphereRadius);
 		}
 	}

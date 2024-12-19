@@ -30,8 +30,7 @@ namespace NCL {
             {
                 if (!alive) {
                     selected = false;
-                    Quaternion rot = Quaternion::AxisAngleToQuaterion(Vector3(1, 0, 0), 90);
-                    this->GetTransform().SetOrientation(rot);
+
                     return;
                 }
 
@@ -52,6 +51,10 @@ namespace NCL {
                 }
                 if (otherObject->GetTag() == Tags::Enemy) {
                     alive = false;
+                    Quaternion rot = Quaternion::AxisAngleToQuaterion(Vector3(1, 0, 0), 90);
+                    this->GetTransform().SetOrientation(rot);
+                    this->GetRenderObject()->SetColour(Vector4(1.0f, 0, 0, 1));
+                    this->GetPhysicsObject()->SetLinearVelocity(Vector3(0, 0, 0));
                 }
             }
 
@@ -96,8 +99,6 @@ namespace NCL {
                             testNodes.clear();
                             return Success;
                         }
-                        else
-                            SetPath(pos, swarmPos);
                     }
                     return state;
                 }

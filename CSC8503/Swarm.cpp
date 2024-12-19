@@ -58,7 +58,6 @@ void Swarm::MoveObjectsAlongSwarm()
             Vector3 v3 = rule3(obj, objects);
 
             Vector3 combinedForce = Vector::Normalise(v1 * ruleConfig.rule1Weight + v2 * ruleConfig.rule2Weight + v3 * ruleConfig.rule3Weight);            
-            //combinedForce.y *= 0.3f;
             auto physObj = obj->GetPhysicsObject();
 
             physObj->AddForce(combinedForce * ruleConfig.forceMultiplier);
@@ -68,7 +67,7 @@ void Swarm::MoveObjectsAlongSwarm()
             auto force = Vector::Normalise(dir);
             force.y = 0;
 
-            if (Vector::Length(dir) > ruleConfig.maxDistanceToCenter)
+            if (Vector::Length(dir) > ruleConfig.maxDistanceToCenter && Vector::Length(physObj->GetForce()) < 1.5f)
                 physObj->AddForce(force * 5.0f);
 
             physObj->RotateTowardsVelocity();

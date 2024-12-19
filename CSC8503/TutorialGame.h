@@ -67,6 +67,8 @@ namespace NCL {
 			void SphereCastWorld();
 
 			bool RayCastNavWorld(Ray& r, float rayDistance);
+			void UpdateDrawScreen(float dt);
+			void OnEndGame(float dt);
 
 			void  CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation);
 			std::vector<Vector3>  GetVertices(Mesh* navigationMesh, int i);

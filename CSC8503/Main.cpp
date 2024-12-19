@@ -293,15 +293,7 @@ void TestNetworking()
 void UpdateWindow(Window* w, NetworkedGame* g)
 {
 	float dt = w->GetTimer().GetTimeDeltaSeconds();
-	if (dt > 0.1f) 
-		return; 
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::PRIOR))
-		w->ShowConsole(true);
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::NEXT))
-		w->ShowConsole(false);
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::T)) 
-		w->SetWindowPosition(0, 0);
-	w->SetTitle("Gametech frame time:" + std::to_string(1000.0f * dt));
+	w->SetTitle("Gametech frame time:" + std::to_string(std::roundf(1000.0f * dt)));
 	g->UpdateGame(dt);
 }
 
@@ -315,18 +307,13 @@ int main(int argc, char** argv)
 	Window* w = Window::CreateGameWindow(initInfo);
 	NetworkedGame* g = new NetworkedGame();
 
-	w->LockMouseToWindow(true);
-	w->ShowOSPointer(false);
-
 	if (!w->HasInitialised()) 
 		return -1;
 		
-	w->ShowOSPointer(false);
-	w->LockMouseToWindow(false);
+	w->ShowOSPointer(true);
+	w->LockMouseToWindow(true);
 	w->GetTimer().GetTimeDeltaSeconds(); 
 
-	//TestBehaviourTree();
-	
 	while (w->UpdateWindow() && !Window::GetKeyboard()->KeyDown(KeyCodes::ESCAPE))
 	{
 		UpdateWindow(w, g);
