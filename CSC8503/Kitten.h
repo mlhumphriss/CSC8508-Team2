@@ -25,6 +25,7 @@ namespace NCL {
             ~Kitten();
             void SetSelected(bool state) { selected = state; }
             bool GetSelected() { return selected; }
+            bool GetYearnsForSwarm() { return yearnsForTheSwarm; }
 
             void Update(float dt) override
             {
@@ -69,13 +70,17 @@ namespace NCL {
 
             bool alive = true;
             bool selected;
+            bool yearnsForTheSwarm = false;
 
 
             BehaviourAction* idle = new BehaviourAction("Idle",
                 [&](float dt, BehaviourState state) -> BehaviourState
                 {
-                    if (state == Initialise)
+                    if (state == Initialise) {
                         state = Ongoing;
+                        yearnsForTheSwarm = false;
+
+                    }
                     else if (state == Ongoing && selected)
                         return Success;
                     return state;
@@ -90,12 +95,14 @@ namespace NCL {
 
                     if (state == Initialise) {
                         SetPath(pos, swarmPos);
+                        yearnsForTheSwarm = false;
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
                     {
                         if (Vector::Length(pos - swarmPos) < 6.0f)
                         {
+                            yearnsForTheSwarm = true;
                             testNodes.clear();
                             return Success;
                         }
@@ -119,6 +126,7 @@ namespace NCL {
                     {
                         if (Vector::Length(pos - swarmPos) > 10.0f) {
                             testNodes.clear();
+                            yearnsForTheSwarm = false;
                             selected = false;
                             return Failure;
                         }
