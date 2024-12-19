@@ -29,7 +29,7 @@ namespace NCL {
             {
                 Vector3 pos = this->transform.GetPosition();
 
-                if (outPathIndex < 0 || testNodes.size() == 0)
+                if (outPathIndex < 0 || testNodes.size() < outPathIndex + 1)
                     return;
 
                 if (Vector::Length(pos - testNodes[outPathIndex]) < minWayPointDistanceOffset) {
