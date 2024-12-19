@@ -49,7 +49,7 @@ namespace NCL {
 
                 auto lastVelocity = this->GetPhysicsObject()->GetLinearVelocity();
                 dir *= speed;
-                dir.y = lastVelocity.y;
+                //dir.y = lastVelocity.y;
 
                 this->GetPhysicsObject()->SetLinearVelocity(dir);
             }
@@ -116,7 +116,6 @@ namespace NCL {
                 if (smoothPath)
                     navMesh->SmoothPath(outPath);
  
-
                 Vector3 pos;
                 testNodes.clear();
            

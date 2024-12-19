@@ -22,7 +22,7 @@ namespace NCL {
         class EnemyGameObject : public NavMeshAgent, public UpdateObject {
         public:    
 
-            typedef std::function<bool(Ray& r, RayCollision& closestCollision, bool closestObject)> RaycastToWorld; 
+            typedef std::function<bool(Ray& r, float rayDistance)> RaycastToWorld; 
             typedef std::function<Vector3()> GetPlayerPos;
 
             EnemyGameObject(NavigationMesh* navMesh);
@@ -46,7 +46,7 @@ namespace NCL {
 
         protected:
  
-            bool RayCastPlayer();
+            bool CanSeePlayer();
 
             RaycastToWorld rayHit;
             GetPlayerPos getPlayerPos;
@@ -64,8 +64,9 @@ namespace NCL {
             };
 
             float playerDis = 0.0f;
-            const float yOffSet = 3.0f; 
+            const float yOffSet = 0.1f; 
             bool playerVisible;
+
             int wayPointIndex = 0;
 
 
@@ -82,19 +83,23 @@ namespace NCL {
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
-                    {                        
-                        SetPath(pos, wayPoints[wayPointIndex]);
-
-                        if (!RayCastPlayer())
+                    {   
+                        if (CanSeePlayer())
                         {
                             wayPointIndex = 0;
                             return Success;     
                         }
-                        if (testNodes.size() <= 0)
-                            return state;
 
-                        if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset)
-                            wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;                          
+                        if (testNodes.size() <= 0) {
+                            SetPath(pos, playerPos);
+                            return state;
+                        }
+
+                        if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) {
+                            wayPointIndex >= wayPointsLength ? wayPointIndex = 0 : wayPointIndex++;
+                            SetPath(pos, wayPoints[wayPointIndex]);
+                        }
+
                     }
                     return state;
                 }
@@ -111,16 +116,18 @@ namespace NCL {
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
-                    {
-                        if (RayCastPlayer()) 
-                        {               
-                            if (testNodes.size() <= 0)
-                                return state;
-                            if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
+                    {  
+                        if (testNodes.size() <= 0) {
+                            SetPath(pos, playerPos);
+                            return state;
+                        }
+
+                        if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 
+                        {
+                             if (!CanSeePlayer())
                                 return  Failure;
-                        }                            
-                        
-                        SetPath(pos, playerPos);
+                        }
+                        //SetPath(pos, playerPos);
                     }
                     return state;
                 }

@@ -156,6 +156,11 @@ void TutorialGame::UpdateObjectSelectMode(float dt) {
 
 void TutorialGame::UpdateGame(float dt) 
 {
+
+	time += dt;
+	Debug::Print("Score: ", Vector2(85, 85));
+	Debug::Print("Time: ", Vector2(75, 85));
+
 	if (endGame) {
 		renderer->Render();
 		renderer->Update(dt);
@@ -164,10 +169,9 @@ void TutorialGame::UpdateGame(float dt)
 		return;
 	}
 
-
 	mainMenu->Update(dt);
 	renderer->Render();
-	renderer->Update(dt);
+	//renderer->Update(dt);
 	Debug::UpdateRenderables(dt);
 
 	if (inPause)
@@ -243,6 +247,30 @@ std::vector<Vector3> TutorialGame::GetVertices(Mesh* navigationMesh, int i)
 }
 
 
+bool TutorialGame::RayCastNavWorld(Ray& r, float rayLength)
+{
+
+	Vector3 intersection = Vector3(0, 0, 0);
+	Vector3 dir = Vector::Normalise(r.GetDirection());
+	Vector3 pos = r.GetPosition();
+
+	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i) {
+		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
+
+		for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; ++j) {
+			Vector3 a, b, c;
+			if (!navigationMesh->GetTriangle(j, a, b, c))
+				continue;
+
+			float t, u, v;
+			if (RayIntersectsTriangle(pos, dir, a, b, c, t, u, v) && t <= rayLength) 
+				return true;
+		}
+	}
+	return false;
+}
+
+
 void TutorialGame::SphereCastWorld()
 {	
 	
@@ -287,7 +315,7 @@ void TutorialGame::SphereCastWorld()
 
 }
 
-const bool DebugCubeTransforms = true;
+const bool DebugCubeTransforms = false;
 
 void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation)
 {
@@ -357,10 +385,7 @@ void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing
 	for (int x = 0; x < numCols; ++x) {
 		for (int z = 0; z < numRows; ++z) {
 			Vector3 position = Vector3(x * colSpacing, 100.0f, z * rowSpacing);
-			//if (rand() % 2) 
-				//AddCubeToWorld(position, cubeDims);
-			//else 
-				AddSphereToWorld(position, sphereRadius);
+			AddSphereToWorld(position, sphereRadius);
 		}
 	}
 }
@@ -398,7 +423,8 @@ bool TutorialGame::SelectObject() {
 	if (inSelectionMode) {
 
 		if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::Left)) {
-			if (selectionObject) {	//set colour to deselected;
+			if (selectionObject)
+			{
 				selectionObject->GetRenderObject()->SetColour(Vector4(1, 1, 1, 1));
 				selectionObject = nullptr;
 			}

@@ -40,14 +40,13 @@ namespace NCL {
                 if (yaw > 360.0f) 
                     yaw -= 360.0f;
 
-                float frameSpeed = speed * 0.01f;
                 Matrix3 yawRotation = Matrix::RotationMatrix3x3(yaw, Vector3(0, 1, 0));
 
-                dir += yawRotation * Vector3(0, 0, -activeController->GetNamedAxis("Forward")) * frameSpeed;
-                dir += yawRotation * Vector3(activeController->GetNamedAxis("Sidestep"), 0, 0) * frameSpeed;
-                dir = Vector::Normalise(dir);
+                dir += yawRotation * Vector3(0, 0, -activeController->GetNamedAxis("Forward"));
+                dir += yawRotation * Vector3(activeController->GetNamedAxis("Sidestep"), 0, 0);
 
                 Matrix3 offsetRotation = Matrix::RotationMatrix3x3(-45.0f, Vector3(0, 1, 0));
+
                 dir = offsetRotation * dir;
 
                 this->GetPhysicsObject()->AddForce(dir * speed);
@@ -55,11 +54,9 @@ namespace NCL {
             }
 
             virtual void OnCollisionBegin(GameObject* otherObject) override {
-                if (otherObject->GetTag() == Tags::Enemy) {
+                if (otherObject->GetTag() == Tags::Enemy) 
                     endGame(false);
-                }
                 else if (otherObject->GetTag() == Tags::Kitten)
-
                 {
                     if (Window::GetMouse()->ButtonDown(NCL::MouseButtons::Right))
                     {

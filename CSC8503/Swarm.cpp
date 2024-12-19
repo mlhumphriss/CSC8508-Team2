@@ -5,12 +5,12 @@ using namespace CSC8503;
 
 Swarm::Swarm(NavigationMesh* navMesh) : NavMeshAgent(navMesh)
 {
-    sequence = new BehaviourSequence("Swarm Sequence");
-    sequence->AddChild(chase);
+    //sequence = new BehaviourSequence("Swarm Sequence");
+    //sequence->AddChild(chase);
     objects = vector<Kitten*>();
-    state = Ongoing;
+    //state = Ongoing;
     speed = 5.0f;
-    sequence->Reset();
+    //sequence->Reset();
 }
 
 Swarm::~Swarm() {

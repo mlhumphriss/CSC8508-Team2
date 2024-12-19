@@ -27,7 +27,7 @@ VictoryPlatform* TutorialGame::AddVictoryPlatformToWorld(const Vector3& position
 	victoryPlatform->SetPhysicsObject(new PhysicsObject(&victoryPlatform->GetTransform(), victoryPlatform->GetBoundingVolume()));
 	victoryPlatform->GetPhysicsObject()->SetInverseMass(0);
 	victoryPlatform->GetPhysicsObject()->InitCubeInertia();
-	victoryPlatform->GetRenderObject()->SetColour(Vector4(0, 1.0f, 0, 1.0f));
+	victoryPlatform->GetRenderObject()->SetColour(Vector4(0, 1.0f, 0, 0.3f));
 
 	world->AddGameObject(victoryPlatform);
 	updateObjects.push_back(victoryPlatform);
@@ -121,7 +121,7 @@ GameObject* TutorialGame::AddSphereCastToWorld()
 	sphere->GetPhysicsObject()->SetInverseMass(0.0f);
 	sphere->GetPhysicsObject()->InitSphereInertia();
 
-	sphere->GetRenderObject()->SetColour(Vector4(0, 1, 0, 0.8f));
+	sphere->GetRenderObject()->SetColour(Vector4(0, 1, 0, 0.3f));
 
 
 	world->AddGameObject(sphere);
@@ -149,6 +149,9 @@ Kitten* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, Ga
 	sphere->SetLayerID(Layers::LayerID::Enemy);
 	sphere->SetTag(Tags::Kitten);
 
+	sphere->GetRenderObject()->SetColour(Vector4(0.0f, 1.0f, 1.0f, 1.0f));
+
+
 	kittens.push_back(sphere);
 	world->AddGameObject(sphere);
 	updateObjects.push_back(sphere);
@@ -162,7 +165,7 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 	float inverseMass = 0.5f;
 
 	enemies = new EnemyGameObject(navMesh);
-	enemies->SetRay([&](Ray& r, RayCollision& closestCollision, bool closestObject) -> bool { return world->Raycast(r, closestCollision, closestObject); });
+	enemies->SetRay([&](Ray& r, float rayDis) -> bool { return RayCastNavWorld(r, rayDis); });
 	enemies->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
 
 	SphereVolume* volume = new SphereVolume(1.0f);
@@ -179,6 +182,8 @@ EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
 
 	enemies->GetPhysicsObject()->SetInverseMass(inverseMass);
 	enemies->GetPhysicsObject()->InitSphereInertia();
+	enemies->GetRenderObject()->SetColour(Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+
 
 	world->AddGameObject(enemies);
 
@@ -275,6 +280,7 @@ GameObject* TutorialGame::AddSphereToWorld(const Vector3& position, float radius
 
 	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
 	sphere->GetPhysicsObject()->InitSphereInertia();
+	sphere->SetRestitution(0.5f);
 
 	world->AddGameObject(sphere);
 	return sphere;

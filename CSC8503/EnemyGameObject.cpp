@@ -20,22 +20,21 @@ EnemyGameObject::~EnemyGameObject() {
     delete sequence;
 }
 
-bool EnemyGameObject::RayCastPlayer() 
+bool EnemyGameObject::CanSeePlayer()
 {
     Vector3 playerPos = getPlayerPos();
     Vector3 enemyPos = this->GetTransform().GetPosition();
+
     enemyPos.y += yOffSet;
     playerPos.y += yOffSet;
 
-    Vector3 playerToEnemy =  playerPos - enemyPos;
-
+    Vector3 playerToEnemy = (playerPos - enemyPos);
+    auto len = Vector::Length(playerToEnemy);
     Ray ray = Ray(enemyPos, playerToEnemy);
-    playerDis = Vector::Length(playerToEnemy);
 
-    RayCollision closestCollision;
+    if (rayHit(ray, len))
+        return false;
 
-    if (rayHit(ray, closestCollision, true))
-        return true;
-    return false;
+    return true;
 }
 

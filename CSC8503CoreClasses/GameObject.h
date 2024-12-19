@@ -95,6 +95,10 @@ namespace NCL::CSC8503 {
 		void AddToIgnoredLayers(Layers::LayerID layerID) { ignoreLayers.push_back(layerID); }
 		const std::vector<Layers::LayerID>& GetIgnoredLayers() const { return ignoreLayers; }
 
+		float GetRestitution() { return restitution; }
+		void SetRestitution(float newRestitution) { restitution = newRestitution;}
+
+
 	protected:
 		Transform			transform;
 
@@ -105,7 +109,7 @@ namespace NCL::CSC8503 {
 
 		bool isActive;
 		int	worldID;
-		float physicsR = 0.2f; 
+		float restitution = 0.2f; 
 
 		Layers::LayerID	layerID;
 		Tags::Tag	tag;

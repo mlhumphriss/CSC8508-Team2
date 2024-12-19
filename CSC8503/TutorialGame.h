@@ -66,6 +66,8 @@ namespace NCL {
 			Vector3 GetPlayerPos();
 			void SphereCastWorld();
 
+			bool RayCastNavWorld(Ray& r, float rayDistance);
+
 			void  CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation);
 			std::vector<Vector3>  GetVertices(Mesh* navigationMesh, int i);
 
@@ -88,6 +90,8 @@ namespace NCL {
 			bool hasWon = false;
 
 			float		forceMagnitude;
+			float time = 0;
+			int score = 0;
 
 			GameObject* selectionObject = nullptr;
 

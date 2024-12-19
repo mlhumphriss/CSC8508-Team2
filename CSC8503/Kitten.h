@@ -28,6 +28,13 @@ namespace NCL {
 
             void Update(float dt) override
             {
+                if (!alive) {
+                    selected = false;
+                    Quaternion rot = Quaternion::AxisAngleToQuaterion(Vector3(1, 0, 0), 90);
+                    this->GetTransform().SetOrientation(rot);
+                    return;
+                }
+
                 if (state != Ongoing) {
                     sequence->Reset();
                     state = Ongoing;
