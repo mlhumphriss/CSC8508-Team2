@@ -152,6 +152,10 @@ bool TutorialGame::OnEndGame(float dt) {
 	return false;
 }
 
+void TutorialGame::UpdateScore(float score) {
+	this->score += score;
+}
+
 void TutorialGame::UpdateDrawScreen(float dt) {
 	time += dt;
 	Debug::Print("Score: " + std::to_string(score), Vector2(70, 20));
@@ -177,10 +181,10 @@ void TutorialGame::UpdateGame(float dt)
 		obj->Update(dt);
 	}
 
-	//Window::GetWindow()->ShowOSPointer(true);
+	Window::GetWindow()->ShowOSPointer(true);
 	//Window::GetWindow()->LockMouseToWindow(true);
-
 	//world->UpdateWorld(dt);
+
 	physics->Update(dt);
 	UpdateCamera(dt);
 	SphereCastWorld();
@@ -360,6 +364,8 @@ void TutorialGame::InitGameExamples()
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
 	//AddPlayerToWorld(Vector3(90, 22, -50));
 	AddEnemyToWorld(Vector3(5, 30, 0)); 
+	AddCollectMeToWorld(Vector3(5, 15, 0), Vector3(2,2,2));
+
 	AddSwarmToWorld(Vector3(75, 22, -50));
 	AddVictoryPlatformToWorld(Vector3(-100, 0, 25), Vector3(10, 20, 10));
 }

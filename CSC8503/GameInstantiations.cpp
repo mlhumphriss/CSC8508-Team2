@@ -35,6 +35,28 @@ VictoryPlatform* TutorialGame::AddVictoryPlatformToWorld(const Vector3& position
 	return victoryPlatform;
 }
 
+CollectMe* TutorialGame::AddCollectMeToWorld(const Vector3& position, Vector3 dimensions) {
+
+
+	auto victoryPlatform = new CollectMe(10.f);
+	OBBVolume* volume = new OBBVolume(dimensions);
+
+	victoryPlatform->SetBoundingVolume((CollisionVolume*)volume);
+	victoryPlatform->GetTransform().SetScale(dimensions * 2.0f).SetPosition(position);
+	victoryPlatform->SetRenderObject(new RenderObject(&victoryPlatform->GetTransform(), bonusMesh, basicTex, basicShader));
+	victoryPlatform->SetPhysicsObject(new PhysicsObject(&victoryPlatform->GetTransform(), victoryPlatform->GetBoundingVolume()));
+	victoryPlatform->GetPhysicsObject()->SetInverseMass(0);
+	victoryPlatform->GetPhysicsObject()->InitCubeInertia();
+	victoryPlatform->GetRenderObject()->SetColour(Vector4(0, 0, 1, 0.9f));
+
+	world->AddGameObject(victoryPlatform);
+	updateObjects.push_back(victoryPlatform);
+
+
+	return victoryPlatform;
+}
+
+
 
 GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions)
 {
@@ -89,6 +111,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	players->GetPhysicsObject()->SetInverseMass(inverseMass);
 	players->GetPhysicsObject()->InitSphereInertia();
 	players->SetEndGame([&](bool hasWon) {EndGame(hasWon); });
+	players->SetIncreaseScore([&](float score) {UpdateScore(score); });
 
 	players->AddToIgnoredLayers(Layers::Enemy);
 

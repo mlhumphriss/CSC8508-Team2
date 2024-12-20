@@ -2,6 +2,7 @@
 #include "PhysicsObject.h"
 #include "Ray.h"
 #include "Kitten.h"
+#include "CollectMe.h"
 
 #include "Window.h"
 
@@ -18,9 +19,15 @@ namespace NCL {
             ~PlayerGameObject();
 
             typedef std::function<void(bool hasWon)> EndGame;
+            typedef std::function<void(float points)> IncreaseScore;
+
 
             void SetEndGame(EndGame endGame) {
                 this->endGame = endGame;
+            }
+
+            void SetIncreaseScore(IncreaseScore increaseScore) {
+                this->increaseScore = increaseScore;
             }
 
             void SetController(const Controller& c) {
@@ -63,6 +70,17 @@ namespace NCL {
                         kitten->ThrowSelf(Vector::Normalise(this->GetPhysicsObject()->GetLinearVelocity()));
                     }
                 }
+                else if (otherObject->GetTag() == Tags::Collect)
+                {
+                    CollectMe* collect = static_cast<CollectMe*>(otherObject); 
+                    if (!collect->IsCollected()) 
+                    {
+                        increaseScore(collect->GetPoints());
+                        collect->SetCollected(true);
+                        collect->GetRenderObject()->SetColour(Vector4(0, 1, 0, 1));
+
+                    }
+                }
             }
 
 
@@ -71,6 +89,7 @@ namespace NCL {
             float speed = 5.0f;
             float	yaw;
             EndGame endGame;
+            IncreaseScore increaseScore;
         };
     }
 }

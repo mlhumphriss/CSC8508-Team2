@@ -16,6 +16,7 @@ set(PROJECT_NAME CSC8503)
 #    "Kitten.h"
 #    "NavMeshAgent.h"
 #    "VictoryPlatform.h"
+#    "CollectMe.h"
 #)
 file(GLOB Header_Files *.h)
 source_group("Header Files" FILES ${Header_Files})

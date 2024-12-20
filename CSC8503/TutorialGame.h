@@ -9,6 +9,7 @@
 #include "UpdateObject.h"
 #include "Swarm.h"
 #include "VictoryPlatform.h"
+#include "CollectMe.h"
 
 
 #pragma once
@@ -59,6 +60,7 @@ namespace NCL {
 			EnemyGameObject* AddEnemyToWorld(const Vector3& position);
 			Kitten* AddKittenToWorld(const Vector3& position, float radius, GameObject* swarm, float inverseMass = 10.0f);
 			VictoryPlatform* AddVictoryPlatformToWorld(const Vector3& position, Vector3 dimensions);
+			CollectMe* AddCollectMeToWorld(const Vector3& position, Vector3 dimensions);
 
 			Swarm* AddSwarmToWorld(const Vector3& position);
 			GameObject* AddBonusToWorld(const Vector3& position);
@@ -68,6 +70,7 @@ namespace NCL {
 
 			Vector3 GetPlayerPos();
 			void SphereCastWorld();
+			void UpdateScore(float points);
 
 			bool RayCastNavWorld(Ray& r, float rayDistance);
 			void UpdateDrawScreen(float dt);

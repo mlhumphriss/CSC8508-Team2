@@ -7,7 +7,7 @@ using std::vector;
 namespace NCL::CSC8503 {
 
 	namespace Tags {
-		enum Tag { Default, Player, Enemy, Kitten, CursorCast, Ground };
+		enum Tag { Default, Player, Enemy, Kitten, CursorCast, Ground, Collect };
 	}
 
 	namespace Layers {

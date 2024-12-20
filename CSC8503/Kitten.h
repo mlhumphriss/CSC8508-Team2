@@ -42,7 +42,7 @@ namespace NCL {
 
                 if (selected) {
                     state = sequence->Execute(dt);
-                    DisplayPathfinding(Vector4(0, 1, 0, 1));
+                    //DisplayPathfinding(Vector4(0, 1, 0, 1));
                     MoveAlongPath();
                 }
             }
