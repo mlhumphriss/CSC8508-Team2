@@ -74,7 +74,8 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	float inverseMass = 0.5f;
 
 	players = new PlayerGameObject();
-	SphereVolume* volume = new SphereVolume(0.5f);
+	//SphereVolume* volume = new SphereVolume(0.5f);
+	CapsuleVolume* volume = new CapsuleVolume(2.5f, 0.5f);
 
 	players->SetBoundingVolume((CollisionVolume*)volume);
 	players->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);

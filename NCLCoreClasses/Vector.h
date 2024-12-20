@@ -329,6 +329,27 @@ namespace NCL::Maths {
             return v;
         }
 
+
+        template <typename T>
+        constexpr VectorTemplate<T, 3> ClosestPointOnLineSegment(const VectorTemplate<T, 3>& lineStart,
+            const VectorTemplate<T, 3>& lineEnd,
+            const VectorTemplate<T, 3>& point) {
+
+            VectorTemplate<T, 3> lineDirection = lineEnd - lineStart;
+            T lineLengthSquared = Vector::Dot(lineDirection, lineDirection);
+
+            if (lineLengthSquared < std::numeric_limits<T>::epsilon())
+                return lineStart;
+
+            T t = Vector::Dot(point - lineStart, lineDirection) / lineLengthSquared;
+            t = std::clamp(t, static_cast<T>(0), static_cast<T>(1)); 
+
+            return lineStart + lineDirection * t;
+        }
+
+
+
+
         template <typename T, uint32_t n>
         constexpr T		GetAbsMaxElement(const VectorTemplate<T, n>& a) {
             float v = std::abs(a.array[0]);

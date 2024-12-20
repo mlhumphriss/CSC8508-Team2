@@ -87,8 +87,9 @@ void NetworkedGame::UpdateAsServer(float dt)
 		BroadcastSnapshot(false);
 		packetsToSnapshot = 5;
 	}
-	else 
+	else {
 		BroadcastSnapshot(true);
+	}
 
 	thisServer->UpdateServer();
 }
@@ -102,20 +103,13 @@ void NetworkedGame::UpdateAsClient(float dt)
 		BroadcastOwnedObjects(false);
 		packetsToSnapshot = 5;
 	}
-	else
-		BroadcastOwnedObjects(true);
-
-	if (Window::GetKeyboard()->KeyPressed(KeyCodes::SPACE)) {	
-
+	else {
 		ClientPacket newPacket;
-
-		newPacket.buttonstates[0] = 1;	
-		newPacket.lastID = 0; 	
-		thisClient->SendPacket(newPacket);	
-		std::cout << "Sending shot" << std::endl;
-
-
-	}		
+		newPacket.score = score;
+		newPacket.lastID = 0;
+		thisClient->SendPacket(newPacket);
+		BroadcastOwnedObjects(true);
+	}
 	thisClient->UpdateClient();
 }
 
@@ -139,12 +133,9 @@ void NetworkedGame::BroadcastOwnedObjects(bool deltaFrame) {
 		newPacket->type = Full_State;
 
 		if (o->WritePacket(&newPacket, deltaFrame, 0)) //lastAcknowledgedState
-		{
 			thisClient->SendPacket(*newPacket);
-		}
 		delete newPacket;
 	}
-
 }
 
 
@@ -174,6 +165,12 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 			}				
 			delete newPacket;
 		}
+
+		ClientPacket* scorePacket = new ClientPacket();
+		scorePacket->score = score;
+		scorePacket->lastID = 0;
+		thisServer->SendPacketToPeer(scorePacket, playerID);
+		delete scorePacket;
 	}
 }
 
