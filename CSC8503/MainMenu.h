@@ -20,13 +20,15 @@ namespace NCL {
 
 		typedef std::function<void()> StartClient;
 		typedef std::function<void()> StartServer;
+		typedef std::function<void()> StartOffline;
+
 
 		class MainMenu {
 
 		public:			
 			typedef std::function<void(bool state)> SetPauseGame;
 
-			MainMenu(SetPauseGame setPauseFunc, StartClient startClient, StartServer startServer);
+			MainMenu(SetPauseGame setPauseFunc, StartClient startClient, StartServer startServer, StartOffline startOffline);
 			~MainMenu();
 			void Update(float dt);
 			bool CheckUpdateGame();
@@ -34,6 +36,8 @@ namespace NCL {
 			SetPauseGame setPause;
 			StartClient startClient;
 			StartServer startServer;
+			StartOffline startOffline;
+
 
 		protected:
 			PushdownMachine* machine = nullptr;

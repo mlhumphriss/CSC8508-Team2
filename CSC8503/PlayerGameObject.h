@@ -46,7 +46,6 @@ namespace NCL {
                 dir += yawRotation * Vector3(activeController->GetNamedAxis("Sidestep"), 0, 0);
 
                 Matrix3 offsetRotation = Matrix::RotationMatrix3x3(-45.0f, Vector3(0, 1, 0));
-
                 dir = offsetRotation * dir;
 
                 this->GetPhysicsObject()->AddForce(dir * speed);

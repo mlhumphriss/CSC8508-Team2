@@ -300,8 +300,8 @@ void UpdateWindow(Window* w, NetworkedGame* g)
 int main(int argc, char** argv) 
 {
 	WindowInitialisation initInfo;
-	initInfo.width		= 1280;
-	initInfo.height		= 720;
+	initInfo.width		= 1920;
+	initInfo.height		= 1200;
 	initInfo.windowTitle = "CSC8503 Game technology!";
 
 	Window* w = Window::CreateGameWindow(initInfo);

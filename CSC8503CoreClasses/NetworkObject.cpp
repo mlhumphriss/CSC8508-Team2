@@ -15,9 +15,8 @@ NetworkObject::~NetworkObject()	{
 
 bool NetworkObject::WritePacket(GamePacket** p, bool deltaFrame, int stateID) {
 	if (deltaFrame) {
-		if (!WriteDeltaPacket(p, stateID)) {
+		if (!WriteDeltaPacket(p, stateID)) 
 			return WriteFullPacket(p);
-		}
 	}
 	return WriteFullPacket(p);
 }
@@ -62,19 +61,17 @@ bool NetworkObject::WriteDeltaPacket(GamePacket** p, int stateID) {
 }
 
 bool NetworkObject::ReadPacket(GamePacket& p) {
-	if (p.type == Delta_State) {
+	if (p.type == Delta_State) 
 		return ReadDeltaPacket((DeltaPacket&)p);
-	}
-	if (p.type == Full_State) {
+	if (p.type == Full_State) 
 		return ReadFullPacket((FullPacket&)p);
-	}
-	return false; // this isn't a packet we care about!
+	return false; 
 }
 
 bool NetworkObject::ReadDeltaPacket(DeltaPacket& p) {
-	if (p.fullID != lastFullState.stateID) {
-		return false; // can't delta this frame
-	}
+	if (p.fullID != lastFullState.stateID) 
+		return false; 
+
 	UpdateStateHistory(p.fullID);
 
 	Vector3 fullPos = lastFullState.position;
@@ -97,28 +94,23 @@ bool NetworkObject::ReadDeltaPacket(DeltaPacket& p) {
 bool NetworkObject::ReadFullPacket(FullPacket& p) 
 {
 	if (p.fullState.stateID < lastFullState.stateID) 
-	{
-		std::cout << "Old news" << std::endl;
 		return false; 
-	}
+
 	lastFullState = p.fullState;
 
 	object.GetTransform().SetPosition(lastFullState.position);
 	object.GetTransform().SetOrientation(lastFullState.orientation);
 
 	stateHistory.emplace_back(lastFullState);
-
 	return true;
 }
 
 void NetworkObject::UpdateStateHistory(int minID) {
 	for (auto i = stateHistory.begin(); i < stateHistory.end();) {
-		if ((*i).stateID < minID) {
+		if ((*i).stateID < minID) 
 			i = stateHistory.erase(i);
-		}
-		else {
+		else 
 			++i;
-		}
 	}
 }
 

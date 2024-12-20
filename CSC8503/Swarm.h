@@ -37,16 +37,6 @@ namespace NCL {
             }
 
             void Update(float dt) override {
-
-                //if (state != Ongoing) {
-                //    sequence->Reset();
-                //    state = Ongoing;
-                //}
-
-                //state = sequence->Execute(dt);
-               // DisplayPathfinding(Vector4(0, 1, 0, 1));
-                //MoveAlongPath();
-
                 this->GetTransform().SetPosition(getPlayerPos());
                 MoveObjectsAlongSwarm();
             }

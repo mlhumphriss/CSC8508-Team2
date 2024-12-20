@@ -40,6 +40,8 @@ void PhysicsObject::AddTorque(const Vector3& addedTorque) {
 	torque += addedTorque;
 }
 
+float PhysicsObject::GetFriction() { return friction; }
+
 void PhysicsObject::ClearForces() {
 	force				= Vector3();
 	torque				= Vector3();

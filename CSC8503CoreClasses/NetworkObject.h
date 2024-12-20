@@ -44,7 +44,7 @@ namespace NCL::CSC8503 {
 		virtual ~NetworkObject();
 		virtual bool ReadPacket(GamePacket& p);
 		virtual bool WritePacket(GamePacket** p, bool deltaFrame, int stateID);
-
+		int GetNetworkID() { return networkID; }
 		void UpdateStateHistory(int minID);
 
 	protected:

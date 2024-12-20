@@ -21,11 +21,12 @@ namespace NCL {
 			}
 		};
 
-		MainMenu::MainMenu(SetPauseGame setPauseFunc, StartClient startClient, StartServer startServer)
+		MainMenu::MainMenu(SetPauseGame setPauseFunc, StartClient startClient, StartServer startServer, StartOffline startOffline)
 		{
 			setPause = setPauseFunc;
 			this->startClient = startClient;
 			this->startServer = startServer;
+			this->startOffline = startOffline;
 
 			machine = new PushdownMachine(new OverlayScreen(
 				[&]() -> void { this->OnStateAwake(); },
@@ -96,6 +97,7 @@ namespace NCL {
 			}
 			if (Window::GetKeyboard()->KeyPressed(KeyCodes::B)) {
 				setPause(false);
+				startOffline();
 				return PushdownState::PushdownResult::Pop;
 			}
 			return PushdownState::PushdownResult::NoChange;

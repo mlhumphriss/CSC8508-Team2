@@ -25,13 +25,13 @@ void Kitten::ThrowSelf(Vector3 dir)
 {
     auto transform = this->GetTransform();
     auto pos = transform.GetPosition();
-    pos.y += 5.0f;   
+    pos.y += 3.0f;   
     
     selected = false;
 
-    transform.SetPosition(pos);
-    dir.y += 0.7f;
-    this->GetPhysicsObject()->AddForce(dir * 75.0f);
+    this->GetTransform().SetPosition(pos);
+    dir.y += 1.0f;
+    this->GetPhysicsObject()->AddForce(dir * 80.0f);
 
 }
 

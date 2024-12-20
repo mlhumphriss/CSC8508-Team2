@@ -43,10 +43,11 @@ namespace NCL {
                 Vector3 dir = target - pos;
 
                 dir = Vector::Normalise(dir);
-                dir.y += 0.2f;
+                
 
                 auto lastVelocity = this->GetPhysicsObject()->GetLinearVelocity();
                 dir *= speed;
+                dir.y += 0.1f;
                 dir.y = dir.y + lastVelocity.y;
                 this->GetPhysicsObject()->SetLinearVelocity(dir);
             }
@@ -93,7 +94,7 @@ namespace NCL {
                 return false;
             }
 
-            const bool smoothPath = false;
+            const bool smoothPath = true;
             Vector3 lastStart = Vector3(1,1,1);
             Vector3 lastEnd = Vector3(1,1,1);
             const float offset = 5.0f;

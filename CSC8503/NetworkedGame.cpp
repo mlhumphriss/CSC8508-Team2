@@ -20,6 +20,8 @@ struct MessagePacket : public GamePacket {
 
 void NetworkedGame::StartClientCallBack() { StartAsClient(127, 0, 0, 1); }
 void NetworkedGame::StartServerCallBack() { StartAsServer(); }
+void NetworkedGame::StartOfflineCallBack() { SpawnPlayer(); }
+
 
 NetworkedGame::NetworkedGame()	{
 	thisServer = nullptr;
@@ -27,7 +29,8 @@ NetworkedGame::NetworkedGame()	{
 
 	mainMenu = new MainMenu([&](bool state) -> void { this->SetPause(state); },
 		[&]() -> void { this->StartClientCallBack(); },
-		[&]() -> void { this->StartServerCallBack(); });
+		[&]() -> void { this->StartServerCallBack(); },
+		[&]() -> void { this->StartOfflineCallBack(); });
 
 	NetworkBase::Initialise();
 	timeToNextPacket  = 0.0f;
@@ -93,17 +96,56 @@ void NetworkedGame::UpdateAsServer(float dt)
 void NetworkedGame::UpdateAsClient(float dt) 
 {
 
+	packetsToSnapshot--;
+	if (packetsToSnapshot < 0)
+	{
+		BroadcastOwnedObjects(false);
+		packetsToSnapshot = 5;
+	}
+	else
+		BroadcastOwnedObjects(true);
+
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::SPACE)) {	
+
 		ClientPacket newPacket;
 
 		newPacket.buttonstates[0] = 1;	
 		newPacket.lastID = 0; 	
 		thisClient->SendPacket(newPacket);	
 		std::cout << "Sending shot" << std::endl;
+
+
 	}		
 	thisClient->UpdateClient();
 }
 
+
+void NetworkedGame::BroadcastOwnedObjects(bool deltaFrame) {
+
+	std::vector<GameObject*>::const_iterator first, last;
+	world->GetObjectIterators(first, last);
+
+	for (auto i = first; i != last; ++i)
+	{
+		NetworkObject* o = (*i)->GetNetworkObject();
+
+		if (!o)
+			continue;
+
+		if (o->GetNetworkID() == 0) // id of server for now hard coded
+			continue;
+
+		GamePacket* newPacket = new GamePacket();
+		newPacket->type = Full_State;
+
+		if (o->WritePacket(&newPacket, deltaFrame, 0)) //lastAcknowledgedState
+		{
+			thisClient->SendPacket(*newPacket);
+		}
+		delete newPacket;
+	}
+
+}
 
 
 void NetworkedGame::BroadcastSnapshot(bool deltaFrame) 
@@ -122,7 +164,6 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 			if (!o) 
 				continue;
 
-			std::cout << "Indexing network objects" << std::endl;
 			GamePacket* newPacket = new GamePacket();
 			newPacket->type = Full_State;
 
@@ -132,7 +173,6 @@ void NetworkedGame::BroadcastSnapshot(bool deltaFrame)
 				std::cout << "sending packet to peer" << std::endl;
 			}				
 			delete newPacket;
-
 		}
 	}
 }
@@ -171,7 +211,10 @@ void NetworkedGame::SpawnPlayer()
 
 void NetworkedGame::StartLevel() 
 {
-	SpawnPlayer();
+	//for (const auto& player : serverPlayers)
+	//{
+		SpawnPlayer();
+	//}
 }
 
 void NetworkedGame::ReceivePacket(int type, GamePacket* payload, int source)

@@ -34,8 +34,11 @@ namespace NCL {
 			void StartClientCallBack();
 			void StartServerCallBack();
 
+			void StartOfflineCallBack();
+
 
 			void BroadcastSnapshot(bool deltaFrame);
+			void BroadcastOwnedObjects(bool deltaFrame);
 			void UpdateMinimumState();
 			std::map<int, int> stateIDs;
 

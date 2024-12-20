@@ -48,7 +48,7 @@ namespace NCL {
 
 			void AddTorque(const Vector3& torque);
 
-
+			float GetFriction();
 			void ClearForces();
 
 			void SetLinearVelocity(const Vector3& v) {
