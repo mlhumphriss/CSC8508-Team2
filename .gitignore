@@ -8,7 +8,7 @@
 
 # Build directories
 /build/
-/CMakeBuildFiles/
+**/[Dd]ebug
 /bin/
 /lib/
 /obj/
@@ -18,17 +18,27 @@ Release/
 
 # CMake-specific
 CMakeCache.txt
-CMakeFiles/
-/cmake_install.cmake
 Makefile
 CTestTestfile.cmake
-/build
+/[Bb]uild
+CMakeLists.txt.user
+CMakeFiles
+CMakeBuildFiles
+CMakeScripts
+Testing
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
 # Compiled object files
 *.o
 *.obj
 *.so
 *.dll
 *.dylib
+*.lib
 *.a
 
 # Precompiled headers
