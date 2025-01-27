@@ -120,6 +120,7 @@ namespace NCL {
                     if (state == Initialise) {
                         SetPath(pos, playerPos);
                         testNodes.insert(testNodes.begin(), playerPos);
+                        outPathIndex++;
                         state = Ongoing;
                     }
                     else if (state == Ongoing)
@@ -127,6 +128,8 @@ namespace NCL {
                         if (CanSeePlayer()) {
                             SetPath(pos, playerPos);
                             testNodes.insert(testNodes.begin(), playerPos);
+                            outPathIndex++;
+
                             return state;
                         }
                         else if (Vector::Length(pos - testNodes[0]) < minWayPointDistanceOffset) 

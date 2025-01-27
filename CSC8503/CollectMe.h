@@ -58,11 +58,11 @@ namespace NCL {
 
 
 			State* A = new State([&](float dt) -> void {
-				data++;
+				data += 0.01f;
 				});
 
 			State* B = new State([&](float dt) -> void {
-				data--;
+				data -= 0.01f;
 				});
 		};
 	}

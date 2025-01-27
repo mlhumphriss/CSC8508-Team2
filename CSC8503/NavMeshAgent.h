@@ -23,7 +23,7 @@ namespace NCL {
                 this->navMesh = navMesh;
             }
 
-            //~NavMeshAgent();
+            ~NavMeshAgent() {}
 
             void MoveAlongPath()
             {
@@ -39,6 +39,7 @@ namespace NCL {
                         return;
                 }
 
+                std::cout << outPathIndex << std::endl;
                 Vector3 target = testNodes[outPathIndex];
                 Vector3 dir = target - pos;
 
@@ -94,7 +95,7 @@ namespace NCL {
                 return false;
             }
 
-            const bool smoothPath = true;
+            const bool smoothPath = false;
             Vector3 lastStart = Vector3(1,1,1);
             Vector3 lastEnd = Vector3(1,1,1);
             const float offset = 5.0f;
