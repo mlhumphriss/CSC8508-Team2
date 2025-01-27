@@ -8,6 +8,7 @@
 
 # Build directories
 /build/
+/CMakeBuildFiles/
 /bin/
 /lib/
 /obj/
@@ -28,7 +29,6 @@ CTestTestfile.cmake
 *.so
 *.dll
 *.dylib
-*.lib
 *.a
 
 # Precompiled headers
