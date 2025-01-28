@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
 
-project(CSC8503 CXX)
+project(CSC8508 CXX)
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
@@ -76,10 +76,10 @@ endif()
 # Sub-projects
 ################################################################################
 add_subdirectory(NCLCoreClasses)
-add_subdirectory(CSC8503CoreClasses)
+add_subdirectory(CSC8508CoreClasses)
 add_subdirectory(OpenGLRendering)
-add_subdirectory(CSC8503)
+add_subdirectory(CSC8508)
 if(USE_VULKAN)
     add_subdirectory(VulkanRendering)
 endif()
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT CSC8503)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT CSC8508)
