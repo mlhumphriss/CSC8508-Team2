@@ -1,15 +1,15 @@
 #include "../NCLCoreClasses/KeyboardMouseController.h"
 
 #include "NavigationGrid.h"
-#include "EnemyGameObject.h"
+#include "Legacy/EnemyGameObject.h"
 
 #include "NavigationMesh.h"
-#include "MainMenu.h"
+#include "Legacy/MainMenu.h"
 #include "Math.h"
-#include "UpdateObject.h"
-#include "Swarm.h"
-#include "VictoryPlatform.h"
-#include "CollectMe.h"
+#include "Legacy/UpdateObject.h"
+#include "Legacy/Swarm.h"
+#include "Legacy/VictoryPlatform.h"
+#include "Legacy/CollectMe.h"
 
 
 #pragma once
@@ -18,7 +18,7 @@
 #include "GameTechVulkanRenderer.h"
 #endif
 #include "PhysicsSystem.h"
-#include "PlayerGameObject.h"
+#include "Legacy/PlayerGameObject.h"
 
 namespace NCL {
 	namespace CSC8503 {

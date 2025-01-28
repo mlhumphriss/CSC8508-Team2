@@ -1,44 +1,8 @@
 set(PROJECT_NAME CSC8503)
 
-################################################################################
-# Source groups
-################################################################################
-#set(Header_Files
-#    "GameTechRenderer.h"
-#    "NetworkedGame.h"
-#    "NetworkPlayer.h"
-#    "StateGameObject.h"
-#    "EnemyGameObject.h"
-#    "TutorialGame.h"
-#    "MainMenu.h"
-#    "Swarm.h"
-#    "PlayerGameObject.h"
-#    "Kitten.h"
-#    "NavMeshAgent.h"
-#    "VictoryPlatform.h"
-#    "CollectMe.h"
-#)
-file(GLOB Header_Files *.h)
+file(GLOB_RECURSE Header_Files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 source_group("Header Files" FILES ${Header_Files})
-
-
-
-#set(Source_Files
-#    "GameTechRenderer.cpp"
-#    "Main.cpp"
-#    "NetworkedGame.cpp"
-#    "NetworkPlayer.cpp"
-#    "EnemyGameObject.cpp"
-#    "StateGameObject.cpp"
-#    "TutorialGame.cpp"
-#    "MainMenu.cpp"
-#    "Swarm.cpp"
-#    "Kitten.cpp"
-#    "PlayerGameObject.cpp"
-#    "GameInstantiations.cpp"
-#)
-
-file(GLOB Source_Files *.cpp)
+file(GLOB_RECURSE Source_Files "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
 if(USE_VULKAN)
 	file(GLOB SHADER_FILES ${ASSET_ROOT}/Shaders/VK/*.*)

@@ -3,12 +3,12 @@
 #include "PhysicsObject.h"
 #include "RenderObject.h"
 #include "TextureLoader.h"
-#include "EnemyGameObject.h"
-#include "Kitten.h"
+#include "Legacy/EnemyGameObject.h"
+#include "Legacy/Kitten.h"
 
 #include "PositionConstraint.h"
 #include "OrientationConstraint.h"
-#include "StateGameObject.h"
+#include "Legacy/StateGameObject.h"
 
 
 using namespace NCL;
