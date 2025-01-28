@@ -62,13 +62,9 @@ void TutorialGame::EndGame(bool hasWon) {
 void TutorialGame::InitialiseAssets() {
 	cubeMesh	= renderer->LoadMesh("cube.msh");
 	navigationMesh = renderer->LoadMesh("NavMeshObject.msh");
-	sphereMesh	= renderer->LoadMesh("sphere.msh");
-	catMesh		= renderer->LoadMesh("ORIGAMI_Chat.msh");
-	kittenMesh	= renderer->LoadMesh("Kitten.msh");
-
-	enemyMesh	= renderer->LoadMesh("Goose.msh");
-	bonusMesh	= renderer->LoadMesh("19463_Kitten_Head_v1.msh");
 	capsuleMesh = renderer->LoadMesh("capsule.msh");
+	sphereMesh = renderer->LoadMesh("sphere.msh");
+
 
 	basicTex	= renderer->LoadTexture("checkerboard.png");
 	basicShader = renderer->LoadShader("scene.vert", "scene.frag");
@@ -79,12 +75,10 @@ void TutorialGame::InitialiseAssets() {
 
 TutorialGame::~TutorialGame()	
 {
-	delete cubeMesh;
+	delete cubeMesh;	
+	delete capsuleMesh;
 	delete sphereMesh;
-	delete catMesh;
-	delete kittenMesh;
-	delete enemyMesh;
-	delete bonusMesh;
+
 
 	delete basicTex;
 	delete basicShader;
@@ -97,7 +91,6 @@ TutorialGame::~TutorialGame()
 	delete navMesh;
 
 	delete players;
-	delete swarm;
 }
 
 Vector3 TutorialGame::GetPlayerPos() {
@@ -143,9 +136,6 @@ bool TutorialGame::OnEndGame(float dt) {
 		renderer->Render();
 		renderer->Update(dt);
 		Debug::UpdateRenderables(dt);
-		Debug::Print(hasWon ? "Victory" : "Game Over", Vector2(40, 50));
-		Debug::Print("Score: " + std::to_string(score), Vector2(40, 40));
-		Debug::Print("Time: " + std::to_string(time), Vector2(40, 30));
 		return true;
 	}
 
@@ -187,8 +177,6 @@ void TutorialGame::UpdateGame(float dt)
 
 	physics->Update(dt);
 	UpdateCamera(dt);
-	SphereCastWorld();
-
 }
 
 void TutorialGame::LockedObjectMovement() 
@@ -222,8 +210,6 @@ void TutorialGame::InitWorld()
 {
 	world->ClearAndErase();
 	physics->Clear();
-	BridgeConstraintTest();
-	InitMixedGridWorld(2, 2, 3.5f, 3.5f);
 	InitGameExamples();
 }
 
@@ -271,50 +257,6 @@ bool TutorialGame::RayCastNavWorld(Ray& r, float rayLength)
 }
 
 
-void TutorialGame::SphereCastWorld()
-{	
-	
-	Vector3 intersection = Vector3(0,0,0);
-
-	if (!Window::GetMouse()->ButtonDown(NCL::MouseButtons::Left)) {
-		sphereCast->GetTransform().SetPosition(intersection);
-		return;
-	}
-
-	float t, u, v;
-	Ray mouseToWorld = CollisionDetection::BuildRayFromMouse(world->GetMainCamera());
-
-	Vector3 dir = Vector::Normalise(mouseToWorld.GetDirection());
-	Vector3 pos = mouseToWorld.GetPosition();
-
-	bool found = false;
-	float closestT = std::numeric_limits<float>::max();
-	Vector3 closestIntersection;
-
-	for (size_t i = 0; i < navigationMesh->GetSubMeshCount(); ++i) {
-		const SubMesh* subMesh = navigationMesh->GetSubMesh(i);
-
-		for (size_t j = subMesh->start; j < subMesh->start + subMesh->count; ++j) {
-			Vector3 a, b, c;
-			if (!navigationMesh->GetTriangle(j, a, b, c))
-				continue;
-
-			float t, u, v;
-			if (RayIntersectsTriangle(pos, dir, a, b, c, t, u, v) && t < closestT) {
-				closestT = t;
-				closestIntersection = pos + (dir * t);
-				found = true;
-			}
-		}
-	}
-
-	if (found) 
-		intersection = closestIntersection;
-
-	sphereCast->GetTransform().SetPosition(intersection);
-
-}
-
 const bool DebugCubeTransforms = false;
 
 void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& vertices, Vector3& position, Vector3& scale, Quaternion& rotation)
@@ -360,14 +302,7 @@ void  TutorialGame::CalculateCubeTransformations(const std::vector<Vector3>& ver
 
 void TutorialGame::InitGameExamples() 
 {	
-	AddSphereCastToWorld();
 	AddNavMeshToWorld(Vector3(0, 0, 0), Vector3(1, 1, 1));
-	//AddPlayerToWorld(Vector3(90, 22, -50));
-	AddEnemyToWorld(Vector3(5, 30, 0)); 
-	AddCollectMeToWorld(Vector3(5, 15, 0), Vector3(2,2,2));
-
-	AddSwarmToWorld(Vector3(75, 22, -50));
-	AddVictoryPlatformToWorld(Vector3(-100, 0, 25), Vector3(10, 20, 10));
 }
 
 void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius) {
@@ -379,44 +314,6 @@ void TutorialGame::InitSphereGridWorld(int numRows, int numCols, float rowSpacin
 	}
 	AddFloorToWorld(Vector3(0, -2, 0));
 }
-
-void TutorialGame::InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing) {
-	float sphereRadius = 1.0f;
-	Vector3 cubeDims = Vector3(1, 1, 1);
-
-	for (int x = 0; x < numCols; ++x) {
-		for (int z = 0; z < numRows; ++z) {
-			Vector3 position = Vector3(x * colSpacing, 25.0f, z * rowSpacing);
-			AddSphereToWorld(position, sphereRadius);
-		}
-	}
-}
-
-void TutorialGame::BridgeConstraintTest() 
-{
-	Vector3 cubeSize = Vector3(3, 3, 3);
-	float invCubeMass = 5;
-	int numLinks = 12;
-	float maxDistance = 10;
-	float cubeDistance = 2;
-	Vector3 startPos = Vector3(100, 90, 100);
-
-	GameObject* start = AddCubeToWorld(startPos + Vector3(0, 0, 0), cubeSize, 0);
-	GameObject* end = AddCubeToWorld(startPos + Vector3((numLinks + 2) * cubeDistance, 0, 0), cubeSize, 0);
-
-	GameObject* previous = start;
-
-	for (int i = 0; i < numLinks; ++i) {
-		GameObject* block = AddCubeToWorld(startPos + Vector3((i + 1) * cubeDistance, 0, 0), cubeSize, invCubeMass);
-		PositionConstraint* constraint = new PositionConstraint(previous, block, maxDistance);
-		world->AddConstraint(constraint);
-		previous = block;
-	}
-
-	PositionConstraint* constraint = new PositionConstraint(previous, end, maxDistance);
-	world->AddConstraint(constraint);
-}
-
 
 bool TutorialGame::SelectObject() {
 	if (Window::GetKeyboard()->KeyPressed(KeyCodes::Q)) {

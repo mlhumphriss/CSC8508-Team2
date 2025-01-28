@@ -1,15 +1,9 @@
 #include "../NCLCoreClasses/KeyboardMouseController.h"
-
 #include "NavigationGrid.h"
-#include "Legacy/EnemyGameObject.h"
-
 #include "NavigationMesh.h"
 #include "Legacy/MainMenu.h"
 #include "Math.h"
 #include "Legacy/UpdateObject.h"
-#include "Legacy/Swarm.h"
-#include "Legacy/VictoryPlatform.h"
-#include "Legacy/CollectMe.h"
 
 
 #pragma once
@@ -41,7 +35,6 @@ namespace NCL {
 
 			void InitSphereGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, float radius);
 			void InitMixedGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing);
-			void InitCubeGridWorld(int numRows, int numCols, float rowSpacing, float colSpacing, const Vector3& cubeDims);
 			void UpdateCamera(float dt);
 			void UpdateObjectSelectMode(float dt);
 			bool SelectObject();
@@ -57,14 +50,6 @@ namespace NCL {
 
 			GameObject* AddNavMeshToWorld(const Vector3& position, Vector3 dimensions);
 			GameObject* AddPlayerToWorld(const Vector3& position);
-			EnemyGameObject* AddEnemyToWorld(const Vector3& position);
-			Kitten* AddKittenToWorld(const Vector3& position, float radius, GameObject* swarm, float inverseMass = 10.0f);
-			VictoryPlatform* AddVictoryPlatformToWorld(const Vector3& position, Vector3 dimensions);
-			CollectMe* AddCollectMeToWorld(const Vector3& position, Vector3 dimensions);
-
-			Swarm* AddSwarmToWorld(const Vector3& position);
-			GameObject* AddBonusToWorld(const Vector3& position);
-			GameObject* AddSphereCastToWorld();
 
 			void EndGame(bool hasWon);
 
@@ -112,17 +97,9 @@ namespace NCL {
 			Texture*	basicTex	= nullptr;
 			Shader*		basicShader = nullptr;
 
-
-
 			Mesh*	capsuleMesh = nullptr;
 			Mesh*	cubeMesh	= nullptr;
 			Mesh*	sphereMesh	= nullptr;
-
-			Mesh*	catMesh		= nullptr;
-			Mesh*	kittenMesh	= nullptr;
-			Mesh*	enemyMesh	= nullptr;
-			Mesh*	bonusMesh	= nullptr;
-
 
 			MainMenu* mainMenu = nullptr;
 
@@ -144,12 +121,7 @@ namespace NCL {
 
 			GameObject* objClosest = nullptr;
 			PlayerGameObject* players = nullptr;
-			
-			GameObject* sphereCast = nullptr;
-
-			EnemyGameObject* enemies = nullptr;
-			vector<Kitten*> kittens = vector<Kitten*>();
-			Swarm* swarm = nullptr;
+		
 			vector<UpdateObject*> updateObjects = vector<UpdateObject*>();
 
 		};

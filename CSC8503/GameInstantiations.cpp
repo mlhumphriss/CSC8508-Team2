@@ -15,49 +15,6 @@ using namespace NCL;
 using namespace CSC8503;
 
 
-VictoryPlatform* TutorialGame::AddVictoryPlatformToWorld(const Vector3& position, Vector3 dimensions) {
-
-
-	VictoryPlatform* victoryPlatform = new VictoryPlatform([&](bool hasWon) {EndGame(hasWon);});
-	OBBVolume* volume = new OBBVolume(dimensions);
-
-	victoryPlatform->SetBoundingVolume((CollisionVolume*)volume);
-	victoryPlatform->GetTransform().SetScale(dimensions * 2.0f).SetPosition(position);
-	victoryPlatform->SetRenderObject(new RenderObject(&victoryPlatform->GetTransform(), cubeMesh, basicTex, basicShader));
-	victoryPlatform->SetPhysicsObject(new PhysicsObject(&victoryPlatform->GetTransform(), victoryPlatform->GetBoundingVolume()));
-	victoryPlatform->GetPhysicsObject()->SetInverseMass(0);
-	victoryPlatform->GetPhysicsObject()->InitCubeInertia();
-	victoryPlatform->GetRenderObject()->SetColour(Vector4(0, 1.0f, 0, 0.3f));
-
-	world->AddGameObject(victoryPlatform);
-	updateObjects.push_back(victoryPlatform);
-
-	return victoryPlatform;
-}
-
-CollectMe* TutorialGame::AddCollectMeToWorld(const Vector3& position, Vector3 dimensions) {
-
-
-	auto victoryPlatform = new CollectMe(10.f);
-	OBBVolume* volume = new OBBVolume(dimensions);
-
-	victoryPlatform->SetBoundingVolume((CollisionVolume*)volume);
-	victoryPlatform->GetTransform().SetScale(dimensions * 2.0f).SetPosition(position);
-	victoryPlatform->SetRenderObject(new RenderObject(&victoryPlatform->GetTransform(), bonusMesh, basicTex, basicShader));
-	victoryPlatform->SetPhysicsObject(new PhysicsObject(&victoryPlatform->GetTransform(), victoryPlatform->GetBoundingVolume()));
-	victoryPlatform->GetPhysicsObject()->SetInverseMass(0);
-	victoryPlatform->GetPhysicsObject()->InitCubeInertia();
-	victoryPlatform->GetRenderObject()->SetColour(Vector4(0, 0, 1, 0.9f));
-
-	world->AddGameObject(victoryPlatform);
-	updateObjects.push_back(victoryPlatform);
-
-
-	return victoryPlatform;
-}
-
-
-
 GameObject* TutorialGame::AddNavMeshToWorld(const Vector3& position, Vector3 dimensions)
 {
 	navMesh = new NavigationMesh("smalltest.navmesh");
@@ -96,7 +53,6 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	float inverseMass = 0.5f;
 
 	players = new PlayerGameObject();
-	//SphereVolume* volume = new SphereVolume(0.5f);
 	CapsuleVolume* volume = new CapsuleVolume(2.5f, 0.5f);
 
 	players->SetBoundingVolume((CollisionVolume*)volume);
@@ -105,7 +61,7 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	players->SetLayerID(Layers::LayerID::Player);
 	players->SetTag(Tags::Player);
 
-	players->SetRenderObject(new RenderObject(&players->GetTransform(), catMesh, nullptr, basicShader));
+	players->SetRenderObject(new RenderObject(&players->GetTransform(), capsuleMesh, nullptr, basicShader));
 	players->SetPhysicsObject(new PhysicsObject(&players->GetTransform(), players->GetBoundingVolume()));
 
 	players->GetPhysicsObject()->SetInverseMass(inverseMass);
@@ -124,151 +80,6 @@ GameObject* TutorialGame::AddPlayerToWorld(const Vector3& position) {
 	updateObjects.push_back(players);
 
 	return players;
-}
-
-
-GameObject* TutorialGame::AddSphereCastToWorld()
-{
-	float radius = 5;
-	GameObject* sphere = new GameObject();
-	Vector3 sphereSize = Vector3(radius, radius, radius);
-	SphereVolume* volume = new SphereVolume(radius);
-
-	sphere->SetLayerID(Layers::Ignore_Collisions);
-	sphere->SetTag(Tags::CursorCast);
-	sphere->SetBoundingVolume((CollisionVolume*)volume);
-	sphere->GetTransform().SetScale(sphereSize).SetPosition(Vector3(0,0,0));
-
-	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), sphereMesh, basicTex, basicShader));
-	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
-
-	sphere->GetPhysicsObject()->SetInverseMass(0.0f);
-	sphere->GetPhysicsObject()->InitSphereInertia();
-
-	sphere->GetRenderObject()->SetColour(Vector4(0, 1, 0, 0.3f));
-
-
-	world->AddGameObject(sphere);
-	sphereCast = sphere;
-	return sphere;
-}
-
-
-Kitten* TutorialGame::AddKittenToWorld(const Vector3& position, float radius, GameObject* swarm, float inverseMass)
-{
-	Kitten* sphere = new Kitten(navMesh, swarm);
-	Vector3 sphereSize = Vector3(radius, radius, radius);
-	
-	SphereVolume* volume = new SphereVolume(0.25f);
-
-	sphere->SetBoundingVolume((CollisionVolume*)volume);
-	sphere->GetTransform().SetScale(sphereSize).SetPosition(position);
-
-	sphere->SetRenderObject(new RenderObject(&sphere->GetTransform(), kittenMesh, basicTex, basicShader));
-	sphere->SetPhysicsObject(new PhysicsObject(&sphere->GetTransform(), sphere->GetBoundingVolume()));
-
-	sphere->GetPhysicsObject()->SetInverseMass(inverseMass);
-	sphere->GetPhysicsObject()->InitSphereInertia();
-
-	sphere->SetLayerID(Layers::LayerID::Enemy);
-	sphere->SetTag(Tags::Kitten);
-
-	sphere->GetRenderObject()->SetColour(Vector4(0.0f, 1.0f, 1.0f, 1.0f));
-
-
-	kittens.push_back(sphere);
-	world->AddGameObject(sphere);
-	updateObjects.push_back(sphere);
-
-	return sphere;
-}
-
-EnemyGameObject* TutorialGame::AddEnemyToWorld(const Vector3& position)
-{
-	float meshSize = 2.0f;
-	float inverseMass = 0.5f;
-
-	enemies = new EnemyGameObject(navMesh);
-	enemies->SetRay([&](Ray& r, float rayDis) -> bool { return RayCastNavWorld(r, rayDis); });
-	enemies->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
-
-	SphereVolume* volume = new SphereVolume(1.0f);
-
-	enemies->SetBoundingVolume((CollisionVolume*)volume);
-	enemies->SetLayerID(Layers::LayerID::Enemy);
-	enemies->SetTag(Tags::Enemy);
-
-
-	enemies->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-	
-	enemies->SetRenderObject(new RenderObject(&enemies->GetTransform(), enemyMesh, nullptr, basicShader));
-	enemies->SetPhysicsObject(new PhysicsObject(&enemies->GetTransform(), enemies->GetBoundingVolume()));
-
-	enemies->GetPhysicsObject()->SetInverseMass(inverseMass);
-	enemies->GetPhysicsObject()->InitSphereInertia();
-	enemies->GetRenderObject()->SetColour(Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-
-
-	world->AddGameObject(enemies);
-
-	updateObjects.push_back(enemies);
-	return enemies;
-}
-
-
-const bool setAsRenderedObject = false;
-
-Swarm* TutorialGame::AddSwarmToWorld(const Vector3& position)
-{
-	float meshSize = 0.6f;
-	float inverseMass = 0.5f;
-
-	swarm = new Swarm(navMesh);
-
-	swarm->SetGetPlayer([&]() -> Vector3 { return GetPlayerPos(); });
-
-	if (setAsRenderedObject) {	
-		SphereVolume* volume = new SphereVolume(meshSize);
-		swarm->SetLayerID(Layers::LayerID::Enemy);
-		swarm->SetBoundingVolume((CollisionVolume*)volume);
-		swarm->GetTransform().SetScale(Vector3(meshSize, meshSize, meshSize)).SetPosition(position);
-		swarm->SetRenderObject(new RenderObject(&swarm->GetTransform(), sphereMesh, nullptr, basicShader));
-		swarm->SetPhysicsObject(new PhysicsObject(&swarm->GetTransform(), swarm->GetBoundingVolume()));
-		swarm->GetPhysicsObject()->SetInverseMass(inverseMass);
-		swarm->GetPhysicsObject()->InitSphereInertia();
-	}
-
-	world->AddGameObject(swarm);
-
-
-	auto offset = Vector3(0.3f, 0, 0.3f);
-
-	for (float i = 0; i < 99; i++) {
-		swarm->AddObjectToSwarm(AddKittenToWorld(position + (offset * i), 1, swarm));
-	}
-
-	updateObjects.push_back(swarm);
-	return swarm;
-}
-
-GameObject* TutorialGame::AddBonusToWorld(const Vector3& position) {
-	GameObject* apple = new GameObject();
-
-	SphereVolume* volume = new SphereVolume(0.5f);
-	apple->SetBoundingVolume((CollisionVolume*)volume);
-	apple->GetTransform()
-		.SetScale(Vector3(2, 2, 2))
-		.SetPosition(position);
-
-	apple->SetRenderObject(new RenderObject(&apple->GetTransform(), bonusMesh, nullptr, basicShader));
-	apple->SetPhysicsObject(new PhysicsObject(&apple->GetTransform(), apple->GetBoundingVolume()));
-
-	apple->GetPhysicsObject()->SetInverseMass(1.0f);
-	apple->GetPhysicsObject()->InitSphereInertia();
-
-	world->AddGameObject(apple);
-
-	return apple;
 }
 
 GameObject* TutorialGame::AddFloorToWorld(const Vector3& position)
